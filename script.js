@@ -1,28 +1,45 @@
-const signBtn = document.getElementById('sign-btn');
-const countDisplay = document.getElementById('signature-count');
-let count = 12405182;
+let count = 0;
+const goal = 150000;
+const countEl = document.getElementById('count');
+const barEl = document.getElementById('bar');
+const signBtn = document.getElementById('signBtn');
 
-// Check if already signed
-if (localStorage.getItem('carrickSigned') === 'true') {
-    setSignedState();
+// This simulates a high-frequency "global" update every 0.1ms 
+// Note: Human eyes see ~60fps, so we update the logic fast but visual slightly slower for performance
+function autoIncrement() {
+    setInterval(() => {
+        if (count < goal) {
+            // Randomly jump by small amounts to look "live"
+            count += Math.floor(Math.random() * 2); 
+            updateDisplay();
+        }
+    }, 0.1); 
+}
+
+function updateDisplay() {
+    countEl.innerText = count.toLocaleString();
+    let percentage = (count / goal) * 100;
+    barEl.style.width = percentage + "%";
 }
 
 signBtn.addEventListener('click', () => {
-    if (localStorage.getItem('carrickSigned') !== 'true') {
+    if (!signBtn.classList.contains('signed')) {
         signBtn.innerText = "SIGNING...";
-        signBtn.disabled = true;
-
+        
         setTimeout(() => {
-            count++;
-            countDisplay.innerText = count.toLocaleString();
-            localStorage.setItem('carrickSigned', 'true');
-            setSignedState();
-        }, 1500);
+            count += 100; // Big jump when you sign
+            updateDisplay();
+            signBtn.innerText = "YOU'VE ALREADY SIGNED";
+            signBtn.classList.add('signed');
+            localStorage.setItem('hasSigned', 'true');
+        }, 800);
     }
 });
 
-function setSignedState() {
+// Check if user already signed on refresh
+if(localStorage.getItem('hasSigned')) {
     signBtn.innerText = "YOU'VE ALREADY SIGNED";
     signBtn.classList.add('signed');
-    signBtn.disabled = true;
 }
+
+autoIncrement();
