@@ -3,41 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CARRICK IN | 26/27 Petition</title>
+    <title>CARRICK 26/27</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <p class="subtitle">MANCHESTER UNITED</p>
-            <h1 class="main-title">STAY</h1>
-            <div class="stamp-box">
-                <span class="stamp">CARRICK IN</span>
+    <div class="main-layout">
+        <div class="content-wrapper">
+            <div class="hero-section">
+                <div class="stamp-container">
+                    <h2 class="title-top">CARRICK</h2>
+                    <div class="fuera-stamp">IN</div>
+                </div>
+                <p class="description">
+                    The 26/27 season belongs to Michael. Don't let the progress fade. 
+                    If you believe in the vision, sign the petition and stand for the future.
+                </p>
             </div>
-        </div>
 
-        <div class="manifesto">
-            <p>Mancunians, make your voice heard. Michael has brought the DNA back to Old Trafford. If you believe the 26/27 season belongs to him — sign this petition and stand for the future of the club.</p>
-        </div>
+            <div class="stats-card">
+                <div class="counter-group">
+                    <h1 id="count">0</h1>
+                    <p class="label">SUPPORTERS SIGNED</p>
+                </div>
+                
+                <div class="goal-group">
+                    <span id="goal-num">150,000</span>
+                    <span class="goal-label">GOAL</span>
+                </div>
 
-        <div class="counter-card">
-            <div class="count-wrapper">
-                <h2 id="signature-count">12,405,182</h2>
-                <p>REDS SIGNED</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="bar"></div>
+                </div>
             </div>
-            <div class="goal-wrapper">
-                <span class="goal-text">15,000,000</span>
-                <span class="goal-label">GOAL</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-        </div>
 
-        <button id="sign-btn" class="sign-button">SIGN THE PETITION</button>
-        
-        <div class="footer">
-            <p>#GGMU | THE THEATRE OF DREAMS</p>
+            <button id="signBtn" class="action-btn">SIGN THE PETITION</button>
+            <p class="footer-note">No account needed · Share to grow the movement</p>
         </div>
     </div>
     <script src="script.js"></script>
