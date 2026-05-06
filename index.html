@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CARRICK 26/27 | THE FUTURE</title>
+    <title>CARRICK 26/27 | UNSTOPPABLE</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --manc-red: #ff0000;
-            --glow: 0 0 20px rgba(255, 0, 0, 0.6);
+            --glow: 0 0 25px rgba(255, 0, 0, 0.7);
             --glass: rgba(255, 255, 255, 0.03);
         }
 
         body {
-            background-color: #030303;
+            background-color: #020202;
             color: white;
             font-family: 'Inter', sans-serif;
             margin: 0;
@@ -22,252 +22,243 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 20px;
+            overflow-x: hidden;
         }
 
-        /* Fancy Background Glow */
-        body::before {
+        /* Top Border Glow */
+        body::after {
             content: "";
             position: fixed;
-            top: -10%;
-            width: 100%;
-            height: 40%;
-            background: radial-gradient(circle, rgba(218, 41, 28, 0.15) 0%, transparent 70%);
-            z-index: -1;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--manc-red);
+            box-shadow: var(--glow);
+            z-index: 100;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 50px;
+            margin: 60px 0 40px;
         }
 
         .carrick-title {
             font-family: 'Archivo Black', sans-serif;
-            font-size: clamp(3rem, 10vw, 5rem);
-            letter-spacing: -4px;
+            font-size: clamp(3.5rem, 12vw, 6rem);
+            letter-spacing: -5px;
             margin: 0;
             text-transform: uppercase;
-            line-height: 0.85;
+            line-height: 0.8;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
         }
 
         .stamp {
             display: inline-block;
-            border: 6px solid var(--manc-red);
+            border: 8px solid var(--manc-red);
             padding: 10px 40px;
             color: var(--manc-red);
             font-family: 'Archivo Black', sans-serif;
-            font-size: clamp(2.5rem, 8vw, 4rem);
-            transform: rotate(-6deg);
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            transform: rotate(-7deg) translateY(-10px);
             box-shadow: var(--glow);
-            margin-top: 20px;
+            margin-top: 25px;
             text-transform: uppercase;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.8);
         }
 
-        /* The Petition Card */
+        /* Stats Card */
         .card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
             width: 100%;
-            max-width: 600px;
-            padding: 50px 30px;
-            border-radius: 12px;
+            max-width: 650px;
+            padding: 60px 40px;
+            border-radius: 4px;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin-top: 20px;
         }
 
         #counter {
-            font-size: clamp(4rem, 12vw, 6.5rem);
+            font-size: clamp(4.5rem, 15vw, 7.5rem);
             font-weight: 900;
-            letter-spacing: -5px;
+            letter-spacing: -6px;
             margin: 0;
-            line-height: 1;
+            line-height: 0.9;
         }
 
         .label {
-            color: #666;
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: 3px;
-            margin: 15px 0 35px;
+            color: #555;
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            margin: 10px 0 40px;
             text-transform: uppercase;
         }
 
-        .bar-container { width: 100%; margin-top: 10px; }
-        .goal-text { display: flex; justify-content: space-between; color: var(--manc-red); font-weight: 900; font-size: 0.8rem; margin-bottom: 8px; }
-        .bar-bg { width: 100%; height: 10px; background: #111; border-radius: 20px; overflow: hidden; }
-        .bar-fill { height: 100%; background: var(--manc-red); width: 0%; box-shadow: var(--glow); transition: width 0.8s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .bar-container { width: 100%; position: relative; }
+        .goal-text { display: flex; justify-content: space-between; color: var(--manc-red); font-weight: 900; font-size: 0.9rem; margin-bottom: 10px; }
+        .bar-bg { width: 100%; height: 12px; background: #151515; border-radius: 2px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--manc-red); width: 100% !important; box-shadow: var(--glow); }
 
         /* The Button */
         .btn {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             background: var(--manc-red);
             color: white;
             border: none;
-            padding: 25px;
-            font-size: 1.5rem;
+            padding: 30px;
+            font-size: 1.8rem;
             font-weight: 900;
-            margin-top: 30px;
+            margin-top: 20px;
             cursor: pointer;
             text-transform: uppercase;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
-            transition: 0.3s;
+            border-radius: 4px;
+            transition: 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.2);
         }
 
-        .btn:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(255, 0, 0, 0.5); }
-        .btn.signed { background: #111; color: #444; cursor: default; transform: none; box-shadow: none; }
+        .btn:hover { background: #ff1a1a; transform: scale(1.01); box-shadow: 0 20px 50px rgba(255, 0, 0, 0.4); }
+        .btn.signed { background: #111; color: #333; cursor: default; transform: none; box-shadow: none; }
 
-        /* Live Bot Comments */
-        .live-feed {
+        /* Bot Activity Feed */
+        .activity-box {
             width: 100%;
-            max-width: 600px;
-            margin-top: 40px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 8px;
-            padding: 20px;
-            height: 250px;
-            overflow: hidden;
-            position: relative;
+            max-width: 650px;
+            margin-top: 50px;
+            border-top: 1px solid #111;
+            padding-top: 30px;
         }
 
-        .feed-title { font-size: 0.7rem; font-weight: 900; color: #444; letter-spacing: 2px; margin-bottom: 15px; text-transform: uppercase; text-align: center;}
-        
+        .activity-header {
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: #333;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
         .comment {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            animation: slideIn 0.4s ease-out forwards;
+            background: rgba(255,255,255,0.01);
+            margin-bottom: 8px;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            border-left: 3px solid transparent;
+            animation: fadeIn 0.5s ease forwards;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+        .comment.new { border-left-color: var(--manc-red); background: rgba(255,0,0,0.03); }
 
-        .bot-name { color: var(--manc-red); font-weight: 800; }
-        .bot-msg { color: #ccc; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .footer { margin-top: 50px; color: #222; font-size: 0.7rem; font-weight: 900; letter-spacing: 2px; }
+        .bot-name { color: var(--manc-red); font-weight: 900; margin-right: 10px; }
+        .bot-msg { color: #888; }
+
+        .footer { margin: 80px 0 40px; color: #1a1a1a; font-size: 0.8rem; font-weight: 900; letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1 class="carrick-title">CARRICK</h1>
-        <div class="stamp">STAY 26/27</div>
+        <div class="stamp">KEEP HIM</div>
     </div>
 
     <div class="card">
         <h2 id="counter">0</h2>
-        <div class="label">MANCUNIANS UNITED</div>
+        <div class="label">MANCUNIANS SIGNED</div>
 
         <div class="bar-container">
             <div class="goal-text">
-                <span>PROGRESS</span>
+                <span>100.00% of goal</span>
                 <span>150,000 GOAL</span>
             </div>
             <div class="bar-bg">
-                <div class="bar-fill" id="progress"></div>
+                <div class="bar-fill"></div>
             </div>
         </div>
     </div>
 
-    <button id="signBtn" class="btn">Sign the Petition</button>
+    <button id="signBtn" class="btn">SIGN THE PETITION</button>
 
-    <div class="live-feed" id="feed">
-        <div class="feed-title">LIVE ACTIVITY FEED</div>
-        <div id="comment-list"></div>
+    <div class="activity-box">
+        <div class="activity-header">LIVE ACTIVITY FEED</div>
+        <div id="feed"></div>
     </div>
 
-    <div class="footer">#GGMU • NO BACKWARDS STEPS</div>
+    <div class="footer">GLORY GLORY MAN UNITED</div>
 
     <script>
-        const goal = 150000;
-        const countEl = document.getElementById('counter');
-        const barEl = document.getElementById('progress');
+        const counterEl = document.getElementById('counter');
         const btn = document.getElementById('signBtn');
-        const commentList = document.getElementById('comment-list');
+        const feed = document.getElementById('feed');
 
-        // 1. DYNAMIC PERSISTENT COUNTER (Goes fast!)
-        // Based on time since launch, jumps by 200+ on refresh
-        const startTime = new Date("May 6, 2026 08:00:00").getTime();
+        // MATH: Jumps ~150-300 signs per refresh, blows past 150k
+        const startTime = new Date("May 6, 2026 09:00:00").getTime();
         
-        function getLiveCount() {
+        function getCount() {
             const now = new Date().getTime();
-            const elapsedSeconds = (now - startTime) / 1000;
-            // Base 95k + 15 signs per second (Roughly 900 per minute jump)
-            let current = 95240 + (elapsedSeconds * 15.5);
-            return Math.min(current, goal);
+            const elapsed = (now - startTime) / 1000;
+            // Starts at 168k and grows by 18.5 per second
+            return Math.floor(168420 + (elapsed * 18.5));
         }
 
-        let currentCount = getLiveCount();
+        let currentCount = getCount();
 
-        function updateUI() {
-            countEl.innerText = Math.floor(currentCount).toLocaleString();
-            let percent = (currentCount / goal) * 100;
-            barEl.style.width = percent + "%";
+        function updateDisplay() {
+            counterEl.innerText = currentCount.toLocaleString();
         }
 
-        // Fast update while on page
+        // Fast Live Ticking
         setInterval(() => {
-            if (currentCount < goal) {
-                currentCount += (Math.random() * 2);
-                updateUI();
-            }
-        }, 150);
+            currentCount += Math.floor(Math.random() * 3);
+            updateDisplay();
+        }, 100);
 
-        // 2. BOT COMMENT LOGIC
-        const botNames = ["UtdXtra", "MancBorn", "RedDevil99", "SirAlexVibe", "CarrickBall", "TheStretfordEnd", "BrunoFan", "TenHagLegacy", "OldTraffordKing"];
-        const botMsgs = ["Signed! He's the one.", "Don't let him leave.", "The DNA is back.", "Keep the progress going!", "Carrick in 26/27!", "Best manager since SAF.", "We can't go back now.", "Signed from Manchester!", "Get it done Board."];
+        // BOT SYSTEM
+        const users = ["MancUni", "RashyFan", "StretfordEnd88", "UnitedWay", "CarrickEra", "RedArmy", "GGMU_26", "TheaterOfDreams", "DevilNews"];
+        const texts = ["Sign it now!", "We need him for 26/27.", "The board better listen.", "Carrick is cooking.", "Don't kill the progress.", "Just signed from Salford!", "Stay Michael!", "He's the one."];
 
-        function addComment() {
-            const name = botNames[Math.floor(Math.random() * botNames.length)];
-            const msg = botMsgs[Math.floor(Math.random() * botMsgs.length)];
-            
+        function spawnComment(isUser = false) {
             const div = document.createElement('div');
-            div.className = 'comment';
-            div.innerHTML = `<span class="bot-name">${name}</span> <span class="bot-msg">${msg}</span>`;
+            div.className = 'comment' + (isUser ? ' new' : '');
             
-            commentList.prepend(div);
-            if (commentList.children.length > 5) {
-                commentList.removeChild(commentList.lastChild);
-            }
+            const name = isUser ? "YOU" : users[Math.floor(Math.random() * users.length)];
+            const msg = isUser ? "JUST SIGNED THE PETITION!" : texts[Math.floor(Math.random() * texts.length)];
+            
+            div.innerHTML = `<span class="bot-name">${name}</span><span class="bot-msg">${msg}</span>`;
+            
+            feed.prepend(div);
+            if (feed.children.length > 6) feed.removeChild(feed.lastChild);
         }
-
-        // Bots comment every 1-3 seconds
-        setInterval(addComment, 2500);
 
         btn.addEventListener('click', () => {
             if (!btn.classList.contains('signed')) {
                 btn.innerText = "SIGNING...";
                 setTimeout(() => {
-                    currentCount += 250; 
-                    updateUI();
-                    btn.innerText = "ALREADY SIGNED";
+                    currentCount += 450;
+                    updateDisplay();
+                    btn.innerText = "YOU'VE ALREADY SIGNED";
                     btn.classList.add('signed');
-                    localStorage.setItem('carrick_signed', 'true');
-                    
-                    const myDiv = document.createElement('div');
-                    myDiv.className = 'comment';
-                    myDiv.innerHTML = `<span class="bot-name" style="color:#fff">YOU</span> <span class="bot-msg">JUST SIGNED THE PETITION!</span>`;
-                    commentList.prepend(myDiv);
-                }, 1000);
+                    localStorage.setItem('signed_carrick_26', 'true');
+                    spawnComment(true);
+                }, 800);
             }
         });
 
-        if (localStorage.getItem('carrick_signed')) {
-            btn.innerText = "ALREADY SIGNED";
+        if (localStorage.getItem('signed_carrick_26')) {
+            btn.innerText = "YOU'VE ALREADY SIGNED";
             btn.classList.add('signed');
         }
 
-        updateUI();
-        for(let i=0; i<3; i++) addComment(); // Pre-load some comments
+        // Kick off bots
+        updateDisplay();
+        setInterval(spawnComment, 2000);
+        for(let i=0; i<4; i++) spawnComment();
     </script>
 </body>
 </html>
