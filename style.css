@@ -1,1 +1,14 @@
-
+body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+.wrap { width: 400px; }
+.header-vibe { border-left: 2px solid #DA291C; padding-left: 15px; margin-bottom: 30px; color: #666; font-size: 13px; font-style: italic; }
+.card { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 30px; border-radius: 8px; position: relative; }
+#count { font-size: 60px; margin: 0; font-weight: 800; letter-spacing: -2px; }
+.label { color: #444; font-size: 12px; margin-top: -5px; }
+.goal-box { position: absolute; top: 30px; right: 30px; text-align: right; }
+.red-text { color: #DA291C; font-weight: bold; display: block; font-size: 20px; }
+.tiny { font-size: 10px; color: #333; }
+.bar-bg { background: #111; height: 4px; margin-top: 30px; border-radius: 5px; }
+#fill { background: #DA291C; height: 100%; width: 0%; transition: 1s; box-shadow: 0 0 10px #DA291C; }
+.stats-footer { text-align: right; font-size: 10px; color: #222; margin-top: 5px; }
+#sign-btn { width: 100%; margin-top: 20px; background: none; border: 1px solid #DA291C; color: #DA291C; padding: 20px; font-weight: bold; cursor: pointer; letter-spacing: 2px; }
+#sign-btn:disabled { border-color: #222; color: #444; }
