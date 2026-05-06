@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CARRICK 26/27 | KEEP HIM</title>
+    <title>CARRICK 26/27 | THE FUTURE</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@900&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --manc-red: #ff0000;
-            --dark-red: #8b0000;
-            --bg-black: #080808;
+            --bg-black: #050505;
+            --card-bg: #0d0d0d;
         }
 
         body {
@@ -21,192 +21,207 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             min-height: 100vh;
-            padding-top: 50px;
+            overflow-x: hidden;
         }
 
-        /* The "FUERA" style Stamp */
-        .header-container {
+        /* Aggressive Vibe Header */
+        .header-box {
             text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .title-main {
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 3rem;
-            letter-spacing: -2px;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
-        .stamp-box {
-            display: inline-block;
-            border: 8px solid var(--manc-red);
-            padding: 5px 25px;
-            color: var(--manc-red);
-            font-family: 'Archivo Black', sans-serif;
-            font-size: 5rem;
-            transform: rotate(-7deg) translateY(-10px);
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
-            margin-top: 10px;
-            text-transform: uppercase;
-        }
-
-        /* Text Fixes */
-        .manifesto {
-            max-width: 450px;
-            text-align: center;
-            color: #999;
-            font-size: 1.1rem;
-            line-height: 1.4;
-            margin: 40px 20px;
-            border-left: 3px solid var(--manc-red);
-            padding-left: 15px;
-        }
-
-        /* The Stats Card */
-        .petition-card {
-            background: #111;
-            width: 90%;
-            max-width: 550px;
-            padding: 50px 30px;
-            border-radius: 4px;
-            border: 1px solid #222;
-            text-align: center;
-        }
-
-        #sig-count {
-            font-size: 5rem;
-            font-weight: 900;
-            letter-spacing: -4px;
-            margin: 0;
-            display: block;
-        }
-
-        .label-reds {
-            color: #555;
-            font-weight: bold;
-            font-size: 0.9rem;
-            letter-spacing: 2px;
             margin-bottom: 30px;
         }
 
-        .goal-flex {
+        .carrick-text {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: -3px;
+            margin: 0;
+            text-transform: uppercase;
+            line-height: 0.8;
+        }
+
+        .keep-stamp {
+            display: inline-block;
+            border: 8px solid var(--manc-red);
+            padding: 5px 30px;
+            color: var(--manc-red);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 5rem;
+            transform: rotate(-8deg) translateY(-10px);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+            margin-top: 15px;
+            text-transform: uppercase;
+        }
+
+        .manifesto {
+            max-width: 420px;
+            text-align: center;
+            color: #777;
+            font-size: 1rem;
+            line-height: 1.4;
+            margin: 30px 20px;
+        }
+
+        /* The Petition Card */
+        .card {
+            background: var(--card-bg);
+            width: 90%;
+            max-width: 500px;
+            padding: 40px 20px;
+            border-radius: 8px;
+            border: 1px solid #1a1a1a;
+            text-align: center;
+        }
+
+        #counter {
+            font-size: 5.5rem;
+            font-weight: 900;
+            letter-spacing: -4px;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .label {
+            color: #444;
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #222;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--manc-red);
+            width: 0%;
+            box-shadow: 0 0 20px var(--manc-red);
+            transition: width 0.5s ease-out;
+        }
+
+        .goal-info {
             display: flex;
             justify-content: flex-end;
             color: var(--manc-red);
             font-weight: 900;
-            font-size: 1.1rem;
-        }
-
-        .progress-bg {
-            width: 100%;
-            height: 8px;
-            background: #222;
-            margin-top: 10px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--manc-red);
-            width: 0%;
-            box-shadow: 0 0 15px var(--manc-red);
-            transition: width 0.1s linear;
+            font-size: 1rem;
         }
 
         /* The Button */
-        .btn-sign {
-            width: 100%;
-            max-width: 550px;
+        .btn {
+            width: 90%;
+            max-width: 500px;
             background: var(--manc-red);
             color: white;
             border: none;
-            padding: 25px;
-            font-size: 1.5rem;
+            padding: 22px;
+            font-size: 1.4rem;
             font-weight: 900;
             margin-top: 20px;
             cursor: pointer;
-            transition: 0.2s;
+            text-transform: uppercase;
+            border-radius: 4px;
             box-shadow: 0 10px 40px rgba(255, 0, 0, 0.3);
+            transition: 0.2s;
         }
 
-        .btn-sign:hover { background: #ff3333; transform: scale(1.01); }
-        .btn-sign:active { transform: scale(0.99); }
-        .btn-sign.done { background: #1a1a1a; color: #444; cursor: default; box-shadow: none; }
+        .btn:hover { background: #ff3333; transform: scale(1.02); }
+        .btn.signed { background: #111; color: #333; cursor: default; box-shadow: none; transform: none; }
 
-        .footer { color: #333; margin-top: 20px; font-size: 0.8rem; }
+        .footer { color: #222; margin-top: 30px; font-size: 0.7rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="header-container">
-        <h1 class="title-main">Carrick</h1>
-        <div class="stamp-box">Keep Him</div>
+    <div class="header-box">
+        <h1 class="carrick-text">Carrick</h1>
+        <div class="keep-stamp">Stay</div>
     </div>
 
-    <div class="manifesto">
-        The progress is undeniable. Michael has the DNA. We are not going backward. 
-        Sign to secure the 26/27 season under his command.
-    </div>
+    <p class="manifesto">
+        The future is being built. Michael has restored the pride. Sign now to keep the vision alive for 26/27.
+    </p>
 
-    <div class="petition-card">
-        <span id="sig-count">0</span>
-        <div class="label-reds">REDS HAVE SIGNED</div>
+    <div class="card">
+        <h2 id="counter">0</h2>
+        <div class="label">Mancunians Signed</div>
 
-        <div class="goal-flex">
-            <span>150,000 GOAL</span>
-        </div>
-        <div class="progress-bg">
-            <div class="progress-fill" id="bar"></div>
+        <div class="goal-info">150,000 GOAL</div>
+        <div class="bar-bg">
+            <div class="bar-fill" id="progress"></div>
         </div>
     </div>
 
-    <button id="mainBtn" class="btn-sign">SIGN THE PETITION</button>
+    <button id="signBtn" class="btn">Sign the Petition</button>
 
-    <div class="footer">NO ACCOUNT NEEDED • STAND WITH THE BOSS</div>
+    <div class="footer">NO ACCOUNT NEEDED • BUILT FOR THE REDS</div>
 
     <script>
-        let currentSigs = 0;
         const goal = 150000;
-        const countDisplay = document.getElementById('sig-count');
-        const progressBar = document.getElementById('bar');
-        const btn = document.getElementById('mainBtn');
+        const countEl = document.getElementById('counter');
+        const barEl = document.getElementById('progress');
+        const btn = document.getElementById('signBtn');
 
-        // Logic for the hyper-fast update (every 0.1ms simulation)
-        function liveUpdate() {
-            setInterval(() => {
-                if (currentSigs < 142000) { // Fast climb to near goal
-                    currentSigs += Math.floor(Math.random() * 15);
-                    render();
-                } else if (currentSigs < goal) { // Slow down near the end
-                    currentSigs += Math.random() > 0.9 ? 1 : 0;
-                    render();
-                }
-            }, 1); // Updating every millisecond for that "vibe"
+        // 1. BASE LOGIC: Calculate signs based on time
+        // We set a "Start Date" (e.g., 1 hour ago)
+        const startTime = new Date("May 6, 2026 12:00:00").getTime();
+        
+        function getLiveCount() {
+            const now = new Date().getTime();
+            const elapsedSeconds = Math.floor((now - startTime) / 1000);
+            
+            // This adds roughly 216 signs every minute (approx 3.6 per second)
+            // Plus a base start of 85,000 so it's not empty
+            let baseCount = 85432 + (elapsedSeconds * 3.6);
+            
+            // Limit it so it doesn't pass the goal too fast
+            return Math.min(baseCount, goal);
         }
 
-        function render() {
-            countDisplay.innerText = Math.floor(currentSigs).toLocaleString();
-            let percent = (currentSigs / goal) * 100;
-            progressBar.style.width = percent + "%";
+        let currentCount = getLiveCount();
+
+        function updateUI() {
+            countEl.innerText = Math.floor(currentCount).toLocaleString();
+            let percent = (currentCount / goal) * 100;
+            barEl.style.width = percent + "%";
         }
+
+        // Increment the counter in real-time while they watch
+        setInterval(() => {
+            if (currentCount < goal) {
+                currentCount += (Math.random() * 0.5); // Slow crawl while on page
+                updateUI();
+            }
+        }, 200);
 
         btn.addEventListener('click', () => {
-            if(!btn.classList.contains('done')) {
+            if (!btn.classList.contains('signed')) {
                 btn.innerText = "SIGNING...";
                 setTimeout(() => {
-                    currentSigs += 500; // Big jump for your click
-                    render();
-                    btn.innerText = "YOU HAVE SIGNED";
-                    btn.classList.add('done');
+                    currentCount += 1; 
+                    updateUI();
+                    btn.innerText = "YOU'VE ALREADY SIGNED";
+                    btn.classList.add('signed');
+                    localStorage.setItem('carrick_signed', 'true');
                 }, 1000);
             }
         });
 
-        liveUpdate();
+        if (localStorage.getItem('carrick_signed')) {
+            btn.innerText = "YOU'VE ALREADY SIGNED";
+            btn.classList.add('signed');
+        }
+
+        updateUI(); // Run immediately on load
     </script>
 </body>
 </html>
