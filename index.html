@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CARRICK 26/27 | THE FUTURE IS RED</title>
+    <title>CARRICK 26/27 | MISSION CRITICAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --manc-red: #ff0000;
             --glow: 0 0 30px rgba(255, 0, 0, 0.6);
-            --card-bg: #0a0a0a;
         }
 
         body {
@@ -26,17 +25,28 @@
             overflow-x: hidden;
         }
 
-        /* Top Red Accent */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; width: 100%; height: 2px;
-            background: var(--manc-red);
-            box-shadow: var(--glow);
-            z-index: 100;
+        /* Live Header Pulse */
+        .live-status {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--manc-red);
+            border-radius: 50%;
+            box-shadow: var(--glow);
+            animation: pulse-glow 1.5s infinite;
+        }
+        @keyframes pulse-glow { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        .header { text-align: center; margin: 40px 0 20px; }
+        .header { text-align: center; margin: 30px 0; }
         
         .carrick-title {
             font-family: 'Archivo Black', sans-serif;
@@ -61,15 +71,14 @@
             background: black;
         }
 
-        /* Stats Section */
         .card {
-            background: var(--card-bg);
+            background: #080808;
             border: 1px solid #111;
             width: 100%;
             max-width: 750px;
             padding: 50px 30px;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         #counter {
@@ -78,115 +87,84 @@
             letter-spacing: -10px;
             margin: 0;
             line-height: 0.8;
-            color: #fff;
         }
 
         .label {
             color: #333;
             font-weight: 900;
-            font-size: 1rem;
+            font-size: 0.9rem;
             letter-spacing: 6px;
             margin: 20px 0 40px;
             text-transform: uppercase;
         }
 
-        .bar-bg { width: 100%; height: 12px; background: #111; border-radius: 2px; overflow: hidden; }
+        /* Goal Text Brought Back */
+        .goal-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 10px;
+            font-family: 'Inter', sans-serif;
+        }
+        .goal-current { color: var(--manc-red); font-weight: 900; font-size: 1.1rem; }
+        .goal-target { color: #444; font-weight: 700; font-size: 0.8rem; text-align: right; }
+        .smashed-tag { background: var(--manc-red); color: white; padding: 2px 6px; font-size: 0.6rem; margin-left: 5px; border-radius: 2px; vertical-align: middle; }
+
+        .bar-bg { width: 100%; height: 14px; background: #111; overflow: hidden; position: relative; }
         .bar-fill { height: 100%; background: var(--manc-red); width: 100%; box-shadow: var(--glow); }
 
-        /* User Interaction */
-        .input-group {
-            width: 100%;
-            max-width: 750px;
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        input {
-            flex: 1;
-            background: #111;
-            border: 1px solid #222;
-            padding: 20px;
-            color: white;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            outline: none;
-        }
-
+        /* Controls */
+        .input-group { width: 100%; max-width: 750px; margin-top: 20px; display: flex; gap: 10px; }
+        input { flex: 1; background: #0a0a0a; border: 1px solid #222; padding: 20px; color: white; font-family: 'Inter', sans-serif; font-size: 1rem; outline: none; }
         input:focus { border-color: var(--manc-red); }
 
-        .btn {
-            background: var(--manc-red);
-            color: white;
-            border: none;
-            padding: 0 40px;
-            font-size: 1.2rem;
-            font-weight: 900;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-
-        .main-sign-btn {
-            width: 100%;
-            max-width: 750px;
-            padding: 30px;
-            margin-top: 15px;
-            font-size: 1.8rem;
-        }
-
+        .btn { background: var(--manc-red); color: white; border: none; padding: 0 40px; font-size: 1.2rem; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .main-sign-btn { width: 100%; max-width: 750px; padding: 30px; margin-top: 15px; font-size: 1.8rem; }
         .btn:hover { background: #ff3333; transform: scale(1.01); }
-        .btn:active { transform: scale(0.98); }
         .btn.disabled { background: #111; color: #333; cursor: default; }
 
-        /* Comment Section */
-        .feed-container {
-            width: 100%;
-            max-width: 750px;
-            margin-top: 50px;
-        }
-
-        .comment {
-            background: #080808;
-            padding: 20px;
-            margin-bottom: 12px;
-            border-left: 4px solid #151515;
-            animation: slideUp 0.4s ease-out forwards;
-        }
-
-        .comment.user-post { border-left-color: var(--manc-red); background: rgba(255, 0, 0, 0.05); }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
+        .feed-container { width: 100%; max-width: 750px; margin-top: 50px; }
+        .comment { background: #050505; padding: 20px; margin-bottom: 10px; border-left: 4px solid #111; animation: slideUp 0.4s ease-out forwards; border-radius: 2px; }
+        .comment.user-post { border-left-color: var(--manc-red); background: rgba(255,0,0,0.03); }
         .c-user { color: var(--manc-red); font-weight: 900; font-size: 0.85rem; letter-spacing: 1px; }
-        .c-text { color: #ccc; margin-top: 8px; font-size: 1.05rem; }
+        .c-text { color: #bbb; margin-top: 8px; font-size: 1rem; line-height: 1.4; }
 
-        .footer { margin: 100px 0 50px; color: #1a1a1a; font-weight: 900; letter-spacing: 12px; font-size: 1.2rem; }
+        .footer { margin: 80px 0 40px; color: #1a1a1a; font-weight: 900; letter-spacing: 12px; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
+    <div class="live-status">
+        <div class="pulse"></div>
+        <span id="live-viewers">4,102</span> MANCUNIANS ONLINE
+    </div>
+
     <div class="header">
         <h1 class="carrick-title">CARRICK</h1>
-        <div class="stamp">KEEP 26/27</div>
+        <div class="stamp">STAY 26/27</div>
     </div>
 
     <div class="card">
         <h2 id="counter">0</h2>
-        <div class="label">UNITED WE STAND</div>
+        <div class="label">GLOBAL SIGNATURES</div>
+        
+        <div class="goal-container">
+            <div class="goal-current">SASHED <span class="smashed-tag">OVER TARGET</span></div>
+            <div class="goal-target">ORIGINAL GOAL<br><span style="color:#888; font-size: 1.1rem;">150,000</span></div>
+        </div>
         <div class="bar-bg"><div class="bar-fill"></div></div>
     </div>
 
     <div class="input-group">
-        <input type="text" id="userComment" placeholder="Leave a message for the gaffer...">
+        <input type="text" id="userComment" placeholder="Message for Michael...">
         <button id="postBtn" class="btn">POST</button>
     </div>
     
-    <button id="signBtn" class="btn main-sign-btn">SIGN PETITION</button>
+    <button id="signBtn" class="btn main-sign-btn">SIGN THE PETITION</button>
 
     <div class="feed-container" id="feed"></div>
 
-    <div class="footer">STRETFORD END</div>
+    <div class="footer">GGMU</div>
 
     <script>
         const counterEl = document.getElementById('counter');
@@ -194,51 +172,46 @@
         const postBtn = document.getElementById('postBtn');
         const userInput = document.getElementById('userComment');
         const feed = document.getElementById('feed');
+        const viewerEl = document.getElementById('live-viewers');
 
-        // PERSISTENT COUNTER (Refreshes show massive growth)
+        // Logic for massive counts
         const startTime = new Date("May 6, 2026 04:00:00").getTime();
         function getLiveCount() {
             const now = new Date().getTime();
             const elapsed = (now - startTime) / 1000;
-            // Starts way above 150k and gains ~32 per second
-            return Math.floor(184250 + (elapsed * 32.7));
+            return Math.floor(198640 + (elapsed * 38.2));
         }
 
         let currentCount = getLiveCount();
         function updateUI() { counterEl.innerText = currentCount.toLocaleString(); }
 
-        // Live Ticking
         setInterval(() => {
-            currentCount += Math.floor(Math.random() * 5);
+            currentCount += Math.floor(Math.random() * 6);
+            viewerEl.innerText = (4000 + Math.floor(Math.random() * 500)).toLocaleString();
             updateUI();
         }, 150);
 
-        // HUMAN FAN VOICES
         const fanPool = [
-            "He's got the DNA. This isn't a project, it's a takeover.",
-            "Best tactical gaffer in the league. Look at that mid-block.",
-            "Carrickball is peak. Keep him for 10 years.",
-            "Signed. We aren't going backwards. Standards are high.",
-            "I've seen enough. He's better than Pep already.",
-            "Imagine letting him go now. Board needs to wake up.",
-            "Top 3 finish with that squad? Gaffer is magic.",
-            "Michael Carrick's Red Army! Stand up!",
-            "Old Trafford finally feels like a fortress again.",
-            "DNA. Trophies. Carrick. In that order."
+            "This isn't just about a season, it's about the soul of the club.",
+            "He turned Old Trafford back into a fortress. He stays.",
+            "Carrickball is the best football I've seen in a decade. Cooking.",
+            "Signed. We are back. Standards are set by Michael.",
+            "The board would be finished if they let him walk now.",
+            "Kobbie, Garnacho, Rasmus... they thrive under him. Give him 26/27.",
+            "Proper tactical gaffer. The mid-block is levels ahead of Pep.",
+            "From the Stretford End to the world — STAY.",
+            "Better win percentage than SAF in his first 100 games. Fact.",
+            "The DNA is safe with him. Get it signed."
         ];
 
         function createComment(name, text, isUser = false) {
             const div = document.createElement('div');
             div.className = `comment ${isUser ? 'user-post' : ''}`;
-            div.innerHTML = `
-                <div class="c-user">${name.toUpperCase()}</div>
-                <div class="c-text">${text}</div>
-            `;
+            div.innerHTML = `<div class="c-user">${name.toUpperCase()}</div><div class="c-text">${text}</div>`;
             feed.prepend(div);
-            if (feed.children.length > 8) feed.removeChild(feed.lastChild);
+            if (feed.children.length > 10) feed.removeChild(feed.lastChild);
         }
 
-        // Post button logic
         postBtn.addEventListener('click', () => {
             if (userInput.value.trim() !== "") {
                 createComment("YOU", userInput.value, true);
@@ -246,39 +219,34 @@
             }
         });
 
-        // Sign button logic
         signBtn.addEventListener('click', () => {
             if (!signBtn.classList.contains('disabled')) {
                 signBtn.innerText = "SIGNING...";
                 setTimeout(() => {
-                    currentCount += 1250;
+                    currentCount += 2100;
                     updateUI();
-                    signBtn.innerText = "ALREADY SIGNED";
+                    signBtn.innerText = "VOTE RECORDED";
                     signBtn.classList.add('disabled');
-                    localStorage.setItem('carrick_26_signed', 'true');
-                    createComment("YOU", "JUST SIGNED. HE STAYS.", true);
+                    localStorage.setItem('carrick_final_26', 'true');
+                    createComment("YOU", "I JUST SIGNED. KEEP THE GAFFER!", true);
                 }, 800);
             }
         });
 
-        if (localStorage.getItem('carrick_26_signed')) {
-            signBtn.innerText = "ALREADY SIGNED";
+        if (localStorage.getItem('carrick_final_26')) {
+            signBtn.innerText = "VOTE RECORDED";
             signBtn.classList.add('disabled');
         }
 
-        // Random bot signs every few seconds
         setInterval(() => {
-            const names = ["Manc_Red", "Utd_Loyal", "RedArmy99", "SirAlex_Vibe", "CarrickEra"];
+            const names = ["Manc_Born", "StretfordRed", "UnitedSoul", "CarrickProp", "DevilEye"];
             const name = names[Math.floor(Math.random()*names.length)];
             const text = fanPool[Math.floor(Math.random()*fanPool.length)];
             createComment(name, text);
-        }, 3500);
+        }, 3000);
 
-        // Init
         updateUI();
-        for(let i=0; i<4; i++) {
-            createComment("United_News", fanPool[i]);
-        }
+        for(let i=0; i<5; i++) createComment("Moderator", fanPool[i]);
     </script>
 </body>
 </html>
