@@ -3,44 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CARRICK 26/27</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <title>CARRICK 26/27 | KEEP HIM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --manc-red: #ff0000;
+            --dark-red: #8b0000;
+            --bg-black: #080808;
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding-top: 50px;
+        }
+
+        /* The "FUERA" style Stamp */
+        .header-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title-main {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 3rem;
+            letter-spacing: -2px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .stamp-box {
+            display: inline-block;
+            border: 8px solid var(--manc-red);
+            padding: 5px 25px;
+            color: var(--manc-red);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 5rem;
+            transform: rotate(-7deg) translateY(-10px);
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.4);
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Text Fixes */
+        .manifesto {
+            max-width: 450px;
+            text-align: center;
+            color: #999;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            margin: 40px 20px;
+            border-left: 3px solid var(--manc-red);
+            padding-left: 15px;
+        }
+
+        /* The Stats Card */
+        .petition-card {
+            background: #111;
+            width: 90%;
+            max-width: 550px;
+            padding: 50px 30px;
+            border-radius: 4px;
+            border: 1px solid #222;
+            text-align: center;
+        }
+
+        #sig-count {
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: -4px;
+            margin: 0;
+            display: block;
+        }
+
+        .label-reds {
+            color: #555;
+            font-weight: bold;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .goal-flex {
+            display: flex;
+            justify-content: flex-end;
+            color: var(--manc-red);
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        .progress-bg {
+            width: 100%;
+            height: 8px;
+            background: #222;
+            margin-top: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--manc-red);
+            width: 0%;
+            box-shadow: 0 0 15px var(--manc-red);
+            transition: width 0.1s linear;
+        }
+
+        /* The Button */
+        .btn-sign {
+            width: 100%;
+            max-width: 550px;
+            background: var(--manc-red);
+            color: white;
+            border: none;
+            padding: 25px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 10px 40px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-sign:hover { background: #ff3333; transform: scale(1.01); }
+        .btn-sign:active { transform: scale(0.99); }
+        .btn-sign.done { background: #1a1a1a; color: #444; cursor: default; box-shadow: none; }
+
+        .footer { color: #333; margin-top: 20px; font-size: 0.8rem; }
+    </style>
 </head>
 <body>
-    <div class="main-layout">
-        <div class="content-wrapper">
-            <div class="hero-section">
-                <div class="stamp-container">
-                    <h2 class="title-top">CARRICK</h2>
-                    <div class="fuera-stamp">IN</div>
-                </div>
-                <p class="description">
-                    The 26/27 season belongs to Michael. Don't let the progress fade. 
-                    If you believe in the vision, sign the petition and stand for the future.
-                </p>
-            </div>
 
-            <div class="stats-card">
-                <div class="counter-group">
-                    <h1 id="count">0</h1>
-                    <p class="label">SUPPORTERS SIGNED</p>
-                </div>
-                
-                <div class="goal-group">
-                    <span id="goal-num">150,000</span>
-                    <span class="goal-label">GOAL</span>
-                </div>
+    <div class="header-container">
+        <h1 class="title-main">Carrick</h1>
+        <div class="stamp-box">Keep Him</div>
+    </div>
 
-                <div class="progress-container">
-                    <div class="progress-bar" id="bar"></div>
-                </div>
-            </div>
+    <div class="manifesto">
+        The progress is undeniable. Michael has the DNA. We are not going backward. 
+        Sign to secure the 26/27 season under his command.
+    </div>
 
-            <button id="signBtn" class="action-btn">SIGN THE PETITION</button>
-            <p class="footer-note">No account needed · Share to grow the movement</p>
+    <div class="petition-card">
+        <span id="sig-count">0</span>
+        <div class="label-reds">REDS HAVE SIGNED</div>
+
+        <div class="goal-flex">
+            <span>150,000 GOAL</span>
+        </div>
+        <div class="progress-bg">
+            <div class="progress-fill" id="bar"></div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <button id="mainBtn" class="btn-sign">SIGN THE PETITION</button>
+
+    <div class="footer">NO ACCOUNT NEEDED • STAND WITH THE BOSS</div>
+
+    <script>
+        let currentSigs = 0;
+        const goal = 150000;
+        const countDisplay = document.getElementById('sig-count');
+        const progressBar = document.getElementById('bar');
+        const btn = document.getElementById('mainBtn');
+
+        // Logic for the hyper-fast update (every 0.1ms simulation)
+        function liveUpdate() {
+            setInterval(() => {
+                if (currentSigs < 142000) { // Fast climb to near goal
+                    currentSigs += Math.floor(Math.random() * 15);
+                    render();
+                } else if (currentSigs < goal) { // Slow down near the end
+                    currentSigs += Math.random() > 0.9 ? 1 : 0;
+                    render();
+                }
+            }, 1); // Updating every millisecond for that "vibe"
+        }
+
+        function render() {
+            countDisplay.innerText = Math.floor(currentSigs).toLocaleString();
+            let percent = (currentSigs / goal) * 100;
+            progressBar.style.width = percent + "%";
+        }
+
+        btn.addEventListener('click', () => {
+            if(!btn.classList.contains('done')) {
+                btn.innerText = "SIGNING...";
+                setTimeout(() => {
+                    currentSigs += 500; // Big jump for your click
+                    render();
+                    btn.innerText = "YOU HAVE SIGNED";
+                    btn.classList.add('done');
+                }, 1000);
+            }
+        });
+
+        liveUpdate();
+    </script>
 </body>
 </html>
