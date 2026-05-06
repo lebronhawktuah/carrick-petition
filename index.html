@@ -3,34 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CARRICK IN</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>My GitHub Profile</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="wrap">
-        <div class="header-vibe">
-            <p>United fans, make your voice heard. If you believe Michael Carrick is the future, don't stay silent — sign this petition.</p>
+    <div class="background-blobs"></div>
+    
+    <div class="container">
+        <header>
+            <div class="profile-pic"></div>
+            <h1>@YourName</h1>
+            <p>Developer | Designer | Tech Enthusiast</p>
+        </header>
+
+        <div class="links">
+            <a href="https://github.com/yourusername" class="link-card">GitHub Repositories</a>
+            <a href="#" class="link-card">Portfolio</a>
+            <a href="#" class="link-card">Contact Me</a>
         </div>
 
-        <div class="card">
-            <div class="stats-row">
-                <h1 id="count">0</h1>
-                <div class="goal-box">
-                    <span class="red-text">150,000</span>
-                    <span class="tiny">GOAL</span>
-                </div>
-            </div>
-            <p class="label">REDS SIGNED</p>
-            
-            <div class="bar-bg">
-                <div id="fill"></div>
-            </div>
-            <p class="stats-footer"><span id="per">0</span>% of goal</p>
-        </div>
-
-        <button id="sign-btn">SIGN THE PETITION</button>
-        <p class="footer-note">No account required • Live Updating</p>
+        <footer>
+            <p id="copyright"></p>
+        </footer>
     </div>
 
     <script src="script.js"></script>
