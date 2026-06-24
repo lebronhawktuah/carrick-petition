@@ -1,1863 +1,1631 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ROBLOX RNG — Limited Item Oracle</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Orbitron:wght@400;700;900&family=Creepster&family=Rubik+Glitch&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&family=Bebas+Neue&family=Press+Start+2P&family=Exo+2:wght@300;400;700;900&display=swap" rel="stylesheet"/>
-<style>
-/* ===== CSS VARIABLES & RESET ===== */
-:root {
-  --bg: #0B0E14;
-  --bg2: #0F1318;
-  --bg3: #141920;
-  --panel: rgba(255,255,255,0.04);
-  --panel-border: rgba(255,255,255,0.08);
-  --neon: #00F5FF;
-  --neon2: #FF006E;
-  --gold: #FFD700;
-  --gold2: #FFA500;
-  --green: #00FF88;
-  --red: #FF3B3B;
-  --text: #E8EAF0;
-  --muted: #6B7280;
-  --font-ui: 'Rajdhani', sans-serif;
-  --font-mono: 'Share Tech Mono', monospace;
-  --font-title: 'Orbitron', sans-serif;
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-ui);}
-body{display:flex;flex-direction:column;}
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--neon);border-radius:2px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>World Soccer RNG Ultimate+</title>
+    <style>
+        /* --- CORE STYLES & THEME VARIABLES --- */
+        :root {
+            --bg-dark: #0a0f0d;
+            --bg-card: rgba(18, 26, 22, 0.85);
+            --stadium-green: #00ff66;
+            --stadium-glow: rgba(0, 255, 102, 0.2);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #a0aec0;
+            
+            /* Rarity Colors */
+            --rarity-common: #a0aec0;
+            --rarity-uncommon: #48bb78;
+            --rarity-rare: #3182ce;
+            --rarity-super-rare: #805ad5;
+            --rarity-epic: #d53f8c;
+            --rarity-elite: #dd6b20;
+            --rarity-legendary: #ecc94b;
+            --rarity-hero: #319795;
+            --rarity-icon: #edf2f7;
+            --rarity-prime-icon: #f6e05e;
+            --rarity-mythic: #e53e3e;
+            --rarity-ultimate-icon: #00f2fe;
+            --rarity-god-tier: #ff007f;
+        }
 
-/* ===== BACKGROUND GRID ===== */
-#bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:
-    linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
-  background-size:60px 60px;
-  animation:gridPulse 8s ease-in-out infinite;}
-@keyframes gridPulse{0%,100%{opacity:.4;}50%{opacity:.8;}}
-#bg-noise{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.025;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* ===== TOP BAR ===== */
-#topbar{position:relative;z-index:10;display:flex;align-items:center;gap:8px;padding:8px 16px;
-  background:rgba(11,14,20,0.95);border-bottom:1px solid rgba(0,245,255,0.15);
-  backdrop-filter:blur(20px);flex-wrap:wrap;}
-#topbar-logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;
-  background:linear-gradient(135deg,#00F5FF,#FF006E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;letter-spacing:2px;white-space:nowrap;margin-right:8px;}
-.stat-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;
-  background:var(--panel);border:1px solid var(--panel-border);border-radius:20px;
-  font-size:11px;font-family:var(--font-mono);white-space:nowrap;}
-.stat-pill .label{color:var(--muted);font-size:10px;}
-.stat-pill .val{color:var(--neon);font-weight:600;}
-.stat-pill .val.gold{color:var(--gold);}
-.stat-pill .val.green{color:var(--green);}
-#luck-indicator{margin-left:auto;display:flex;align-items:center;gap:6px;
-  font-family:var(--font-mono);font-size:11px;color:var(--gold);}
-.luck-badge{background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,165,0,.1));
-  border:1px solid rgba(255,215,0,.4);border-radius:12px;padding:3px 10px;
-  font-weight:700;animation:luckPulse 2s ease-in-out infinite;}
-@keyframes luckPulse{0%,100%{box-shadow:0 0 8px rgba(255,215,0,.3);}50%{box-shadow:0 0 20px rgba(255,215,0,.6);}}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-image: radial-gradient(circle at 50% 20%, var(--stadium-glow), transparent 60%);
+        }
 
-/* ===== MAIN CONTENT ===== */
-#main{position:relative;z-index:5;flex:1;overflow:hidden;display:flex;flex-direction:column;}
-.tab-content{display:none;flex:1;overflow:hidden;}
-.tab-content.active{display:flex;flex-direction:column;overflow:hidden;}
+        /* --- STADIUM LIGHTS BACKGROUND ANIMATION --- */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--stadium-green), transparent);
+            box-shadow: 0 0 20px var(--stadium-green);
+            animation: stadiumPulse 4s infinite alternate;
+            z-index: 100;
+        }
 
-/* ===== BOTTOM NAV ===== */
-#bottom-nav{position:relative;z-index:10;display:flex;
-  background:rgba(11,14,20,0.97);border-top:1px solid rgba(0,245,255,0.12);
-  backdrop-filter:blur(30px);}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:8px 4px;cursor:pointer;border:none;background:transparent;
-  color:var(--muted);font-family:var(--font-ui);font-size:9px;font-weight:600;
-  letter-spacing:1px;text-transform:uppercase;transition:all .2s;position:relative;overflow:hidden;}
-.nav-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:var(--neon);transform:scaleX(0);transition:transform .3s;}
-.nav-btn.active{color:var(--neon);}
-.nav-btn.active::before{transform:scaleX(1);}
-.nav-btn:hover{color:var(--text);}
-.nav-icon{font-size:18px;line-height:1;}
+        @keyframes stadiumPulse {
+            0% { opacity: 0.5; box-shadow: 0 0 10px rgba(0,255,102,0.5); }
+            100% { opacity: 1; box-shadow: 0 0 25px rgba(0,255,102,1); }
+        }
 
-/* ===== ROLL TAB ===== */
-#roll-tab{align-items:center;justify-content:flex-start;padding:20px 16px;gap:16px;overflow-y:auto;}
+        /* --- TOP STATS BAR --- */
+        .top-ui {
+            background: rgba(10, 15, 13, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 10px 15px;
+            padding-top: calc(10px + env(safe-area-inset-top));
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            z-index: 10;
+            font-size: 11px;
+        }
 
-/* Roll Button */
-#roll-arena{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;max-width:500px;}
-#roll-btn-wrap{position:relative;display:flex;align-items:center;justify-content:center;}
-#roll-btn{width:160px;height:160px;border-radius:50%;border:none;cursor:pointer;
-  background:radial-gradient(circle at 30% 30%, #1a2a3a, #0B0E14);
-  box-shadow:0 0 0 3px rgba(0,245,255,.3), 0 0 40px rgba(0,245,255,.15), inset 0 0 30px rgba(0,245,255,.05);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  transition:all .15s;position:relative;overflow:hidden;}
-#roll-btn::before{content:'';position:absolute;inset:-50%;
-  background:conic-gradient(transparent 0deg,rgba(0,245,255,.15) 90deg,transparent 180deg);
-  animation:spinRing 3s linear infinite;}
-@keyframes spinRing{to{transform:rotate(360deg);}}
-#roll-btn:hover{transform:scale(1.05);box-shadow:0 0 0 3px rgba(0,245,255,.6), 0 0 60px rgba(0,245,255,.3);}
-#roll-btn:active{transform:scale(.95);}
-#roll-btn .roll-label{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;
-  color:var(--neon);letter-spacing:3px;position:relative;z-index:1;}
-#roll-btn .roll-sub{font-family:var(--font-mono);font-size:9px;color:rgba(0,245,255,.5);letter-spacing:2px;}
-#roll-btn.rolling{animation:rollPulse .2s ease-in-out infinite;}
-@keyframes rollPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
-#roll-ring1,#roll-ring2{position:absolute;border-radius:50%;border:1px solid rgba(0,245,255,.2);
-  pointer-events:none;animation:ringExpand 3s ease-out infinite;}
-#roll-ring1{width:190px;height:190px;}
-#roll-ring2{width:220px;height:220px;animation-delay:-1.5s;}
-@keyframes ringExpand{0%{transform:scale(.9);opacity:.6;}100%{transform:scale(1.1);opacity:0;}}
+        .stat-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 6px;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-/* Auto Roll Toggle */
-#auto-controls{display:flex;align-items:center;gap:12px;}
-.toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;}
-.toggle{width:44px;height:24px;background:rgba(255,255,255,.1);border-radius:12px;
-  border:1px solid rgba(255,255,255,.15);position:relative;transition:all .3s;cursor:pointer;}
-.toggle.on{background:rgba(0,245,255,.2);border-color:rgba(0,245,255,.5);}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;
-  border-radius:50%;background:var(--muted);transition:all .3s;}
-.toggle.on::after{left:23px;background:var(--neon);}
-.toggle-label{font-size:12px;font-weight:600;letter-spacing:1px;color:var(--muted);}
-.toggle.on + .toggle-label{color:var(--neon);}
-#roll-speed{padding:4px 8px;background:var(--panel);border:1px solid var(--panel-border);
-  border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:11px;outline:none;cursor:pointer;}
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
 
-/* Roll Result Card */
-#result-display{width:100%;position:relative;}
-#result-card{background:var(--panel);border:1px solid var(--panel-border);border-radius:16px;
-  padding:20px;display:flex;align-items:center;gap:16px;min-height:90px;
-  transition:all .5s;backdrop-filter:blur(10px);}
-#result-card.has-result{border-color:var(--result-glow, rgba(0,245,255,.3));
-  box-shadow:0 0 30px var(--result-glow, rgba(0,245,255,.1));}
-#result-icon{width:60px;height:60px;border-radius:12px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:28px;
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);}
-#result-info{flex:1;min-width:0;}
-#result-name{font-size:18px;font-weight:700;line-height:1.2;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-#result-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
-.badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.5px;
-  border:1px solid;white-space:nowrap;}
-.badge.rarity{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.4);color:var(--gold);}
-.badge.limited{background:rgba(255,0,110,.1);border-color:rgba(255,0,110,.4);color:#FF006E;}
-.badge.limitedu{background:rgba(0,245,255,.1);border-color:rgba(0,245,255,.4);color:var(--neon);}
-.badge.projected{background:rgba(255,165,0,.15);border-color:rgba(255,165,0,.5);color:#FFA500;animation:projBlink 1s ease-in-out infinite;}
-@keyframes projBlink{0%,100%{opacity:1;}50%{opacity:.5;}}
-.badge.demand-amazing{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.4);color:var(--green);}
-.badge.demand-high{background:rgba(0,200,100,.1);border-color:rgba(0,200,100,.4);color:#00C864;}
-.badge.demand-normal{background:rgba(100,150,255,.1);border-color:rgba(100,150,255,.4);color:#6496FF;}
-.badge.demand-terrible{background:rgba(255,59,59,.1);border-color:rgba(255,59,59,.4);color:var(--red);}
-#result-vals{display:flex;gap:12px;font-size:11px;font-family:var(--font-mono);}
-.rval{display:flex;flex-direction:column;}
-.rval .rl{color:var(--muted);font-size:9px;}
-.rval .rv{color:var(--gold);font-weight:600;}
-#serial-badge{font-family:var(--font-mono);font-size:11px;color:rgba(0,245,255,.7);}
+        .stat-value {
+            font-weight: bold;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
-/* Roll Stats */
-#roll-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;}
-.rstat{background:var(--panel);border:1px solid var(--panel-border);border-radius:10px;
-  padding:10px;text-align:center;}
-.rstat .rs-val{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:var(--neon);}
-.rstat .rs-label{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.5px;}
+        .stat-value.highlight {
+            color: var(--stadium-green);
+        }
 
-/* Recent Rolls */
-#recent-rolls-wrap{width:100%;}
-#recent-rolls-wrap h3{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
-#recent-rolls{display:flex;flex-direction:column;gap:4px;}
-.recent-row{display:flex;align-items:center;gap:8px;padding:6px 10px;
-  background:var(--panel);border:1px solid var(--panel-border);border-radius:8px;
-  font-size:11px;opacity:.8;transition:opacity .3s;}
-.recent-row:hover{opacity:1;}
-.recent-icon{font-size:14px;width:20px;text-align:center;}
-.recent-name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.recent-roll-num{font-family:var(--font-mono);color:var(--muted);font-size:10px;}
-.recent-rarity{font-family:var(--font-mono);font-size:9px;color:var(--muted);}
+        /* --- MAIN CONTENT & TABS CONFIG --- */
+        .main-viewport {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 15px;
+            padding-bottom: calc(85px + env(safe-area-inset-bottom));
+            -webkit-overflow-scrolling: touch;
+        }
 
-/* ===== INVENTORY TAB ===== */
-#inventory-tab{padding:16px;overflow-y:auto;gap:12px;}
-#inv-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-#inv-header h2{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;
-  background:linear-gradient(135deg,var(--neon),var(--neon2));-webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
-#inv-totals{display:flex;gap:8px;}
-#inv-filter{display:flex;gap:6px;flex-wrap:wrap;}
-.filter-btn{padding:4px 12px;border-radius:12px;border:1px solid var(--panel-border);
-  background:var(--panel);color:var(--muted);font-size:10px;font-weight:600;
-  letter-spacing:.5px;cursor:pointer;transition:all .2s;}
-.filter-btn.active{background:rgba(0,245,255,.1);border-color:rgba(0,245,255,.4);color:var(--neon);}
-#inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
-.inv-card{border-radius:12px;border:1px solid var(--panel-border);overflow:hidden;
-  cursor:pointer;transition:all .25s;position:relative;background:var(--bg2);}
-.inv-card:hover{transform:translateY(-3px);border-color:rgba(0,245,255,.3);
-  box-shadow:0 8px 30px rgba(0,0,0,.5);}
-.inv-card-banner{height:70px;display:flex;align-items:center;justify-content:center;font-size:32px;
-  position:relative;overflow:hidden;}
-.inv-card-banner::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.2);}
-.inv-card-info{padding:8px;}
-.inv-card-name{font-size:11px;font-weight:700;margin-bottom:4px;line-height:1.2;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.inv-card-rap{font-family:var(--font-mono);font-size:10px;color:var(--gold);}
-.inv-card-demand{font-size:9px;margin-top:2px;}
-.inv-card .projected-overlay{position:absolute;top:6px;right:6px;
-  background:rgba(255,165,0,.8);border-radius:6px;padding:2px 5px;
-  font-size:8px;font-weight:700;color:#000;}
-.inv-card-count{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);
-  border-radius:8px;padding:2px 6px;font-size:9px;font-family:var(--font-mono);color:var(--neon);}
-.inv-empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);}
-.inv-empty .ie-icon{font-size:48px;margin-bottom:12px;}
-.inv-empty p{font-size:13px;}
+        .view-panel {
+            display: none;
+            animation: fadeIn 0.25s ease-out forwards;
+        }
 
-/* ===== TRADING HUB TAB ===== */
-#trading-tab{overflow-y:auto;padding:16px;gap:12px;}
-.trade-section-tabs{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--panel-border);}
-.tsub-btn{flex:1;padding:8px;text-align:center;font-size:11px;font-weight:600;
-  letter-spacing:.5px;cursor:pointer;background:var(--panel);color:var(--muted);
-  transition:all .2s;border:none;}
-.tsub-btn.active{background:rgba(0,245,255,.1);color:var(--neon);}
-.trade-subsection{display:none;}
-.trade-subsection.active{display:flex;flex-direction:column;gap:12px;}
+        .view-panel.active {
+            display: block;
+        }
 
-/* Inbound Trade */
-.trade-offer-card{background:var(--bg2);border:1px solid var(--panel-border);border-radius:12px;overflow:hidden;}
-.toc-header{display:flex;align-items:center;gap:10px;padding:10px 14px;
-  border-bottom:1px solid var(--panel-border);background:rgba(255,255,255,.02);}
-.trader-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1a2a4a,#0a1420);
-  display:flex;align-items:center;justify-content:center;font-size:14px;}
-.trader-name{font-weight:700;font-size:13px;}
-.trader-level{font-size:10px;color:var(--muted);font-family:var(--font-mono);}
-.toc-sides{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;padding:12px 14px;}
-.trade-side{display:flex;flex-direction:column;gap:6px;}
-.trade-side-label{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.trade-items{display:flex;gap:4px;flex-wrap:wrap;}
-.trade-item-chip{padding:4px 8px;border-radius:8px;font-size:10px;font-weight:600;
-  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);display:flex;gap:4px;align-items:center;}
-.trade-arrow{display:flex;align-items:center;justify-content:center;font-size:20px;
-  color:rgba(0,245,255,.5);padding:0 4px;}
-.trade-totals{display:flex;justify-content:space-between;padding:8px 14px;
-  border-top:1px solid var(--panel-border);background:rgba(255,255,255,.02);}
-.tt-side{font-size:11px;font-family:var(--font-mono);}
-.tt-label{color:var(--muted);font-size:9px;}
-.tt-rap{color:var(--gold);}
-.tt-diff{font-size:11px;font-family:var(--font-mono);font-weight:700;text-align:center;}
-.tt-diff.win{color:var(--green);}
-.tt-diff.lose{color:var(--red);}
-.toc-actions{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--panel-border);}
-.toc-actions button{flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;
-  font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:.5px;transition:all .2s;}
-.btn-accept{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.4);}
-.btn-accept:hover{background:rgba(0,255,136,.3);}
-.btn-decline{background:rgba(255,59,59,.1);color:var(--red);border:1px solid rgba(255,59,59,.3);}
-.btn-decline:hover{background:rgba(255,59,59,.2);}
-.btn-counter{background:rgba(0,245,255,.1);color:var(--neon);border:1px solid rgba(0,245,255,.3);}
-.btn-counter:hover{background:rgba(0,245,255,.2);}
-.ai-note{padding:6px 14px;font-size:10px;color:var(--gold);border-top:1px solid rgba(255,215,0,.1);
-  background:rgba(255,215,0,.03);font-style:italic;}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* Send Trade UI */
-#send-trade{background:var(--bg2);border:1px solid var(--panel-border);border-radius:12px;padding:14px;gap:10px;display:flex;flex-direction:column;}
-#send-trade h3{font-size:12px;font-weight:700;color:var(--neon);letter-spacing:1px;text-transform:uppercase;}
-.trade-builder{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:start;}
-.tb-side{display:flex;flex-direction:column;gap:6px;}
-.tb-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.tb-items{min-height:80px;background:rgba(0,0,0,.3);border-radius:8px;padding:8px;
-  border:1px dashed rgba(255,255,255,.1);display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;}
-.tb-select{background:var(--panel);border:1px solid var(--panel-border);border-radius:8px;
-  color:var(--text);font-family:var(--font-ui);font-size:11px;padding:6px 8px;outline:none;width:100%;}
-#send-trade-btn{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,245,255,.4);
-  background:rgba(0,245,255,.1);color:var(--neon);font-family:'Orbitron',sans-serif;
-  font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;}
-#send-trade-btn:hover{background:rgba(0,245,255,.2);}
+        /* --- STICKY NAVIGATION BAR --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10, 15, 13, 0.95);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--glass-border);
+            padding-bottom: env(safe-area-inset-bottom);
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+            height: calc(65px + env(safe-area-inset-bottom));
+        }
 
-/* Trade log */
-.trade-log-row{background:var(--panel);border:1px solid var(--panel-border);border-radius:8px;
-  padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:11px;}
-.tl-status{padding:2px 8px;border-radius:8px;font-size:9px;font-weight:700;border:1px solid;}
-.tl-status.completed{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.4);color:var(--green);}
-.tl-status.declined{background:rgba(255,59,59,.1);border-color:rgba(255,59,59,.3);color:var(--red);}
-.tl-status.expired{background:rgba(100,100,100,.1);border-color:rgba(100,100,100,.3);color:var(--muted);}
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 9px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            gap: 4px;
+        }
 
-/* ===== LUCK SHOP TAB ===== */
-#luck-tab{overflow-y:auto;padding:16px;gap:16px;}
-.luck-banner{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,100,0,.05));
-  border:1px solid rgba(255,215,0,.2);border-radius:16px;padding:20px;text-align:center;}
-.lb-title{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;
-  background:linear-gradient(135deg,#FFD700,#FFA500);-webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;margin-bottom:4px;}
-.lb-sub{font-size:12px;color:var(--muted);}
-.lb-luck{font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;color:var(--gold);
-  margin:12px 0;text-shadow:0 0 30px rgba(255,215,0,.5);}
-.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
-.shop-item{background:var(--bg2);border:1px solid var(--panel-border);border-radius:12px;
-  padding:14px;text-align:center;transition:all .2s;cursor:pointer;}
-.shop-item:hover{border-color:rgba(255,215,0,.4);transform:translateY(-2px);}
-.shop-item.owned{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.03);}
-.si-icon{font-size:28px;margin-bottom:8px;}
-.si-name{font-size:12px;font-weight:700;margin-bottom:4px;}
-.si-desc{font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.4;}
-.si-price{font-family:var(--font-mono);font-size:13px;color:var(--gold);font-weight:700;margin-bottom:8px;}
-.si-buy{width:100%;padding:7px;border-radius:8px;border:1px solid rgba(255,215,0,.4);
-  background:rgba(255,215,0,.1);color:var(--gold);font-family:var(--font-ui);
-  font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;}
-.si-buy:hover{background:rgba(255,215,0,.2);}
-.si-buy:disabled{opacity:.4;cursor:not-allowed;}
-.si-buy.owned-btn{background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.4);color:var(--green);}
-.potion-section{display:flex;flex-direction:column;gap:8px;}
-.potion-section h3{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
-.potion-row{display:flex;gap:8px;flex-wrap:wrap;}
-.potion-card{flex:1;min-width:120px;background:var(--panel);border:1px solid var(--panel-border);
-  border-radius:10px;padding:10px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s;}
-.potion-card:hover{border-color:rgba(0,245,255,.3);}
-.pc-icon{font-size:22px;flex-shrink:0;}
-.pc-info{flex:1;min-width:0;}
-.pc-name{font-size:11px;font-weight:700;}
-.pc-effect{font-size:10px;color:var(--muted);}
-.pc-dur{font-size:9px;color:var(--neon);font-family:var(--font-mono);}
-.pc-price{font-family:var(--font-mono);font-size:11px;color:var(--gold);}
+        .nav-item.active {
+            color: var(--stadium-green);
+            background: linear-gradient(to top, rgba(0, 255, 102, 0.05), transparent);
+        }
 
-/* ===== MARKETPLACE TAB ===== */
-#market-tab{overflow-y:auto;padding:16px;gap:12px;}
-.market-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.market-header h2{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--neon);letter-spacing:2px;}
-#market-feed{display:flex;flex-direction:column;gap:6px;}
-.market-row{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  background:var(--panel);border:1px solid var(--panel-border);border-radius:10px;
-  transition:all .3s;position:relative;overflow:hidden;}
-.market-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.market-row.buy::before{background:var(--green);}
-.market-row.sell::before{background:var(--red);}
-.mr-user{font-size:11px;font-weight:700;flex-shrink:0;width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mr-action{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;
-  letter-spacing:.5px;flex-shrink:0;}
-.mr-action.buy{background:rgba(0,255,136,.15);color:var(--green);}
-.mr-action.sell{background:rgba(255,59,59,.15);color:var(--red);}
-.mr-item{flex:1;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mr-price{font-family:var(--font-mono);font-size:12px;color:var(--gold);font-weight:600;flex-shrink:0;}
-.mr-time{font-family:var(--font-mono);font-size:9px;color:var(--muted);flex-shrink:0;}
-.market-actions{display:flex;gap:8px;}
-.market-actions button{flex:1;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;
-  font-family:var(--font-ui);font-size:11px;font-weight:700;transition:all .2s;}
-.btn-list{background:rgba(0,245,255,.1);color:var(--neon);border:1px solid rgba(0,245,255,.3);}
-.btn-list:hover{background:rgba(0,245,255,.2);}
-#market-list-form{background:var(--bg2);border:1px solid var(--panel-border);border-radius:12px;padding:14px;
-  display:none;flex-direction:column;gap:8px;}
-#market-list-form.show{display:flex;}
-#market-list-form label{font-size:11px;font-weight:600;color:var(--muted);}
-#market-list-form select,#market-list-form input{background:var(--panel);border:1px solid var(--panel-border);
-  border-radius:8px;color:var(--text);font-family:var(--font-ui);font-size:12px;
-  padding:8px 10px;outline:none;width:100%;}
-#market-list-form button{padding:10px;border-radius:8px;border:1px solid rgba(0,255,136,.4);
-  background:rgba(0,255,136,.1);color:var(--green);font-family:'Orbitron',sans-serif;
-  font-size:11px;font-weight:700;cursor:pointer;}
-.rap-chart-wrap{background:var(--bg2);border:1px solid var(--panel-border);border-radius:12px;overflow:hidden;}
-.rap-chart-header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--panel-border);}
-.rap-chart-header h3{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
-#rap-item-select{background:var(--panel);border:1px solid var(--panel-border);
-  border-radius:6px;color:var(--text);font-family:var(--font-mono);font-size:10px;padding:4px 8px;outline:none;}
-#rap-canvas{display:block;width:100%;height:120px;}
+        .nav-icon {
+            font-size: 18px;
+        }
 
-/* ===== CINEMATIC OVERLAY ===== */
-#cinematic{position:fixed;inset:0;z-index:1000;display:none;flex-direction:column;
-  align-items:center;justify-content:center;pointer-events:none;}
-#cinematic.active{display:flex;pointer-events:all;}
-#cin-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(20px);}
-#cin-flash{position:absolute;inset:0;pointer-events:none;opacity:0;}
-#cin-canvas{position:absolute;inset:0;pointer-events:none;}
-#cin-content{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:16px;
-  padding:30px;text-align:center;}
-#cin-label{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
-  color:var(--muted);animation:cinFadeIn .5s ease forwards;}
-#cin-type{font-size:13px;font-weight:600;letter-spacing:2px;margin-bottom:8px;}
-#cin-name{font-size:clamp(24px,6vw,52px);font-weight:900;line-height:1.1;
-  animation:cinNameBurst .6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  animation-delay:.3s;opacity:0;}
-@keyframes cinNameBurst{0%{opacity:0;transform:scale(.3) rotate(-10deg);}60%{transform:scale(1.15) rotate(2deg);}100%{opacity:1;transform:scale(1) rotate(0deg);}}
-#cin-rarity{font-family:var(--font-mono);font-size:13px;margin-top:4px;
-  animation:cinFadeIn .5s ease forwards;animation-delay:.8s;opacity:0;}
-@keyframes cinFadeIn{to{opacity:1;}}
-#cin-serial{font-family:var(--font-mono);font-size:11px;color:rgba(0,245,255,.7);
-  animation:cinFadeIn .5s ease forwards;animation-delay:1s;opacity:0;}
-#cin-vals{display:flex;gap:24px;margin-top:8px;
-  animation:cinFadeIn .5s ease forwards;animation-delay:1.2s;opacity:0;}
-.cv{text-align:center;}
-.cv .cl{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.cv .cv2{font-family:var(--font-mono);font-size:16px;color:var(--gold);font-weight:700;}
-#cin-skip{position:absolute;bottom:30px;right:30px;z-index:20;
-  padding:10px 20px;border-radius:10px;border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.08);backdrop-filter:blur(10px);
-  color:var(--text);font-family:var(--font-ui);font-size:12px;font-weight:600;
-  cursor:pointer;letter-spacing:1px;transition:all .2s;
-  animation:skipAppear 1s ease forwards;animation-delay:.5s;opacity:0;}
-@keyframes skipAppear{to{opacity:1;}}
-#cin-skip:hover{background:rgba(255,255,255,.15);}
+        /* --- PREMIUM CARD DESIGN SYSTEM --- */
+        .card-container {
+            width: 140px;
+            height: 210px;
+            perspective: 1000px;
+            position: relative;
+            margin: 10px auto;
+        }
 
-/* Screen Shake */
-@keyframes screenShake{
-  0%,100%{transform:translate(0,0) rotate(0);}
-  10%{transform:translate(-8px,4px) rotate(-.5deg);}
-  20%{transform:translate(8px,-4px) rotate(.5deg);}
-  30%{transform:translate(-6px,6px) rotate(-.3deg);}
-  40%{transform:translate(6px,-2px) rotate(.3deg);}
-  50%{transform:translate(-4px,4px) rotate(-.2deg);}
-  60%{transform:translate(4px,-4px) rotate(.2deg);}
-  70%{transform:translate(-2px,2px) rotate(-.1deg);}
-  80%{transform:translate(2px,-2px) rotate(.1deg);}
-  90%{transform:translate(-1px,1px);}
-}
-.shaking{animation:screenShake .6s cubic-bezier(.36,.07,.19,.97) forwards;}
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            border-radius: 12px;
+        }
 
-/* ===== NOTIFICATIONS ===== */
-#notif-stack{position:fixed;top:60px;right:12px;z-index:500;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
-.notif{padding:10px 14px;border-radius:10px;background:rgba(11,14,20,.95);
-  border:1px solid rgba(0,245,255,.3);backdrop-filter:blur(20px);
-  font-size:12px;font-weight:600;max-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.5);
-  animation:notifSlide .3s ease;pointer-events:all;}
-@keyframes notifSlide{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
-.notif.success{border-color:rgba(0,255,136,.4);color:var(--green);}
-.notif.warn{border-color:rgba(255,165,0,.4);color:#FFA500;}
-.notif.info{border-color:rgba(0,245,255,.3);color:var(--neon);}
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            border: 2px solid var(--card-border-color, #fff);
+            background: linear-gradient(135deg, #111, #222);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
 
-/* ===== MODAL ===== */
-#modal-overlay{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.8);
-  backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:16px;}
-#modal-overlay.active{display:flex;}
-#modal-box{background:var(--bg2);border:1px solid rgba(0,245,255,.2);border-radius:16px;
-  padding:20px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;
-  box-shadow:0 20px 60px rgba(0,0,0,.8);}
-#modal-box h2{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;
-  color:var(--neon);letter-spacing:2px;margin-bottom:14px;}
-#modal-body{font-size:12px;color:var(--text);line-height:1.6;}
-#modal-close{margin-top:16px;width:100%;padding:10px;border-radius:8px;
-  border:1px solid rgba(255,255,255,.15);background:var(--panel);
-  color:var(--text);font-family:var(--font-ui);font-size:12px;font-weight:700;cursor:pointer;}
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #05140b, #0c2b18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--stadium-green);
+        }
 
-/* ===== ITEM DETAIL (in modal) ===== */
-.item-detail-card{display:flex;flex-direction:column;gap:10px;}
-.idc-banner{height:100px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:48px;}
-.idc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.idc-field{background:rgba(255,255,255,.04);border-radius:8px;padding:8px;}
-.idc-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-.idc-value{font-size:13px;font-weight:700;margin-top:2px;}
-.idc-actions{display:flex;gap:8px;}
-.idc-actions button{flex:1;padding:9px;border-radius:8px;font-family:var(--font-ui);
-  font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;border:1px solid;}
+        .card-back::after {
+            content: '⚽';
+            font-size: 40px;
+            opacity: 0.3;
+            animation: spinBall 6s linear infinite;
+        }
 
-/* ===== RESPONSIVE ===== */
-@media(min-width:600px){
-  #roll-tab{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;}
-  #roll-arena{max-width:220px;}
-  #result-display,#roll-stats,#recent-rolls-wrap{max-width:600px;}
-}
-@media(min-width:900px){
-  #roll-tab{padding:30px;}
-}
-</style>
+        @keyframes spinBall { 100% { transform: rotate(360deg); } }
+
+        /* Rarity-Specific Animations & Backgrounds */
+        .rarity-glow-common { --card-border-color: var(--rarity-common); }
+        .rarity-glow-uncommon { --card-border-color: var(--rarity-uncommon); }
+        .rarity-glow-rare { --card-border-color: var(--rarity-rare); box-shadow: 0 0 10px rgba(49,130,206,0.4); }
+        .rarity-glow-super-rare { --card-border-color: var(--rarity-super-rare); box-shadow: 0 0 12px rgba(128,90,213,0.5); }
+        .rarity-glow-epic { --card-border-color: var(--rarity-epic); animation: pulseGlow 2s infinite alternate; }
+        .rarity-glow-elite { --card-border-color: var(--rarity-elite); background: linear-gradient(135deg, #2d1a0d, #111); }
+        .rarity-glow-legendary { --card-border-color: var(--rarity-legendary); box-shadow: 0 0 15px var(--rarity-legendary); background: linear-gradient(135deg, #2d270d, #1a1505); }
+        .rarity-glow-hero { --card-border-color: var(--rarity-hero); background: linear-gradient(135deg, #0d2d2d, #051a1a); }
+        .rarity-glow-icon { --card-border-color: var(--rarity-icon); background: linear-gradient(135deg, #fff, #aaa); color: #000; }
+        .rarity-glow-prime-icon { --card-border-color: var(--rarity-prime-icon); animation: goldShine 3s infinite linear; background: linear-gradient(135deg, #3a3205, #111); }
+        
+        /* Mythic & God Tier Super Effects */
+        .rarity-glow-mythic {
+            --card-border-color: var(--rarity-mythic);
+            animation: cosmicRainbow 4s infinite linear, extremePulse 1.5s infinite alternate;
+        }
+        .rarity-glow-ultimate-icon {
+            --card-border-color: var(--rarity-ultimate-icon);
+            background: linear-gradient(135deg, #001f3f, #00f2fe);
+            box-shadow: 0 0 25px var(--rarity-ultimate-icon);
+        }
+        .rarity-glow-god-tier {
+            --card-border-color: var(--rarity-god-tier);
+            animation: cosmicRainbow 2s infinite linear;
+            box-shadow: 0 0 35px var(--rarity-god-tier);
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px var(--card-border-color); }
+            100% { box-shadow: 0 0 18px var(--card-border-color); }
+        }
+        @keyframes extremePulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); }
+        }
+        @keyframes cosmicRainbow {
+            0% { border-color: #ff0000; }
+            20% { border-color: #ff00ff; }
+            40% { border-color: #0000ff; }
+            60% { border-color: #00ffff; }
+            80% { border-color: #00ff00; }
+            100% { border-color: #ff0000; }
+        }
+
+        /* Card Elements layout */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .card-rating-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card-ovr {
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .card-pos {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        .card-badge {
+            font-size: 8px;
+            background: rgba(255,255,255,0.15);
+            padding: 2px 4px;
+            border-radius: 4px;
+            max-width: 65px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .card-avatar-placeholder {
+            font-size: 40px;
+            text-align: center;
+            margin: 2px 0;
+            position: relative;
+        }
+        .card-info {
+            text-align: center;
+        }
+        .card-name {
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+        .card-meta {
+            font-size: 8px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+        .card-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 4px;
+            font-size: 9px;
+            text-align: center;
+        }
+        .card-stat-item span {
+            color: var(--text-muted);
+            font-size: 7px;
+            display: block;
+        }
+
+        /* --- BUTTONS & SELECTION STYLES --- */
+        .btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn:active {
+            transform: scale(0.97);
+            background: rgba(255,255,255,0.15);
+        }
+        .btn-primary {
+            background: var(--stadium-green);
+            color: #000;
+            border: none;
+        }
+        .btn-primary:active {
+            background: #00cc52;
+        }
+
+        /* --- SQUAD BUILDER INTERACTIVE GRID --- */
+        .pitch-container {
+            background: linear-gradient(to bottom, #11351a, #081c0e);
+            border: 2px solid rgba(0,255,102,0.3);
+            border-radius: 16px;
+            position: relative;
+            aspect-ratio: 3/4;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto 15px auto;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
+        }
+        .pitch-line {
+            position: absolute;
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: none;
+        }
+        .pitch-center-circle {
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80px; height: 80px; border-radius: 50%;
+        }
+        .pitch-half-line {
+            top: 50%; left: 0; right: 0; height: 1px;
+        }
+        .pitch-row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            z-index: 2;
+        }
+        .pitch-slot {
+            width: 65px;
+            height: 90px;
+            background: rgba(0,0,0,0.4);
+            border: 1px dashed rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .pitch-slot.occupied {
+            background: transparent;
+            border: none;
+        }
+        .pitch-slot .mini-card {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--card-border-color, #fff);
+            background: #151515;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: center;
+        }
+        .mini-card-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-weight: 900;
+        }
+        .mini-card-name {
+            font-size: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Links/Chemistry lines system */
+        .chem-link-line {
+            position: absolute;
+            height: 2px;
+            transform-origin: top left;
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* --- SCREEN MODAL & NOTIFICATIONS SYSTEM --- */
+        .overlay-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #121a16;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: var(--stadium-green);
+        }
+
+        /* --- GRID SYSTEMS & UTILITIES --- */
+        .cards-display-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            justify-items: center;
+        }
+        .flex-row-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .filter-select {
+            background: #1a2620;
+            color: #fff;
+            border: 1px solid var(--glass-border);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            width: 48%;
+        }
+        .section-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            color: var(--stadium-green);
+            border-left: 3px solid var(--stadium-green);
+            padding-left: 8px;
+        }
+
+        /* --- SCREEN SHAKE & ANIMATION KEYS --- */
+        @keyframes packShake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+        .shake-element { animation: packShake 0.5s linear infinite; }
+
+        /* Multi-column list display elements */
+        .list-row-item {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* --- SYSTEM DESIGN PACK WRAPPERS --- */
+        .pack-wrapper {
+            background: radial-gradient(circle at center, #1b3a24, #0d1a12);
+            border: 2px solid var(--stadium-green);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
-<!-- Background -->
-<div id="bg-grid"></div>
-<div id="bg-noise"></div>
 
-<!-- Notification Stack -->
-<div id="notif-stack"></div>
-
-<!-- Top Bar -->
-<div id="topbar">
-  <div id="topbar-logo">⟁ ROBLOX RNG</div>
-  <div class="stat-pill"><span class="label">ROLLS</span><span class="val" id="stat-rolls">0</span></div>
-  <div class="stat-pill"><span class="label">R$</span><span class="val gold" id="stat-robux">0</span></div>
-  <div class="stat-pill"><span class="label">RAP</span><span class="val green" id="stat-rap">0</span></div>
-  <div class="stat-pill"><span class="label">VALUE</span><span class="val green" id="stat-value">0</span></div>
-  <div id="luck-indicator">⚡ LUCK <span class="luck-badge" id="stat-luck">1x</span></div>
-</div>
-
-<!-- Main -->
-<div id="main">
-
-  <!-- ROLL TAB -->
-  <div id="roll-tab" class="tab-content active">
-    <!-- Roll Arena -->
-    <div id="roll-arena">
-      <div id="roll-btn-wrap">
-        <div id="roll-ring1"></div>
-        <div id="roll-ring2"></div>
-        <button id="roll-btn" onclick="doRoll()">
-          <span class="roll-label">ROLL</span>
-          <span class="roll-sub">CLICK TO ROLL</span>
-        </button>
-      </div>
-      <div id="auto-controls">
-        <div class="toggle-wrap" onclick="toggleAutoRoll()">
-          <div class="toggle" id="auto-toggle"></div>
-          <span class="toggle-label">AUTO-ROLL</span>
+    <header class="top-ui">
+        <div class="stat-box">
+            <span class="stat-label">Coins</span>
+            <span class="stat-value highlight" id="top-coins">1,000</span>
         </div>
-        <select id="roll-speed">
-          <option value="500">Fast (0.5s)</option>
-          <option value="1000" selected>Normal (1s)</option>
-          <option value="2000">Slow (2s)</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Result Card -->
-    <div id="result-display">
-      <div id="result-card">
-        <div id="result-icon">🎲</div>
-        <div id="result-info">
-          <div id="result-name" style="color:var(--muted)">Roll to discover an item...</div>
-          <div id="result-meta"></div>
-          <div id="result-vals"></div>
+        <div class="stat-box">
+            <span class="stat-label">Gems</span>
+            <span class="stat-value" style="color: #00f2fe;" id="top-gems">50</span>
         </div>
-      </div>
-    </div>
-
-    <!-- Roll Stats -->
-    <div id="roll-stats">
-      <div class="rstat"><div class="rs-val" id="rs-best">—</div><div class="rs-label">BEST ROLL</div></div>
-      <div class="rstat"><div class="rs-val" id="rs-streak">0</div><div class="rs-label">DRY STREAK</div></div>
-      <div class="rstat"><div class="rs-val" id="rs-total-val">0</div><div class="rs-label">EARNED (R$)</div></div>
-    </div>
-
-    <!-- Recent Rolls -->
-    <div id="recent-rolls-wrap">
-      <h3>Recent Rolls</h3>
-      <div id="recent-rolls"></div>
-    </div>
-  </div>
-
-  <!-- INVENTORY TAB -->
-  <div id="inventory-tab" class="tab-content">
-    <div id="inv-header">
-      <h2>⚙ INVENTORY</h2>
-      <div id="inv-totals">
-        <div class="stat-pill"><span class="label">ITEMS</span><span class="val" id="inv-count">0</span></div>
-      </div>
-    </div>
-    <div id="inv-filter">
-      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-      <button class="filter-btn" onclick="setFilter('Limited',this)">Limited</button>
-      <button class="filter-btn" onclick="setFilter('Limited U',this)">Limited U</button>
-      <button class="filter-btn" onclick="setFilter('Projected',this)">Projected</button>
-    </div>
-    <div id="inv-grid">
-      <div class="inv-empty"><div class="ie-icon">📦</div><p>No items yet — start rolling!</p></div>
-    </div>
-  </div>
-
-  <!-- TRADING HUB TAB -->
-  <div id="trading-tab" class="tab-content">
-    <div class="trade-section-tabs">
-      <button class="tsub-btn active" onclick="setTradeSub('inbound',this)">📥 Inbound</button>
-      <button class="tsub-btn" onclick="setTradeSub('outbound',this)">📤 Outbound</button>
-      <button class="tsub-btn" onclick="setTradeSub('log',this)">📋 Log</button>
-    </div>
-    <div id="trade-inbound" class="trade-subsection active"></div>
-    <div id="trade-outbound" class="trade-subsection">
-      <div id="send-trade">
-        <h3>📤 Send a Trade</h3>
-        <div class="trade-builder">
-          <div class="tb-side">
-            <div class="tb-label">Your Offer</div>
-            <select class="tb-select" id="trade-offer-select" onchange="addOfferItem()">
-              <option value="">-- Select Item --</option>
-            </select>
-            <div class="tb-items" id="offer-items"></div>
-          </div>
-          <div class="trade-arrow">⇄</div>
-          <div class="tb-side">
-            <div class="tb-label">Request</div>
-            <select class="tb-select" id="trade-request-select" onchange="addRequestItem()">
-              <option value="">-- Select AI Item --</option>
-            </select>
-            <div class="tb-items" id="request-items"></div>
-          </div>
+        <div class="stat-box">
+            <span class="stat-label">Level / XP</span>
+            <span class="stat-value" id="top-lvl-xp">Lv.1 (0%)</span>
         </div>
-        <button id="send-trade-btn" onclick="sendTrade()">⚡ SEND TRADE</button>
-      </div>
-    </div>
-    <div id="trade-log" class="trade-subsection"></div>
-  </div>
-
-  <!-- LUCK SHOP TAB -->
-  <div id="luck-tab" class="tab-content">
-    <div class="luck-banner">
-      <div class="lb-title">⚡ LUCK ORACLE</div>
-      <div class="lb-sub">Multiply your fortune — permanently boost your luck</div>
-      <div class="lb-luck" id="lb-luck-display">1x</div>
-    </div>
-    <div class="potion-section">
-      <h3>⏱ Temporary Boosts</h3>
-      <div class="potion-row" id="potions-row"></div>
-    </div>
-    <div class="shop-grid" id="luck-shop-grid"></div>
-  </div>
-
-  <!-- MARKETPLACE TAB -->
-  <div id="market-tab" class="tab-content">
-    <div class="market-header">
-      <h2>📊 MARKETPLACE</h2>
-      <div style="display:flex;gap:6px;">
-        <button class="btn-list" onclick="toggleListForm()">+ List Item</button>
-      </div>
-    </div>
-    <div id="market-list-form">
-      <label>Item to List</label>
-      <select id="list-item-sel"></select>
-      <label>Asking Price (R$)</label>
-      <input type="number" id="list-price" placeholder="Enter price..."/>
-      <button onclick="listItem()">List for Sale</button>
-    </div>
-    <div class="rap-chart-wrap">
-      <div class="rap-chart-header">
-        <h3>📈 RAP History</h3>
-        <select id="rap-item-select" onchange="drawChart()"></select>
-      </div>
-      <canvas id="rap-canvas"></canvas>
-    </div>
-    <div id="market-feed"></div>
-  </div>
-
-</div>
-
-<!-- Bottom Nav -->
-<div id="bottom-nav">
-  <button class="nav-btn active" onclick="switchTab('roll-tab',this)"><span class="nav-icon">🎲</span>Roll</button>
-  <button class="nav-btn" onclick="switchTab('inventory-tab',this)"><span class="nav-icon">🎒</span>Inventory</button>
-  <button class="nav-btn" onclick="switchTab('trading-tab',this)"><span class="nav-icon">🤝</span>Trading</button>
-  <button class="nav-btn" onclick="switchTab('luck-tab',this)"><span class="nav-icon">⚡</span>Luck</button>
-  <button class="nav-btn" onclick="switchTab('market-tab',this)"><span class="nav-icon">📊</span>Market</button>
-</div>
-
-<!-- Cinematic Overlay -->
-<div id="cinematic">
-  <div id="cin-backdrop"></div>
-  <div id="cin-flash"></div>
-  <canvas id="cin-canvas"></canvas>
-  <div id="cin-content">
-    <div id="cin-label">YOU ROLLED</div>
-    <div id="cin-type"></div>
-    <div id="cin-name"></div>
-    <div id="cin-rarity"></div>
-    <div id="cin-serial"></div>
-    <div id="cin-vals"></div>
-  </div>
-  <button id="cin-skip" onclick="skipCinematic()">SKIP ▶</button>
-</div>
-
-<!-- Modal -->
-<div id="modal-overlay" onclick="closeModal(event)">
-  <div id="modal-box">
-    <h2 id="modal-title"></h2>
-    <div id="modal-body"></div>
-    <button id="modal-close" onclick="closeModal()">Close</button>
-  </div>
-</div>
-
-<script>
-/* =====================================================================
-   ROBLOX RNG — Full Game Engine
-   ===================================================================== */
-
-// ===== ITEM DATABASE =====
-const ITEMS = [
-  // ──── MYTHICAL (1 in 1B+) ────
-  {
-    id:'korblox',name:'Korblox Deathspeaker',rarity:1000000000n,type:'Limited U',
-    totalCopies:null,rap:10000,value:12000,demand:'Amazing',isProjected:false,icon:'💀',
-    style:{fontFamily:"'Cinzel',serif",glowColor:'#8B00FF',
-      gradient:'linear-gradient(135deg,#1a0033,#0d0022,#2a0044)'}
-  },
-  {
-    id:'headless',name:'Headless Horseman',rarity:500000000n,type:'Limited',
-    totalCopies:null,rap:45000,value:50000,demand:'Amazing',isProjected:false,icon:'🎃',
-    style:{fontFamily:"'Creepster',cursive",glowColor:'#FF6600',
-      gradient:'linear-gradient(135deg,#2a0a00,#1a0500,#3a1000)'}
-  },
-  {
-    id:'dominus-rex',name:'Dominus Rex',rarity:800000000n,type:'Limited U',
-    totalCopies:1,rap:999999,value:999999,demand:'Amazing',isProjected:false,icon:'👑',
-    style:{fontFamily:"'Cinzel',serif",glowColor:'#FFD700',
-      gradient:'linear-gradient(135deg,#2a1a00,#1a1000,#3a2a00)'}
-  },
-  {
-    id:'dominus-aureus',name:'Dominus Aureus',rarity:100000000n,type:'Limited U',
-    totalCopies:null,rap:180000,value:200000,demand:'Amazing',isProjected:false,icon:'⚜️',
-    style:{fontFamily:"'Cinzel',serif",glowColor:'#DAA520',
-      gradient:'linear-gradient(135deg,#251800,#1a1000,#301f00)'}
-  },
-  {
-    id:'dominus-frigidus',name:'Dominus Frigidus',rarity:50000000n,type:'Limited U',
-    totalCopies:null,rap:55000,value:60000,demand:'Amazing',isProjected:false,icon:'❄️',
-    style:{fontFamily:"'Cinzel',serif",glowColor:'#00BFFF',
-      gradient:'linear-gradient(135deg,#001a2a,#000d1a,#00253a)'}
-  },
-  // ──── LEGENDARY (1 in 1M–50M) ────
-  {
-    id:'dominus-astra',name:'Dominus Astra',rarity:20000000n,type:'Limited U',
-    totalCopies:null,rap:25000,value:30000,demand:'Amazing',isProjected:false,icon:'🌌',
-    style:{fontFamily:"'Orbitron',sans-serif",glowColor:'#9370DB',
-      gradient:'linear-gradient(135deg,#0a0020,#050010,#150030)'}
-  },
-  {
-    id:'sshf',name:'Super Super Happy Face',rarity:1000000n,type:'Limited',
-    totalCopies:null,rap:11000,value:15000,demand:'Amazing',isProjected:false,icon:'😊',
-    style:{fontFamily:"'Bebas Neue',cursive",glowColor:'#FFFF00',
-      gradient:'linear-gradient(135deg,#2a2a00,#1a1a00,#3a3a00)'}
-  },
-  {
-    id:'valkyrie',name:'Valkyrie Helm',rarity:500000n,type:'Limited U',
-    totalCopies:null,rap:8500,value:9000,demand:'High',isProjected:false,icon:'⚔️',
-    style:{fontFamily:"'Cinzel',serif",glowColor:'#C0C0C0',
-      gradient:'linear-gradient(135deg,#1a1a2a,#0d0d1a,#25253a)'}
-  },
-  {
-    id:'clockwork',name:'Clockwork\'s Headphones',rarity:200000n,type:'Limited',
-    totalCopies:null,rap:17000,value:20000,demand:'Amazing',isProjected:false,icon:'🎧',
-    style:{fontFamily:"'Orbitron',sans-serif",glowColor:'#FF4500',
-      gradient:'linear-gradient(135deg,#2a0a00,#1a0500,#3a1500)'}
-  },
-  // ──── EPIC (1 in 10K–200K) ────
-  {
-    id:'arctic',name:'Arctic Blue Hair',rarity:100000n,type:'Limited',
-    totalCopies:null,rap:500,value:600,demand:'Normal',isProjected:false,icon:'💙',
-    style:{fontFamily:"'Exo 2',sans-serif",glowColor:'#00CED1',
-      gradient:'linear-gradient(135deg,#001520,#000d15,#002030)'}
-  },
-  {
-    id:'rainbow-hair',name:'Classic Roblox\'s Hair',rarity:80000n,type:'Limited',
-    totalCopies:null,rap:300,value:350,demand:'Normal',isProjected:false,icon:'🌈',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#FF69B4',
-      gradient:'linear-gradient(135deg,#1a001a,#0d000d,#250025)'}
-  },
-  {
-    id:'phoenix',name:'Phoenix Shoulder Companion',rarity:50000n,type:'Limited U',
-    totalCopies:2500,rap:4500,value:5500,demand:'High',isProjected:false,icon:'🔥',
-    style:{fontFamily:"'Bebas Neue',cursive",glowColor:'#FF6347',
-      gradient:'linear-gradient(135deg,#2a0500,#1a0300,#3a0800)'}
-  },
-  {
-    id:'linked-sword',name:'Linked Sword',rarity:40000n,type:'Limited',
-    totalCopies:null,rap:250,value:280,demand:'Normal',isProjected:false,icon:'🗡️',
-    style:{fontFamily:"'Share Tech Mono',monospace",glowColor:'#4682B4',
-      gradient:'linear-gradient(135deg,#001525,#000e18,#002035)'}
-  },
-  {
-    id:'sparkle-time',name:'Sparkle Time Fedora',rarity:25000n,type:'Limited U',
-    totalCopies:1500,rap:12000,value:14000,demand:'High',isProjected:false,icon:'✨',
-    style:{fontFamily:"'Cinzel',serif",glowColor:'#FFD700',
-      gradient:'linear-gradient(135deg,#1a1500,#100d00,#251c00)'}
-  },
-  {
-    id:'purple-banded',name:'Purple Banded Top Hat',rarity:15000n,type:'Limited',
-    totalCopies:null,rap:350,value:400,demand:'Normal',isProjected:false,icon:'🎩',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#9400D3',
-      gradient:'linear-gradient(135deg,#150020,#0d0015,#20002e)'}
-  },
-  {
-    id:'roblox-visor',name:'Roblox Visor',rarity:10000n,type:'Limited',
-    totalCopies:null,rap:1800,value:2000,demand:'High',isProjected:false,icon:'🥽',
-    style:{fontFamily:"'Orbitron',sans-serif",glowColor:'#FF0000',
-      gradient:'linear-gradient(135deg,#2a0000,#1a0000,#3a0000)'}
-  },
-  // ──── RARE (1 in 1K–10K) ────
-  {
-    id:'bling-1',name:'1 Year Bling Badge',rarity:5000n,type:'Limited',
-    totalCopies:null,rap:120,value:130,demand:'Normal',isProjected:false,icon:'🏅',
-    style:{fontFamily:"'Exo 2',sans-serif",glowColor:'#BDB76B',
-      gradient:'linear-gradient(135deg,#1a1500,#100e00,#221c00)'}
-  },
-  {
-    id:'top-hat',name:'Classic Top Hat',rarity:2000n,type:'Limited',
-    totalCopies:null,rap:90,value:100,demand:'Terrible',isProjected:false,icon:'🎩',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#555555',
-      gradient:'linear-gradient(135deg,#111111,#0a0a0a,#181818)'}
-  },
-  {
-    id:'hockey',name:'Hockey Hair',rarity:1500n,type:'Limited',
-    totalCopies:null,rap:200,value:220,demand:'Normal',isProjected:false,icon:'🏒',
-    style:{fontFamily:"'Exo 2',sans-serif",glowColor:'#1E90FF',
-      gradient:'linear-gradient(135deg,#001020,#000b15,#00182e)'}
-  },
-  {
-    id:'classic-fed',name:'Classic Federation',rarity:3000n,type:'Limited',
-    totalCopies:null,rap:160,value:180,demand:'Normal',isProjected:false,icon:'🎖️',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#4169E1',
-      gradient:'linear-gradient(135deg,#001030,#000820,#001840)'}
-  },
-  // ──── UNCOMMON (1 in 100–1K) ────
-  {
-    id:'brown-hair',name:'Brown Hair',rarity:500n,type:'Limited',
-    totalCopies:null,rap:30,value:30,demand:'Terrible',isProjected:false,icon:'💇',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#8B4513',
-      gradient:'linear-gradient(135deg,#1a0800,#100500,#200b00)'}
-  },
-  {
-    id:'red-bandana',name:'Red Bandana',rarity:300n,type:'Limited',
-    totalCopies:null,rap:50,value:55,demand:'Normal',isProjected:false,icon:'🔴',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#DC143C',
-      gradient:'linear-gradient(135deg,#1a0005,#100003,#200008)'}
-  },
-  {
-    id:'shades',name:'Shades',rarity:200n,type:'Limited',
-    totalCopies:null,rap:400,value:450,demand:'High',isProjected:false,icon:'🕶️',
-    style:{fontFamily:"'Orbitron',sans-serif",glowColor:'#2F4F4F',
-      gradient:'linear-gradient(135deg,#080810,#040408,#0d0d18)'}
-  },
-  // ──── COMMON (1 in 2–100) ────
-  {
-    id:'blue-shirt',name:'Classic Blue Shirt',rarity:50n,type:'Limited',
-    totalCopies:null,rap:15,value:15,demand:'Terrible',isProjected:false,icon:'👕',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#4169E1',
-      gradient:'linear-gradient(135deg,#000a1a,#000612,#000e22)'}
-  },
-  {
-    id:'noob-face',name:'Noob Face',rarity:10n,type:'Limited',
-    totalCopies:null,rap:80,value:80,demand:'Normal',isProjected:false,icon:'🟡',
-    style:{fontFamily:"'Press Start 2P',monospace",glowColor:'#FFD700',
-      gradient:'linear-gradient(135deg,#1a1000,#100a00,#221500)'}
-  },
-  {
-    id:'default',name:'Nothing',rarity:2n,type:'Limited',
-    totalCopies:null,rap:0,value:0,demand:'Terrible',isProjected:false,icon:'💨',
-    style:{fontFamily:"'Rajdhani',sans-serif",glowColor:'#333333',
-      gradient:'linear-gradient(135deg,#0d0d0d,#080808,#121212)'}
-  }
-];
-
-// Sort by rarity descending (rarest first)
-ITEMS.sort((a,b)=>(a.rarity>b.rarity?-1:a.rarity<b.rarity?1:0));
-
-// ===== GAME STATE =====
-let state = {
-  rolls:0,
-  robux:1000,
-  luckMultiplier:1n,
-  luckLevel:0,
-  inventory:[],
-  filter:'all',
-  autoRolling:false,
-  autoInterval:null,
-  recentRolls:[],
-  dryStreak:0,
-  totalEarned:0,
-  bestRoll:null,
-  tradeLog:[],
-  marketListings:[],
-  activePotions:[],
-  potionTimer:null,
-  tradeSub:'inbound',
-  aiInventory:[],
-  inboundOffers:[],
-  tradeOffer:[],
-  tradeRequest:[],
-};
-
-// Populate AI inventory with random items
-function initAIInventory(){
-  const pool = ITEMS.filter(i=>i.rarity>=100n && i.rarity<=5000000n);
-  for(let i=0;i<12;i++){
-    const base = pool[Math.floor(Math.random()*pool.length)];
-    const item = JSON.parse(JSON.stringify(base,jsonReplacer));
-    item.id = base.id+'_ai_'+i;
-    item.serial = base.totalCopies?Math.floor(Math.random()*base.totalCopies)+1:null;
-    item.rarity = BigInt(item.rarity);
-    state.aiInventory.push(item);
-  }
-}
-
-function jsonReplacer(k,v){return typeof v==='bigint'?v.toString():v;}
-
-// ===== RNG ENGINE =====
-function rollRNG(){
-  // Find max rarity
-  const maxRarity = ITEMS[0].rarity * state.luckMultiplier;
-  // Random BigInt
-  const rolled = randomBigInt(maxRarity);
-  // Award rarest item whose rarity threshold fits
-  for(const item of ITEMS){
-    const threshold = maxRarity / item.rarity;
-    if(rolled < threshold) return item;
-  }
-  return ITEMS[ITEMS.length-1];
-}
-
-function randomBigInt(max){
-  // Use crypto for better randomness
-  const bits = max.toString(2).length;
-  const bytes = Math.ceil(bits/8);
-  let r;
-  do {
-    const arr = new Uint8Array(bytes);
-    crypto.getRandomValues(arr);
-    r = BigInt('0x'+Array.from(arr).map(b=>b.toString(16).padStart(2,'0')).join(''));
-  } while(r>=max);
-  return r;
-}
-
-// ===== ROLL ACTION =====
-let rolling = false;
-function doRoll(){
-  if(rolling) return;
-  rolling = true;
-  const btn = document.getElementById('roll-btn');
-  btn.classList.add('rolling');
-  btn.querySelector('.roll-sub').textContent = 'ROLLING...';
-
-  setTimeout(()=>{
-    const item = rollRNG();
-    btn.classList.remove('rolling');
-    btn.querySelector('.roll-sub').textContent = 'CLICK TO ROLL';
-    rolling = false;
-
-    state.rolls++;
-    processRolledItem(item);
-    updateStats();
-  }, 200);
-}
-
-function processRolledItem(baseItem){
-  // Create instance
-  const item = Object.assign({},baseItem);
-  item.rarity = baseItem.rarity; // keep BigInt
-  item.instanceId = Date.now()+'_'+Math.random().toString(36).substr(2,6);
-
-  // Serial number for Limited U
-  if(item.type==='Limited U' && item.totalCopies){
-    item.serial = Math.floor(Math.random()*item.totalCopies)+1;
-    // Low serial bonus
-    if(item.serial<=10) item.value = Math.round(item.value*2.5);
-    else if(item.serial<=100) item.value = Math.round(item.value*1.5);
-  }
-
-  // Projection chance (higher for common items)
-  const projChance = Number(item.rarity) < 1000 ? 0.15 : 0.03;
-  if(Math.random()<projChance && item.value>0){
-    item.isProjected = true;
-    item.rap = Math.round(item.rap * 1.4); // inflated RAP
-    item.value = Math.round(item.value * 0.7); // lower real value
-  }
-
-  // Add to inventory
-  state.inventory.push(item);
-
-  // Dry streak tracking
-  if(item.rarity >= 1000n) state.dryStreak=0;
-  else state.dryStreak++;
-
-  // Best roll
-  if(!state.bestRoll || item.rarity > state.bestRoll.rarity) state.bestRoll = item;
-
-  // Total earned
-  state.totalEarned += item.rap;
-  state.robux += Math.floor(item.rap * 0.05); // 5% auto-sell bonus drip
-
-  // Recent rolls
-  state.recentRolls.unshift({item,rollNum:state.rolls});
-  if(state.recentRolls.length>8) state.recentRolls.pop();
-
-  // Show result
-  showResult(item);
-  renderRecentRolls();
-  renderInventory();
-  updateStats();
-
-  // Cinematic for rare items
-  if(item.rarity >= 10000n) triggerCinematic(item);
-  else showNotif(`Rolled: ${item.name}`, item.rarity>=1000n?'info':'');
-}
-
-// ===== UI UPDATES =====
-function showResult(item){
-  const card = document.getElementById('result-card');
-  card.className = 'has-result';
-  card.style.setProperty('--result-glow', item.style.glowColor+'44');
-
-  document.getElementById('result-icon').textContent = item.icon;
-  document.getElementById('result-icon').style.background = item.style.gradient;
-
-  const nameEl = document.getElementById('result-name');
-  nameEl.textContent = item.name;
-  nameEl.style.fontFamily = item.style.fontFamily;
-  nameEl.style.color = item.style.glowColor;
-  nameEl.style.textShadow = `0 0 20px ${item.style.glowColor}88`;
-
-  // Badges
-  const meta = document.getElementById('result-meta');
-  meta.innerHTML = '';
-  const rarityLabel = getRarityLabel(item.rarity);
-  meta.innerHTML += `<span class="badge rarity">${rarityLabel}</span>`;
-  const typeClass = item.type==='Limited U'?'limitedu':'limited';
-  meta.innerHTML += `<span class="badge ${typeClass}">${item.type}</span>`;
-  meta.innerHTML += `<span class="badge demand-${item.demand.toLowerCase()}">${item.demand}</span>`;
-  if(item.isProjected) meta.innerHTML += `<span class="badge projected">PROJECTED ⚠</span>`;
-  if(item.serial) meta.innerHTML += `<span id="serial-badge">#${item.serial}/${item.totalCopies}</span>`;
-
-  // Values
-  const vals = document.getElementById('result-vals');
-  vals.innerHTML = `
-    <div class="rval"><span class="rl">1 IN</span><span class="rv">${formatBig(item.rarity)}</span></div>
-    <div class="rval"><span class="rl">RAP</span><span class="rv">R$${fmtNum(item.rap)}</span></div>
-    <div class="rval"><span class="rl">VALUE</span><span class="rv">R$${fmtNum(item.value)}</span></div>
-  `;
-}
-
-function updateStats(){
-  document.getElementById('stat-rolls').textContent = fmtNum(state.rolls);
-  document.getElementById('stat-robux').textContent = fmtNum(state.robux);
-  const totalRap = state.inventory.reduce((s,i)=>s+i.rap,0);
-  const totalVal = state.inventory.reduce((s,i)=>s+i.value,0);
-  document.getElementById('stat-rap').textContent = 'R$'+fmtNum(totalRap);
-  document.getElementById('stat-value').textContent = 'R$'+fmtNum(totalVal);
-  document.getElementById('stat-luck').textContent = state.luckMultiplier+'x';
-  document.getElementById('stat-luck').parentElement.querySelector('.luck-badge').textContent = state.luckMultiplier+'x';
-
-  const best = state.bestRoll ? getRarityLabel(state.bestRoll.rarity) : '—';
-  document.getElementById('rs-best').textContent = best;
-  document.getElementById('rs-streak').textContent = state.dryStreak;
-  document.getElementById('rs-total-val').textContent = 'R$'+fmtNum(state.totalEarned);
-  document.getElementById('inv-count').textContent = state.inventory.length;
-  document.getElementById('lb-luck-display').textContent = state.luckMultiplier+'x';
-}
-
-function renderRecentRolls(){
-  const el = document.getElementById('recent-rolls');
-  el.innerHTML = state.recentRolls.map(r=>`
-    <div class="recent-row">
-      <span class="recent-icon">${r.item.icon}</span>
-      <span class="recent-name" style="color:${r.item.style.glowColor}">${r.item.name}</span>
-      <span class="recent-roll-num">#${r.rollNum}</span>
-      <span class="recent-rarity">1:${formatBig(r.item.rarity)}</span>
-    </div>
-  `).join('');
-}
-
-// ===== INVENTORY RENDER =====
-function setFilter(f,btn){
-  state.filter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderInventory();
-}
-
-function renderInventory(){
-  const grid = document.getElementById('inv-grid');
-  let items = state.inventory;
-  if(state.filter==='Limited') items=items.filter(i=>i.type==='Limited');
-  else if(state.filter==='Limited U') items=items.filter(i=>i.type==='Limited U');
-  else if(state.filter==='Projected') items=items.filter(i=>i.isProjected);
-
-  if(!items.length){
-    grid.innerHTML='<div class="inv-empty"><div class="ie-icon">📦</div><p>No items found.</p></div>';
-    return;
-  }
-
-  // Deduplicate: group same item id
-  const grouped={};
-  items.forEach(i=>{
-    if(!grouped[i.id]) grouped[i.id]={...i,count:0,instances:[]};
-    grouped[i.id].count++;
-    grouped[i.id].instances.push(i);
-  });
-
-  grid.innerHTML = Object.values(grouped).sort((a,b)=>Number(b.rarity-a.rarity)).map(g=>`
-    <div class="inv-card" onclick="openItemDetail('${g.id}')">
-      ${g.count>1?`<div class="inv-card-count">x${g.count}</div>`:''}
-      ${g.isProjected?`<div class="projected-overlay">PROJ</div>`:''}
-      <div class="inv-card-banner" style="background:${g.style.gradient}">
-        <span>${g.icon}</span>
-      </div>
-      <div class="inv-card-info">
-        <div class="inv-card-name" style="color:${g.style.glowColor};font-family:${g.style.fontFamily}">${g.name}</div>
-        <div class="inv-card-rap">R$${fmtNum(g.rap)}</div>
-        <div class="inv-card-demand" style="color:${demandColor(g.demand)}">${g.demand}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function openItemDetail(id){
-  const item = state.inventory.find(i=>i.id===id);
-  if(!item) return;
-  openModal(item.name, `
-    <div class="item-detail-card">
-      <div class="idc-banner" style="background:${item.style.gradient}">
-        <span style="font-size:56px">${item.icon}</span>
-      </div>
-      <div class="idc-grid">
-        <div class="idc-field"><div class="idc-label">Type</div><div class="idc-value" style="color:var(--neon)">${item.type}</div></div>
-        <div class="idc-field"><div class="idc-label">Rarity</div><div class="idc-value" style="color:var(--gold)">1 in ${formatBig(item.rarity)}</div></div>
-        <div class="idc-field"><div class="idc-label">RAP</div><div class="idc-value" style="color:var(--gold)">R$${fmtNum(item.rap)}</div></div>
-        <div class="idc-field"><div class="idc-label">Value</div><div class="idc-value" style="color:var(--green)">R$${fmtNum(item.value)}</div></div>
-        <div class="idc-field"><div class="idc-label">Demand</div><div class="idc-value" style="color:${demandColor(item.demand)}">${item.demand}</div></div>
-        <div class="idc-field"><div class="idc-label">Status</div><div class="idc-value">${item.isProjected?'<span style="color:#FFA500">PROJECTED ⚠</span>':'Clean ✓'}</div></div>
-        ${item.serial?`<div class="idc-field idc-field-wide"><div class="idc-label">Serial</div><div class="idc-value" style="color:var(--neon)">#${item.serial} / ${item.totalCopies}</div></div>`:''}
-      </div>
-      <div class="idc-actions">
-        <button onclick="quickSell('${item.instanceId}')" style="background:rgba(255,59,59,.1);color:var(--red);border-color:rgba(255,59,59,.3)">Sell (R$${fmtNum(Math.floor(item.rap*0.8))})</button>
-        <button onclick="closeModal()" style="background:rgba(0,245,255,.1);color:var(--neon);border-color:rgba(0,245,255,.3)">Keep</button>
-      </div>
-    </div>
-  `);
-}
-
-function quickSell(instanceId){
-  const idx = state.inventory.findIndex(i=>i.instanceId===instanceId);
-  if(idx===-1) return;
-  const item = state.inventory[idx];
-  const price = Math.floor(item.rap*0.8);
-  state.robux += price;
-  state.inventory.splice(idx,1);
-  updateStats();
-  renderInventory();
-  closeModal();
-  showNotif(`Sold ${item.name} for R$${fmtNum(price)}`,'success');
-}
-
-// ===== CINEMATIC =====
-let cinematicTimeout = null;
-let particleAnim = null;
-
-function triggerCinematic(item){
-  const cin = document.getElementById('cinematic');
-  cin.classList.add('active');
-
-  // Apply item styles
-  document.getElementById('cin-name').style.fontFamily = item.style.fontFamily;
-  document.getElementById('cin-name').style.color = item.style.glowColor;
-  document.getElementById('cin-name').style.textShadow = `0 0 40px ${item.style.glowColor}, 0 0 80px ${item.style.glowColor}66`;
-  document.getElementById('cin-name').textContent = item.name;
-  document.getElementById('cin-type').innerHTML = `<span style="color:${item.style.glowColor}">${item.icon} ${item.type}</span>`;
-  document.getElementById('cin-rarity').textContent = `1 in ${formatBig(item.rarity)}`;
-  document.getElementById('cin-rarity').style.color = item.style.glowColor;
-  document.getElementById('cin-serial').textContent = item.serial ? `Serial #${item.serial} / ${item.totalCopies}` : '';
-  document.getElementById('cin-vals').innerHTML = `
-    <div class="cv"><div class="cl">RAP</div><div class="cv2">R$${fmtNum(item.rap)}</div></div>
-    <div class="cv"><div class="cl">VALUE</div><div class="cv2">R$${fmtNum(item.value)}</div></div>
-    <div class="cv"><div class="cl">DEMAND</div><div class="cv2" style="color:${demandColor(item.demand)}">${item.demand}</div></div>
-  `;
-
-  // Backdrop color
-  document.getElementById('cin-backdrop').style.background = `radial-gradient(circle at center, ${item.style.glowColor}22 0%, rgba(0,0,0,.95) 70%)`;
-
-  // Screen shake
-  document.getElementById('main').classList.add('shaking');
-  setTimeout(()=>document.getElementById('main').classList.remove('shaking'),600);
-
-  // Color flash
-  const flash = document.getElementById('cin-flash');
-  flash.style.background = item.style.glowColor;
-  flash.style.opacity = '.6';
-  setTimeout(()=>{flash.style.transition='opacity 1s';flash.style.opacity='0';},200);
-  setTimeout(()=>{flash.style.transition='';},1200);
-
-  // Particles
-  startParticles(item.style.glowColor);
-
-  // Reset animation
-  ['cin-label','cin-name','cin-rarity','cin-serial','cin-vals','cin-skip'].forEach(id=>{
-    const el=document.getElementById(id);
-    el.style.animation='none';
-    el.getBoundingClientRect();
-    el.style.animation='';
-    el.style.opacity='';
-  });
-
-  cinematicTimeout = setTimeout(()=>skipCinematic(),8000);
-}
-
-function skipCinematic(){
-  if(cinematicTimeout){clearTimeout(cinematicTimeout);cinematicTimeout=null;}
-  document.getElementById('cinematic').classList.remove('active');
-  if(particleAnim){cancelAnimationFrame(particleAnim);particleAnim=null;}
-}
-
-function startParticles(color){
-  const canvas = document.getElementById('cin-canvas');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const ctx = canvas.getContext('2d');
-  
-  const particles = [];
-  const cx = canvas.width/2, cy = canvas.height/2;
-
-  // Parse hex to rgb
-  const r = parseInt(color.slice(1,3),16)||200;
-  const g = parseInt(color.slice(3,5),16)||200;
-  const b = parseInt(color.slice(5,7),16)||200;
-
-  for(let i=0;i<200;i++){
-    const angle = Math.random()*Math.PI*2;
-    const speed = Math.random()*8+2;
-    particles.push({
-      x:cx,y:cy,
-      vx:Math.cos(angle)*speed,
-      vy:Math.sin(angle)*speed - Math.random()*3,
-      life:1,
-      decay:Math.random()*.015+.005,
-      size:Math.random()*4+1,
-      color:`rgba(${r},${g},${b},`,
-      shape:Math.random()>.5?'circle':'star',
-      rotation:Math.random()*Math.PI*2,
-      spin:(Math.random()-.5)*.2,
-    });
-  }
-
-  function frame(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    let alive = false;
-    particles.forEach(p=>{
-      if(p.life<=0) return;
-      alive = true;
-      p.x+=p.vx; p.y+=p.vy;
-      p.vy+=.1; // gravity
-      p.vx*=.99; p.vy*=.99;
-      p.life-=p.decay;
-      p.rotation+=p.spin;
-      ctx.save();
-      ctx.globalAlpha = p.life;
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rotation);
-      ctx.fillStyle = p.color+p.life+')';
-      if(p.shape==='star'){
-        drawStar(ctx,0,0,p.size*2,p.size,5);
-      } else {
-        ctx.beginPath();
-        ctx.arc(0,0,p.size,0,Math.PI*2);
-        ctx.fill();
-      }
-      ctx.restore();
-    });
-    if(alive) particleAnim = requestAnimationFrame(frame);
-  }
-  frame();
-}
-
-function drawStar(ctx,cx,cy,outerR,innerR,points){
-  ctx.beginPath();
-  for(let i=0;i<points*2;i++){
-    const r = i%2===0?outerR:innerR;
-    const angle = (i*Math.PI)/points - Math.PI/2;
-    i===0?ctx.moveTo(cx+Math.cos(angle)*r,cy+Math.sin(angle)*r):ctx.lineTo(cx+Math.cos(angle)*r,cy+Math.sin(angle)*r);
-  }
-  ctx.closePath();ctx.fill();
-}
-
-// ===== AUTO ROLL =====
-function toggleAutoRoll(){
-  state.autoRolling = !state.autoRolling;
-  const toggle = document.getElementById('auto-toggle');
-  toggle.classList.toggle('on',state.autoRolling);
-  if(state.autoRolling) startAutoRoll();
-  else stopAutoRoll();
-}
-
-function startAutoRoll(){
-  const delay = parseInt(document.getElementById('roll-speed').value);
-  state.autoInterval = setInterval(()=>{
-    if(!rolling && !document.getElementById('cinematic').classList.contains('active')){
-      doRoll();
-    }
-  },delay);
-}
-
-function stopAutoRoll(){
-  if(state.autoInterval){clearInterval(state.autoInterval);state.autoInterval=null;}
-}
-
-// ===== TRADING SYSTEM =====
-function setTradeSub(sub,btn){
-  state.tradeSub = sub;
-  document.querySelectorAll('.tsub-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.trade-subsection').forEach(s=>s.classList.remove('active'));
-  document.getElementById('trade-'+sub).classList.add('active');
-  if(sub==='inbound') renderInbound();
-  if(sub==='outbound') renderOutbound();
-  if(sub==='log') renderTradeLog();
-}
-
-const AI_NAMES = ['TradeKing99','XxLimitedGodxX','RareFlex420','DominusHunter','ValkyrieSeller','NeonTrader','LimitedOracle','ProTrader777'];
-const AI_AVATARS = ['👤','🤖','😎','🎭','💎','🔥','⚡','🌟'];
-
-function generateInboundOffer(){
-  if(!state.inventory.length) return null;
-  const aiItems = state.aiInventory.slice(0,6);
-  if(!aiItems.length) return null;
-
-  // Pick random player item to request
-  const playerItem = state.inventory[Math.floor(Math.random()*state.inventory.length)];
-  // AI offers 1-2 items
-  const numOffer = Math.random()>.6?2:1;
-  const offered = [];
-  const shuffled = [...aiItems].sort(()=>Math.random()-.5);
-  for(let i=0;i<Math.min(numOffer,shuffled.length);i++) offered.push(shuffled[i]);
-
-  const aiRap = offered.reduce((s,i)=>s+i.rap,0);
-  const playerRap = playerItem.rap;
-
-  // AI behavior: if player item is projected, AI wants more
-  let aiNote = null;
-  const playerVal = playerItem.value;
-  const aiVal = offered.reduce((s,i)=>s+i.value,0);
-
-  if(playerItem.isProjected) aiNote = "⚠ I see this item is Projected. I'll need extra value to accept.";
-  else if(aiVal < playerVal*.8) aiNote = "📊 This might be a slight overpay on my end, but I like your item.";
-  else if(aiVal > playerVal*1.3) aiNote = "💰 I'm offering over value — this is a good deal for you!";
-
-  const traderIdx = Math.floor(Math.random()*AI_NAMES.length);
-  return {
-    id: Date.now()+'_'+Math.random().toString(36).substr(2,4),
-    trader: AI_NAMES[traderIdx],
-    avatar: AI_AVATARS[traderIdx],
-    level: Math.floor(Math.random()*500)+10,
-    offered,
-    requesting:[playerItem],
-    aiNote,
-    aiRap, playerRap,
-    aiVal, playerVal,
-  };
-}
-
-function renderInbound(){
-  const container = document.getElementById('trade-inbound');
-  // Generate offers if none
-  if(state.inboundOffers.length===0 && state.inventory.length>0){
-    for(let i=0;i<3;i++){
-      const offer = generateInboundOffer();
-      if(offer) state.inboundOffers.push(offer);
-    }
-  }
-
-  if(!state.inboundOffers.length){
-    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:12px;">No inbound offers yet. Keep rolling to attract traders!</div>';
-    return;
-  }
-
-  container.innerHTML = state.inboundOffers.map(offer=>{
-    const rapDiff = offer.aiRap - offer.playerRap;
-    const diffClass = rapDiff>0?'win':'lose';
-    const diffSign = rapDiff>=0?'+':'';
-    return `
-    <div class="trade-offer-card">
-      <div class="toc-header">
-        <div class="trader-avatar">${offer.avatar}</div>
-        <div>
-          <div class="trader-name">${offer.trader}</div>
-          <div class="trader-level">Level ${offer.level} Trader</div>
+        <div class="stat-box">
+            <span class="stat-label">Squad OVR</span>
+            <span class="stat-value" style="color: var(--rarity-legendary);" id="top-squad-ovr">0</span>
         </div>
-      </div>
-      <div class="toc-sides">
-        <div class="trade-side">
-          <div class="trade-side-label">They Offer</div>
-          <div class="trade-items">
-            ${offer.offered.map(i=>`<div class="trade-item-chip">${i.icon} ${i.name}</div>`).join('')}
-          </div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold)">RAP: R$${fmtNum(offer.aiRap)}</div>
+        <div class="stat-box">
+            <span class="stat-label">Chemistry</span>
+            <span class="stat-value" style="color: var(--stadium-green);" id="top-squad-chem">0</span>
         </div>
-        <div class="trade-arrow">⇄</div>
-        <div class="trade-side">
-          <div class="trade-side-label">They Want</div>
-          <div class="trade-items">
-            ${offer.requesting.map(i=>`<div class="trade-item-chip">${i.icon} ${i.name}</div>`).join('')}
-          </div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold)">RAP: R$${fmtNum(offer.playerRap)}</div>
+        <div class="stat-box">
+            <span class="stat-label">Roll Count</span>
+            <span class="stat-value" id="top-rolls">0</span>
         </div>
-      </div>
-      <div class="trade-totals">
-        <div class="tt-side"><div class="tt-label">THEIR RAP</div><div class="tt-rap">R$${fmtNum(offer.aiRap)}</div></div>
-        <div class="tt-diff ${diffClass}">${diffSign}R$${fmtNum(Math.abs(rapDiff))}</div>
-        <div class="tt-side" style="text-align:right"><div class="tt-label">YOUR RAP</div><div class="tt-rap">R$${fmtNum(offer.playerRap)}</div></div>
-      </div>
-      ${offer.aiNote?`<div class="ai-note">${offer.aiNote}</div>`:''}
-      <div class="toc-actions">
-        <button class="btn-accept" onclick="acceptTrade('${offer.id}')">✓ Accept</button>
-        <button class="btn-decline" onclick="declineTrade('${offer.id}')">✗ Decline</button>
-        <button class="btn-counter" onclick="counterTrade('${offer.id}')">↺ Counter</button>
-      </div>
+        <div class="stat-box">
+            <span class="stat-label">Collection</span>
+            <span class="stat-value" id="top-collection-pct">0%</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Luck Meter</span>
+            <span class="stat-value" style="color: #ff007f;" id="top-luck-multiplier">x1.0</span>
+        </div>
+    </header>
+
+    <main class="main-viewport" id="viewport">
+        
+        <section id="view-home" class="view-panel active">
+            <div class="pack-wrapper" style="background: radial-gradient(circle at center, #1a1a2e, #0f0f1b); border-color: #00f2fe;">
+                <h2 style="color: #00f2fe; margin-bottom: 8px;">World Soccer RNG Ultimate+</h2>
+                <p style="font-size: 12px; color: var(--text-muted);">Welcome to the deepest automated soccer progression and pack rolling ecosystem.</p>
+            </div>
+            
+            <div class="section-header">Live Statistics Overview</div>
+            <div class="list-row-item"><span>Total Player Cards Pulled</span><strong id="stat-total-pulled">0</strong></div>
+            <div class="list-row-item"><span>Unique Database Entries Unlocked</span><strong id="stat-unique-unlocked">0 / 0</strong></div>
+            <div class="list-row-item"><span>Highest Rating Drafted</span><strong id="stat-highest-rating">0</strong></div>
+            <div class="list-row-item"><span>Current Active Drop Event</span><strong style="color: var(--stadium-green);" id="stat-active-event">Standard Rotations</strong></div>
+
+            <button class="btn btn-primary" onclick="switchTab('roll')" style="margin-top: 15px;">Go to Card Simulator</button>
+        </section>
+
+        <section id="view-roll" class="view-panel">
+            <div class="flex-row-between">
+                <select id="roll-mode-select" class="filter-select" style="width: 100%;" onchange="updateRollModeDisplay()">
+                    <option value="mixed">Mixed Worldwide Pool</option>
+                    <option value="worldcup">FIFA World Cup Classics</option>
+                    <option value="champions">UEFA Champions League History</option>
+                    <option value="club">Domestic Club Football Legends</option>
+                    <option value="legends">Legends Master Mode</option>
+                </select>
+            </div>
+
+            <div id="pack-visual-container" class="pack-wrapper" style="height: 260px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div id="pack-graphic-node" style="font-size: 70px; margin-bottom: 10px; transition: transform 0.2s;">📦</div>
+                <h3 id="pack-title-node">Standard Master Pack</h3>
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Tap roll buttons below to draw cards</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                <button class="btn" onclick="executeRollEngine(1)">Single Pull</button>
+                <button class="btn btn-primary" onclick="executeRollEngine(10)">x10 Bulk Draw</button>
+            </div>
+            <button class="btn" id="btn-auto-roll" onclick="toggleAutoRollEngine()" style="background: rgba(233, 30, 99, 0.2); border-color: #e91e63;">Activate Infinite Auto-Roll</button>
+
+            <div class="section-header" id="roll-results-title" style="display:none;">Latest Pull Results</div>
+            <div id="roll-results-output" class="cards-display-grid"></div>
+        </section>
+
+        <section id="view-squad" class="view-panel">
+            <div class="flex-row-between">
+                <select id="formation-select" class="filter-select" onchange="applyFormationChange()" style="width: 100%; margin-bottom: 12px;">
+                    <option value="4-3-3">Formation: 4-3-3 Standard</option>
+                    <option value="4-4-2">Formation: 4-4-2 Classic</option>
+                    <option value="3-5-2">Formation: 3-5-2 Attacking</option>
+                </select>
+            </div>
+
+            <div class="pitch-container" id="tactical-pitch">
+                <div class="pitch-line pitch-center-circle"></div>
+                <div class="pitch-line pitch-half-line"></div>
+                <div id="pitch-layout-rows-wrapper" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; width:100%;">
+                    </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="executeAutoSquadBuild()">Auto-Deploy Best Squad</button>
+            
+            <div class="section-header">Squad Statistics Context</div>
+            <div id="squad-metrics-pane" class="list-row-item" style="flex-direction: column; align-items: stretch; font-size: 12px; gap: 6px;">
+                <div>Average Rating Strength: <strong id="squad-metric-avg">0</strong></div>
+                <div>Club Synergies Identified: <strong id="squad-metric-clubs" style="color: var(--stadium-green);">0</strong></div>
+                <div>Nation Match Intersections: <strong id="squad-metric-nations" style="color: var(--stadium-green);">0</strong></div>
+            </div>
+        </section>
+
+        <section id="view-inventory" class="view-panel">
+            <div style="margin-bottom: 15px;">
+                <div class="flex-row-between" style="gap:8px; margin-bottom: 8px;">
+                    <select id="inv-sort-select" class="filter-select" onchange="renderInventoryView()" style="width: 50%;">
+                        <option value="rating-desc">Rating: Highest First</option>
+                        <option value="rating-asc">Rating: Lowest First</option>
+                        <option value="rarity">Sort by Rarity Tier</option>
+                    </select>
+                    <select id="inv-filter-rarity" class="filter-select" onchange="renderInventoryView()" style="width: 50%;">
+                        <option value="all">All Rarities</option>
+                        <option value="Legendary">Legendary+</option>
+                        <option value="Icon">Icon+</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="executeBulkDuplicateLiquidation()" style="background: rgba(229,62,62,0.2); border-color: var(--rarity-mythic); font-size: 12px; padding: 8px;">Liqudate & Bulk Sell All Duplicates</button>
+            </div>
+
+            <div id="inventory-cards-grid" class="cards-display-grid"></div>
+        </section>
+
+        <section id="view-collection" class="view-panel">
+            <div class="pack-wrapper" style="background: rgba(255,255,255,0.02); padding: 15px; margin-bottom: 15px;">
+                <h3>Master Index Completion</h3>
+                <div style="font-size: 24px; font-weight: 900; color: var(--stadium-green); margin: 5px 0;" id="collection-grand-total">0%</div>
+                <p style="font-size: 11px; color: var(--text-muted);">Collect all unique base players in the historical engine catalog.</p>
+            </div>
+            <div id="collection-master-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </section>
+
+        <section id="view-shop" class="view-panel">
+            <div class="section-header">Premium Pack Store</div>
+            
+            <div class="list-row-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                    <strong>Elite Gold Booster</strong>
+                    <span style="color: var(--rarity-legendary);">5,000 Coins</span>
+                </div>
+                <p style="font-size:11px; color: var(--text-muted);">High chance for modern stars and uncommon versions.</p>
+                <button class="btn btn-primary" style="padding: 6px; font-size:11px; margin:0;" onclick="purchaseStorePack('gold', 5000, 'coins')">Purchase Booster</button>
+            </div>
+
+            <div class="list-row-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                    <strong>Icons & Legends Allocation</strong>
+                    <span style="color: #00f2fe;">50 Gems</span>
+                </div>
+                <p style="font-size:11px; color: var(--text-muted);">Guarantees Epic or higher tier card from global historical timeline pools.</p>
+                <button class="btn btn-primary" style="padding: 6px; font-size:11px; margin:0; background: #00f2fe;" onclick="purchaseStorePack('icon', 50, 'gems')">Purchase Icon Allocation</button>
+            </div>
+        </section>
+
+        <section id="view-achievements" class="view-panel">
+            <div class="section-header">Achievements Matrix</div>
+            <div id="achievements-container-list"></div>
+        </section>
+
+        <section id="view-events" class="view-panel">
+            <div class="pack-wrapper" style="background: radial-gradient(circle at center, #2d0d2d, #110511); border-color: var(--rarity-god-tier);">
+                <h3 style="color: var(--rarity-god-tier);">Active Server Modification Event</h3>
+                <div id="events-display-status-title" style="font-size: 20px; font-weight: 900; margin: 10px 0;">STANDARD ROTATIONS</div>
+                <p id="events-display-status-desc" style="font-size: 11px; color: var(--text-muted);">No global server adjustments active. Check back later for luck spikes!</p>
+            </div>
+            <button class="btn" onclick="triggerRandomServerEventManual()">Force Inject Chaos Event Modifiers</button>
+        </section>
+
+        <section id="view-profile" class="view-panel">
+            <div class="section-header">User Profile Blueprint</div>
+            <div class="list-row-item"><span>Account Classification</span><strong>Founder Elite Status</strong></div>
+            <div class="list-row-item"><span>Total Accumulated Rolls</span><span id="profile-stat-rolls">0</span></div>
+            <div class="list-row-item"><span>Current Account Prestige Level</span><span id="profile-stat-prestige">Tier 0</span></div>
+            <button class="btn" onclick="executeAccountPrestigeReset()" style="background:rgba(236,201,75,0.1); border-color: var(--rarity-legendary); margin-top:20px;">Activate Account Prestige Reset</button>
+        </section>
+
+        <section id="view-settings" class="view-panel">
+            <div class="section-header">Game Configuration Matrix</div>
+            <div class="list-row-item" style="justify-content: space-between;">
+                <span>Fast Animation Automation Mode</span>
+                <input type="checkbox" id="settings-fast-animations" style="width:20px; height:20px;">
+            </div>
+            <button class="btn" onclick="clearLocalStorageDataEngine()" style="background: #e53e3e; margin-top: 40px;">Wipe Local Storage Data & Restart</button>
+        </section>
+
+    </main>
+
+    <div id="squad-picker-modal" class="overlay-modal" onclick="closeSquadPickerModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title" id="squad-picker-modal-title">Select Player for Slot</div>
+            <div id="squad-picker-modal-list" style="display: flex; flex-direction: column; gap: 10px;">
+                </div>
+            <button class="btn" style="margin-top: 15px;" onclick="closeSquadPickerModal()">Dismiss Window</button>
+        </div>
     </div>
-    `;
-  }).join('');
-}
 
-function acceptTrade(id){
-  const idx = state.inboundOffers.findIndex(o=>o.id===id);
-  if(idx===-1) return;
-  const offer = state.inboundOffers[idx];
-
-  // Check if item still in inventory
-  const playerIdx = state.inventory.findIndex(i=>i.instanceId===offer.requesting[0].instanceId);
-  if(playerIdx===-1){showNotif("Item no longer in inventory!",'warn');state.inboundOffers.splice(idx,1);renderInbound();return;}
-
-  // Validate: if projected, AI has 60% chance to back out unless heavily overpaid
-  if(offer.requesting[0].isProjected && offer.aiVal < offer.playerVal*1.3){
-    showNotif("AI declined — item is Projected!",'warn');
-    state.inboundOffers.splice(idx,1);
-    state.tradeLog.push({...offer,status:'declined',time:Date.now()});
-    renderInbound();
-    return;
-  }
-
-  // Execute trade
-  state.inventory.splice(playerIdx,1);
-  offer.offered.forEach(item=>{
-    const copy = {...item, instanceId:Date.now()+'_'+Math.random().toString(36).substr(2,6)};
-    state.inventory.push(copy);
-  });
-
-  state.inboundOffers.splice(idx,1);
-  state.tradeLog.push({...offer,status:'completed',time:Date.now()});
-  updateStats();
-  renderInventory();
-  renderInbound();
-  showNotif(`Trade accepted with ${offer.trader}!`,'success');
-}
-
-function declineTrade(id){
-  const idx = state.inboundOffers.findIndex(o=>o.id===id);
-  if(idx===-1) return;
-  state.tradeLog.push({...state.inboundOffers[idx],status:'declined',time:Date.now()});
-  state.inboundOffers.splice(idx,1);
-  renderInbound();
-  showNotif('Trade declined.','info');
-}
-
-function counterTrade(id){
-  showNotif('Counter offer sent! AI will respond shortly.','info');
-  declineTrade(id);
-  // AI sends a modified offer back
-  setTimeout(()=>{
-    const offer = generateInboundOffer();
-    if(offer){state.inboundOffers.push(offer);renderInbound();}
-  },2000);
-}
-
-function renderOutbound(){
-  // Populate selects
-  const offerSel = document.getElementById('trade-offer-select');
-  const reqSel = document.getElementById('trade-request-select');
-  offerSel.innerHTML = '<option value="">-- Select Item --</option>'+
-    state.inventory.filter((v,i,a)=>a.findIndex(x=>x.id===v.id)===i)
-    .map(i=>`<option value="${i.instanceId}">${i.icon} ${i.name} — R$${fmtNum(i.rap)}</option>`).join('');
-  reqSel.innerHTML = '<option value="">-- Select AI Item --</option>'+
-    state.aiInventory.filter((v,i,a)=>a.findIndex(x=>x.id===v.id)===i)
-    .map(i=>`<option value="${i.id}">${i.icon} ${i.name} — R$${fmtNum(i.rap)}</option>`).join('');
-}
-
-let tradeOfferItems=[], tradeRequestItems=[];
-function addOfferItem(){
-  const sel=document.getElementById('trade-offer-select');
-  if(!sel.value) return;
-  const item = state.inventory.find(i=>i.instanceId===sel.value);
-  if(!item || tradeOfferItems.find(x=>x.instanceId===item.instanceId)) return;
-  tradeOfferItems.push(item);
-  const el=document.getElementById('offer-items');
-  el.innerHTML += `<div class="trade-item-chip" id="to_${item.instanceId}" onclick="removeOfferItem('${item.instanceId}')">${item.icon} ${item.name} ✕</div>`;
-  sel.value='';
-}
-function addRequestItem(){
-  const sel=document.getElementById('trade-request-select');
-  if(!sel.value) return;
-  const item = state.aiInventory.find(i=>i.id===sel.value);
-  if(!item || tradeRequestItems.find(x=>x.id===item.id)) return;
-  tradeRequestItems.push(item);
-  const el=document.getElementById('request-items');
-  el.innerHTML += `<div class="trade-item-chip" id="tr_${item.id}" onclick="removeRequestItem('${item.id}')">${item.icon} ${item.name} ✕</div>`;
-  sel.value='';
-}
-function removeOfferItem(id){tradeOfferItems=tradeOfferItems.filter(i=>i.instanceId!==id);const el=document.getElementById('to_'+id);if(el)el.remove();}
-function removeRequestItem(id){tradeRequestItems=tradeRequestItems.filter(i=>i.id!==id);const el=document.getElementById('tr_'+id);if(el)el.remove();}
-
-function sendTrade(){
-  if(!tradeOfferItems.length || !tradeRequestItems.length){showNotif('Add items to both sides!','warn');return;}
-  const offerRap = tradeOfferItems.reduce((s,i)=>s+i.rap,0);
-  const reqRap = tradeRequestItems.reduce((s,i)=>s+i.rap,0);
-  const offerVal = tradeOfferItems.reduce((s,i)=>s+i.value,0);
-  const reqVal = tradeRequestItems.reduce((s,i)=>s+i.value,0);
-
-  // AI acceptance logic
-  const hasProjected = tradeOfferItems.some(i=>i.isProjected);
-  let accepted = false;
-
-  if(hasProjected && offerVal < reqVal*1.4){
-    showNotif('AI declined — Projected items detected, need more value!','warn');
-  } else if(offerVal >= reqVal*.9){
-    accepted = true;
-    // Execute
-    tradeOfferItems.forEach(it=>{const idx=state.inventory.findIndex(i=>i.instanceId===it.instanceId);if(idx!==-1)state.inventory.splice(idx,1);});
-    tradeRequestItems.forEach(it=>{
-      const copy={...it,instanceId:Date.now()+'_'+Math.random().toString(36).substr(2,6)};
-      state.inventory.push(copy);
-      const aiIdx=state.aiInventory.findIndex(i=>i.id===it.id);
-      if(aiIdx!==-1)state.aiInventory.splice(aiIdx,1);
-    });
-    state.tradeLog.push({id:Date.now(),trader:'AI Player',offered:tradeRequestItems,requesting:tradeOfferItems,status:'completed',time:Date.now()});
-    showNotif('Trade accepted! Items received.','success');
-    updateStats();
-    renderInventory();
-  } else {
-    showNotif('AI declined — not enough value offered.','warn');
-    state.tradeLog.push({id:Date.now(),trader:'AI Player',offered:tradeRequestItems,requesting:tradeOfferItems,status:'declined',time:Date.now()});
-  }
-
-  tradeOfferItems=[];tradeRequestItems=[];
-  document.getElementById('offer-items').innerHTML='';
-  document.getElementById('request-items').innerHTML='';
-  renderOutbound();
-}
-
-function renderTradeLog(){
-  const el = document.getElementById('trade-log');
-  if(!state.tradeLog.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:12px;">No trade history yet.</div>';return;}
-  el.innerHTML = [...state.tradeLog].reverse().map(t=>`
-    <div class="trade-log-row">
-      <span class="tl-status ${t.status}">${t.status.toUpperCase()}</span>
-      <span style="flex:1;font-size:11px">${t.trader}</span>
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--muted)">${timeSince(t.time)}</span>
+    <div id="card-inspect-modal" class="overlay-modal" onclick="closeCardInspectModal()">
+        <div class="modal-content" onclick="event.stopPropagation()" style="background: #0f1512; text-align: center;">
+            <div class="modal-title">Card Inspection Profile</div>
+            <div id="card-inspect-rendering-zone" style="display:flex; justify-content:center; margin-bottom: 15px;"></div>
+            <div id="card-inspect-details-zone" style="font-size: 12px; text-align: left; display: flex; flex-direction: column; gap: 6px;"></div>
+            <button class="btn btn-primary" style="margin-top: 15px;" onclick="closeCardInspectModal()">Close Details</button>
+        </div>
     </div>
-  `).join('');
-}
 
-// ===== LUCK SHOP =====
-const LUCK_UPGRADES = [
-  {id:'luck2',name:'Lucky Charm',icon:'🍀',desc:'Doubles your luck permanently',multiplier:2n,price:5000,requires:0},
-  {id:'luck5',name:'Fortune Crystal',icon:'💎',desc:'5x luck multiplier',multiplier:5n,price:25000,requires:1},
-  {id:'luck10',name:'Oracle\'s Eye',icon:'👁️',desc:'10x luck for true hunters',multiplier:10n,price:100000,requires:2},
-  {id:'luck25',name:'Cosmic Dice',icon:'🌌',desc:'25x luck — legendary power',multiplier:25n,price:500000,requires:3},
-  {id:'luck100',name:'Dominus Aura',icon:'⚜️',desc:'100x luck — near divine odds',multiplier:100n,price:5000000,requires:4},
-  {id:'luck1000',name:'Sextillion Key',icon:'🗝️',desc:'1000x luck — the rarest items await',multiplier:1000n,price:100000000,requires:5},
-];
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('home', this)"><span class="nav-icon">🏠</span><span>Home</span></button>
+        <button class="nav-item" onclick="switchTab('roll', this)"><span class="nav-icon">🎲</span><span>Roll</span></button>
+        <button class="nav-item" onclick="switchTab('squad', this)"><span class="nav-icon">🛡️</span><span>Squad</span></button>
+        <button class="nav-item" onclick="switchTab('inventory', this)"><span class="nav-icon">🎒</span><span>Inventory</span></button>
+        <button class="nav-item" onclick="switchTab('collection', this)"><span class="nav-icon">📖</span><span>Index</span></button>
+        <button class="nav-item" onclick="switchTab('shop', this)"><span class="nav-icon">🛒</span><span>Shop</span></button>
+        <button class="nav-item" onclick="switchTab('achievements', this)"><span class="nav-icon">🏆</span><span>Awards</span></button>
+        <button class="nav-item" onclick="switchTab('events', this)"><span class="nav-icon">⚡</span><span>Events</span></button>
+        <button class="nav-item" onclick="switchTab('profile', this)"><span class="nav-icon">👤</span><span>User</span></button>
+        <button class="nav-item" onclick="switchTab('settings', this)"><span class="nav-icon">⚙️</span><span>Config</span></button>
+    </nav>
 
-const POTIONS = [
-  {id:'p1',name:'Luck Potion I',icon:'🧪',effect:'2x Luck for 2 min',mult:2n,duration:120000,price:500},
-  {id:'p2',name:'Luck Potion II',icon:'⚗️',effect:'5x Luck for 1 min',mult:5n,duration:60000,price:1500},
-  {id:'p3',name:'Fortune Elixir',icon:'✨',effect:'10x Luck for 30s',mult:10n,duration:30000,price:3000},
-  {id:'p4',name:'Oracle Brew',icon:'🌟',effect:'50x Luck for 15s',mult:50n,duration:15000,price:10000},
-];
+    <script>
+        /* --- CORE SEEDED RELATIONAL DATABASES --- */
+        const NATIONS_DATABASE = [
+            { id: "ARG", name: "Argentina", emoji: "🇦🇷" },
+            { id: "BRA", name: "Brazil", emoji: "🇧🇷" },
+            { id: "FRA", name: "France", emoji: "🇫🇷" },
+            { id: "POR", name: "Portugal", emoji: "🇵🇹" },
+            { id: "ENG", name: "England", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+            { id: "GER", name: "Germany", emoji: "🇩🇪" },
+            { id: "ESP", name: "Spain", emoji: "🇪🇸" },
+            { id: "ITA", name: "Italy", emoji: "🇮🇹" },
+            { id: "NED", name: "Netherlands", emoji: "🇳🇱" },
+            { id: "CRO", name: "Croatia", emoji: "🇭🇷" }
+        ];
 
-function renderLuckShop(){
-  // Potions
-  const row = document.getElementById('potions-row');
-  row.innerHTML = POTIONS.map(p=>`
-    <div class="potion-card" onclick="buyPotion('${p.id}')">
-      <span class="pc-icon">${p.icon}</span>
-      <div class="pc-info">
-        <div class="pc-name">${p.name}</div>
-        <div class="pc-effect">${p.effect}</div>
-      </div>
-      <span class="pc-price">R$${fmtNum(p.price)}</span>
-    </div>
-  `).join('');
+        const CLUBS_DATABASE = [
+            { id: "RMA", name: "Real Madrid", league: "La Liga" },
+            { id: "FCB", name: "Barcelona", league: "La Liga" },
+            { id: "MCI", name: "Manchester City", league: "Premier League" },
+            { id: "MUN", name: "Manchester United", league: "Premier League" },
+            { id: "LIV", name: "Liverpool", league: "Premier League" },
+            { id: "BAY", name: "Bayern Munich", league: "Bundesliga" },
+            { id: "PSG", name: "Paris Saint-Germain", league: "Ligue 1" },
+            { id: "JUV", name: "Juventus", league: "Serie A" },
+            { id: "MIL", name: "AC Milan", league: "Serie A" },
+            { id: "INT", name: "Inter Milan", league: "Serie A" }
+        ];
 
-  // Permanent upgrades
-  const grid = document.getElementById('luck-shop-grid');
-  grid.innerHTML = LUCK_UPGRADES.map(u=>{
-    const owned = state.luckLevel >= LUCK_UPGRADES.indexOf(u)+1;
-    const available = state.luckLevel >= u.requires;
-    return `
-    <div class="shop-item ${owned?'owned':''}">
-      <div class="si-icon">${u.icon}</div>
-      <div class="si-name">${u.name}</div>
-      <div class="si-desc">${u.desc}</div>
-      <div class="si-price">${owned?'Owned':'R$'+fmtNum(u.price)}</div>
-      <button class="si-buy ${owned?'owned-btn':''}" ${owned||!available?'disabled':''} onclick="buyLuck('${u.id}')">
-        ${owned?'✓ Owned':available?'Buy':'🔒 Locked'}
-      </button>
-    </div>
-    `;
-  }).join('');
-}
+        const BASE_PLAYERS_POOL = [
+            { name: "Lionel Messi", nation: "ARG", club: "FCB", pos: "RW" },
+            { name: "Cristiano Ronaldo", nation: "POR", club: "RMA", pos: "ST" },
+            { name: "Pelé", nation: "BRA", club: "SAN", pos: "ST" },
+            { name: "Diego Maradona", nation: "ARG", club: "NAP", pos: "CAM" },
+            { name: "Zinedine Zidane", nation: "FRA", club: "RMA", pos: "CAM" },
+            { name: "Ronaldo Nazário", nation: "BRA", club: "RMA", pos: "ST" },
+            { name: "Ronaldinho", nation: "BRA", club: "FCB", pos: "LW" },
+            { name: "Kylian Mbappé", nation: "FRA", club: "PSG", pos: "ST" },
+            { name: "Erling Haaland", nation: "MCI", club: "MCI", pos: "ST" },
+            { name: "Jude Bellingham", nation: "ENG", club: "RMA", pos: "CM" },
+            { name: "Lamine Yamal", nation: "ESP", club: "FCB", pos: "RW" },
+            { name: "Johan Cruyff", nation: "NED", club: "FCB", pos: "CF" },
+            { name: "Paolo Maldini", nation: "ITA", club: "MIL", pos: "CB" },
+            { name: "Franz Beckenbauer", nation: "GER", club: "BAY", pos: "CB" },
+            { name: "Thierry Henry", nation: "FRA", club: "ARS", pos: "ST" },
+            { name: "Luka Modrić", nation: "CRO", club: "RMA", pos: "CM" },
+            { name: "Kevin De Bruyne", nation: "BEL", club: "MCI", pos: "CM" },
+            { name: "Harry Kane", nation: "ENG", club: "BAY", pos: "ST" },
+            { name: "Neymar Jr", nation: "BRA", club: "FCB", pos: "LW" },
+            { name: "Gianluigi Buffon", nation: "ITA", club: "JUV", pos: "GK" }
+        ];
 
-function buyLuck(id){
-  const upg = LUCK_UPGRADES.find(u=>u.id===id);
-  if(!upg) return;
-  if(state.robux<upg.price){showNotif('Not enough Robux!','warn');return;}
-  if(state.luckLevel<upg.requires){showNotif('Previous upgrade required!','warn');return;}
-  state.robux -= upg.price;
-  state.luckMultiplier = upg.multiplier;
-  state.luckLevel++;
-  updateStats();
-  renderLuckShop();
-  showNotif(`${upg.name} purchased! Now ${upg.multiplier}x luck!`,'success');
-}
+        const RARITY_TIERS = [
+            { name: "Common", rate: 0.45, color: "var(--rarity-common)", minOvr: 60, maxOvr: 74 },
+            { name: "Uncommon", rate: 0.25, color: "var(--rarity-uncommon)", minOvr: 75, maxOvr: 79 },
+            { name: "Rare", rate: 0.15, color: "var(--rarity-rare)", minOvr: 80, maxOvr: 84 },
+            { name: "Super Rare", rate: 0.07, color: "var(--rarity-super-rare)", minOvr: 85, maxOvr: 87 },
+            { name: "Epic", rate: 0.04, color: "var(--rarity-epic)", minOvr: 88, maxOvr: 89 },
+            { name: "Elite", rate: 0.02, color: "var(--rarity-elite)", minOvr: 90, maxOvr: 91 },
+            { name: "Legendary", rate: 0.01, color: "var(--rarity-legendary)", minOvr: 92, maxOvr: 94 },
+            { name: "Hero", rate: 0.005, color: "var(--rarity-hero)", minOvr: 94, maxOvr: 95 },
+            { name: "Icon", rate: 0.003, color: "var(--rarity-icon)", minOvr: 95, maxOvr: 96 },
+            { name: "Prime Icon", rate: 0.0015, color: "var(--rarity-prime-icon)", minOvr: 96, maxOvr: 98 },
+            { name: "Mythic", rate: 0.0004, color: "var(--rarity-mythic)", minOvr: 98, maxOvr: 99 },
+            { name: "Ultimate Icon", rate: 0.0001, color: "var(--rarity-ultimate-icon)", minOvr: 99, maxOvr: 99 },
+            { name: "God Tier", rate: 0.00001, color: "var(--rarity-god-tier)", minOvr: 100, maxOvr: 100 }
+        ];
 
-function buyPotion(id){
-  const pot = POTIONS.find(p=>p.id===id);
-  if(!pot) return;
-  if(state.robux<pot.price){showNotif('Not enough Robux!','warn');return;}
-  state.robux -= pot.price;
+        /* --- SQUAD TACTICAL FORMATION CONFIGURATION MAPS --- */
+        const FORMATIONS_ENGINE = {
+            "4-3-3": [
+                { pos: "GK", row: 4, col: 1 },
+                { pos: "LB", row: 3, col: 1 }, { pos: "CB1", row: 3, col: 2 }, { pos: "CB2", row: 3, col: 3 }, { pos: "RB", row: 3, col: 4 },
+                { pos: "LCM", row: 2, col: 1 }, { pos: "CM", row: 2, col: 2 }, { pos: "RCM", row: 2, col: 3 },
+                { pos: "LW", row: 1, col: 1 }, { pos: "ST", row: 1, col: 2 }, { pos: "RW", row: 1, col: 3 }
+            ],
+            "4-4-2": [
+                { pos: "GK", row: 4, col: 1 },
+                { pos: "LB", row: 3, col: 1 }, { pos: "CB1", row: 3, col: 2 }, { pos: "CB2", row: 3, col: 3 }, { pos: "RB", row: 3, col: 4 },
+                { pos: "LM", row: 2, col: 1 }, { pos: "LCM", row: 2, col: 2 }, { pos: "RCM", row: 2, col: 3 }, { pos: "RM", row: 2, col: 4 },
+                { pos: "ST1", row: 1, col: 2 }, { pos: "ST2", row: 1, col: 3 }
+            ],
+            "3-5-2": [
+                { pos: "GK", row: 4, col: 1 },
+                { pos: "CB1", row: 3, col: 1 }, { pos: "CB2", row: 3, col: 2 }, { pos: "CB3", row: 3, col: 3 },
+                { pos: "LWB", row: 2, col: 1 }, { pos: "CDM", row: 2, col: 2 }, { pos: "CAM", row: 2, col: 3 }, { pos: "CM", row: 2, col: 4 }, { pos: "RWB", row: 2, col: 5 },
+                { pos: "ST1", row: 1, col: 2 }, { pos: "ST2", row: 1, col: 3 }
+            ]
+        };
 
-  // Apply potion
-  const baseLuck = LUCK_UPGRADES[state.luckLevel]?.multiplier || 1n;
-  state.luckMultiplier = (baseLuck * pot.mult);
-  updateStats();
+        /* --- GLOBAL DATA ARCHITECTURE BLUEPRINT --- */
+        let gameState = {
+            coins: 5000,
+            gems: 100,
+            xp: 0,
+            level: 1,
+            rolls: 0,
+            inventory: [],
+            squad: {}, // Keyed by position index in active formation
+            activeFormation: "4-3-3",
+            luckMultiplier: 1.0,
+            pityCounter: { hero: 0, icon: 0, godTier: 0 },
+            unlockedBasePlayers: {},
+            achievementsClaimed: {}
+        };
 
-  // Expire after duration
-  if(state.potionTimer) clearTimeout(state.potionTimer);
-  state.potionTimer = setTimeout(()=>{
-    state.luckMultiplier = baseLuck;
-    updateStats();
-    showNotif('Potion expired!','info');
-  }, pot.duration);
+        let autoRollInterval = null;
+        let selectedSquadPositionToken = null;
 
-  showNotif(`${pot.name} active! ${pot.effect}`,'success');
-}
+        const EXAMPLES_POOL = [
+            { name: "Messi 2014 Argentina", baseIndex: 0, rarity: "Legendary", year: 2014, ovr: 94 },
+            { name: "Messi 2022 Argentina", baseIndex: 0, rarity: "Prime Icon", year: 2022, ovr: 98 },
+            { name: "Messi Prime", baseIndex: 0, rarity: "Ultimate Icon", year: 2012, ovr: 99 },
+            { name: "Ronaldo Nazário 1998", baseIndex: 5, rarity: "Legendary", year: 1998, ovr: 95 },
+            { name: "Cristiano Ronaldo 2008", baseIndex: 1, rarity: "Icon", year: 2008, ovr: 96 },
+            { name: "Cristiano Ronaldo Prime", baseIndex: 1, rarity: "Ultimate Icon", year: 2014, ovr: 99 },
+            { name: "Mbappé 2022", baseIndex: 7, rarity: "Epic", year: 2022, ovr: 89 },
+            { name: "Pelé 1970", baseIndex: 2, rarity: "God Tier", year: 1970, ovr: 100 },
+            { name: "Maradona 1986", baseIndex: 3, rarity: "God Tier", year: 1986, ovr: 100 },
+            { name: "Zidane 1998", baseIndex: 4, rarity: "Prime Icon", year: 1998, ovr: 97 },
+            { name: "Ronaldinho 2002", baseIndex: 6, rarity: "Icon", year: 2002, ovr: 95 },
+            { name: "Yamal Current", baseIndex: 10, rarity: "Rare", year: 2026, ovr: 84 },
+            { name: "Bellingham Current", baseIndex: 9, rarity: "Super Rare", year: 2026, ovr: 87 },
+            { name: "Haaland Current", baseIndex: 8, rarity: "Elite", year: 2026, ovr: 91 }
+        ];
 
-// ===== MARKETPLACE =====
-const SIM_USERS = ['TradePro','LimitedKing','RareFlex','DomHunter','RBXFlip','ItemGod','NeonSeller','CryptoRBX','AlphaTrade','OmegaRNG'];
+        const RUNTIME_SYSTEM_ACHIEVEMENTS = [
+            { id: "rolls_10", title: "Novice Puller", criteria: "Perform 10 standard pulls", type: "rolls", count: 10, reward: 500 },
+            { id: "rolls_100", title: "Dedicated Scout", criteria: "Perform 100 total pulls", type: "rolls", count: 10, reward: 5000 },
+            { id: "ovr_85", title: "Competitive Squad", criteria: "Reach a Squad OVR of 85", type: "ovr", count: 85, reward: 2000 },
+            { id: "ovr_95", title: "Galácticos Horizon", criteria: "Reach a Squad OVR of 95", type: "ovr", count: 95, reward: 50 Gems }
+        ];
 
-let marketInterval;
-function startMarketSim(){
-  generateMarketRows(8);
-  marketInterval = setInterval(()=>{
-    generateMarketRows(1);
-    // Trim to 30
-    const feed = document.getElementById('market-feed');
-    while(feed.children.length>30) feed.removeChild(feed.lastChild);
-  }, 2500+Math.random()*2000);
-}
+        /* --- STATE SAVING ENGINE SYSTEM --- */
+        function saveToLocalStorageEngine() {
+            localStorage.setItem("WORLD_SOCCER_RNG_STATE_2026", JSON.stringify(gameState));
+        }
 
-function generateMarketRows(n){
-  const feed = document.getElementById('market-feed');
-  for(let i=0;i<n;i++){
-    const item = ITEMS[Math.floor(Math.random()*ITEMS.length)];
-    const user = SIM_USERS[Math.floor(Math.random()*SIM_USERS.length)];
-    const isBuy = Math.random()>.5;
-    const priceVariance = .85+Math.random()*.3;
-    const price = Math.max(1,Math.round(item.rap*priceVariance));
-    const row = document.createElement('div');
-    row.className = `market-row ${isBuy?'buy':'sell'}`;
-    row.innerHTML = `
-      <div class="mr-user">${user}</div>
-      <div class="mr-action ${isBuy?'buy':'sell'}">${isBuy?'BUY':'SELL'}</div>
-      <div class="mr-item">${item.icon} ${item.name}</div>
-      <div class="mr-price">R$${fmtNum(price)}</div>
-      <div class="mr-time">${formatTime()}</div>
-    `;
-    row.style.animation='notifSlide .3s ease';
-    feed.prepend(row);
-  }
-}
+        function loadFromLocalStorageEngine() {
+            const rawData = localStorage.getItem("WORLD_SOCCER_RNG_STATE_2026");
+            if (rawData) {
+                try {
+                    const parsed = JSON.parse(rawData);
+                    if (parsed && typeof parsed === 'object') {
+                        gameState = { ...gameState, ...parsed };
+                    }
+                } catch(e) { console.error("Corrupted local state fallback loaded."); }
+            }
+            updateTopDisplayPanels();
+        }
 
-function populateRapChart(){
-  const sel = document.getElementById('rap-item-select');
-  sel.innerHTML = ITEMS.filter(i=>i.rap>0).map(i=>`<option value="${i.id}">${i.name}</option>`).join('');
-  drawChart();
-}
+        /* --- INITIALIZATION HOOKS --- */
+        window.addEventListener("DOMContentLoaded", () => {
+            loadFromLocalStorageEngine();
+            applyFormationChange();
+            buildCollectionCatalogIndex();
+            checkAndRenderAchievementsList();
+            
+            // Loop updates periodically
+            setInterval(() => {
+                awardPassiveIncomeTrack();
+            }, 5000);
+        });
 
-function drawChart(){
-  const canvas = document.getElementById('rap-canvas');
-  const sel = document.getElementById('rap-item-select');
-  const item = ITEMS.find(i=>i.id===sel.value);
-  if(!item) return;
+        /* --- INTERFACE VIEW SWAPPING REGISTRY --- */
+        function switchTab(targetTabId, elementRef = null) {
+            document.querySelectorAll(".view-panel").forEach(panel => panel.classList.remove("active"));
+            const targetPanel = document.getElementById(`view-panel-${targetTabId}`) || document.getElementById(`view-${targetTabId}`);
+            if (targetPanel) targetPanel.classList.add("active");
 
-  canvas.width = canvas.offsetWidth||300;
-  canvas.height = 120;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+            document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+            if (elementRef) {
+                elementRef.classList.add("active");
+            } else {
+                const items = document.querySelectorAll(".nav-item");
+                for (let btn of items) {
+                    if (btn.innerText.toLowerCase().includes(targetTabId)) {
+                        btn.classList.add("active");
+                        break;
+                    }
+                }
+            }
 
-  // Generate fake historical data
-  const points = 30;
-  const base = item.rap;
-  const data = [];
-  let val = base*(.7+Math.random()*.3);
-  for(let i=0;i<points;i++){
-    val += (Math.random()-.48)*base*.05;
-    val = Math.max(base*.5,val);
-    data.push(val);
-  }
-  data.push(base);
+            if (targetTabId === "inventory") renderInventoryView();
+            if (targetTabId === "collection") updateCollectionTabProgressDisplay();
+        }
 
-  const min = Math.min(...data), max = Math.max(...data);
-  const range = max-min || 1;
-  const w = canvas.width, h = canvas.height;
-  const pad = {l:40,r:10,t:10,b:20};
-  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b;
+        /* --- GLOBAL STATS REFRESH ROUTINE --- */
+        function updateTopDisplayPanels() {
+            document.getElementById("top-coins").innerText = Number(gameState.coins).toLocaleString();
+            document.getElementById("top-gems").innerText = Number(gameState.gems).toLocaleString();
+            document.getElementById("top-rolls").innerText = gameState.rolls;
+            document.getElementById("top-luck-multiplier").innerText = `x${gameState.luckMultiplier.toFixed(1)}`;
+            
+            const totalRequiredXP = gameState.level * 250;
+            const percentageXP = Math.floor((gameState.xp / totalRequiredXP) * 100);
+            document.getElementById("top-lvl-xp").innerText = `Lv.${gameState.level} (${percentageXP}%)`;
+            
+            document.getElementById("profile-stat-rolls").innerText = gameState.rolls;
+            
+            calculateTeamSynergyMetrics();
+            saveToLocalStorageEngine();
+        }
 
-  // Grid lines
-  ctx.strokeStyle='rgba(255,255,255,.05)';
-  ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const y = pad.t + ch*(1-i/4);
-    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.3)';
-    ctx.font='9px Share Tech Mono';
-    ctx.fillText('R$'+Math.round(min+range*i/4),2,y+3);
-  }
+        function triggerExperienceGain(amount) {
+            gameState.xp += amount;
+            let totalRequiredXP = gameState.level * 250;
+            while (gameState.xp >= totalRequiredXP) {
+                gameState.xp -= totalRequiredXP;
+                gameState.level++;
+                gameState.coins += 1000;
+                gameState.gems += 15;
+                totalRequiredXP = gameState.level * 250;
+            }
+            updateTopDisplayPanels();
+        }
 
-  // Gradient fill
-  const grad = ctx.createLinearGradient(0,pad.t,0,h);
-  grad.addColorStop(0,'rgba(0,245,255,.2)');
-  grad.addColorStop(1,'rgba(0,245,255,0)');
-  ctx.fillStyle=grad;
-  ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=pad.l+cw*i/(data.length-1);
-    const y=pad.t+ch*(1-(v-min)/range);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
-  ctx.lineTo(pad.l+cw,h-pad.b);ctx.lineTo(pad.l,h-pad.b);ctx.closePath();ctx.fill();
+        function awardPassiveIncomeTrack() {
+            let passiveCoinYield = 10;
+            Object.values(gameState.squad).forEach(card => {
+                if(card) passiveCoinYield += Math.floor(card.rating / 10);
+            });
+            gameState.coins += passiveCoinYield;
+            updateTopDisplayPanels();
+        }
 
-  // Line
-  ctx.strokeStyle='rgba(0,245,255,.8)';
-  ctx.lineWidth=2;
-  ctx.lineJoin='round';
-  ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x=pad.l+cw*i/(data.length-1);
-    const y=pad.t+ch*(1-(v-min)/range);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  });
-  ctx.stroke();
+        /* --- PROCEDURAL PLAYER GENERATOR (RNG ENGINE) --- */
+        function generateProceduralCard(forcedRarity = null, forcedMode = "mixed") {
+            gameState.rolls++;
+            gameState.pityCounter.hero++;
+            gameState.pityCounter.icon++;
+            gameState.pityCounter.godTier++;
 
-  // Last point dot
-  const lx=pad.l+cw, ly=pad.t+ch*(1-(base-min)/range);
-  ctx.beginPath();ctx.arc(lx,ly,4,0,Math.PI*2);
-  ctx.fillStyle='#00F5FF';ctx.fill();
-}
+            // Evaluate system pity thresholds
+            let selectedRarity = forcedRarity;
+            if (!selectedRarity) {
+                if (gameState.pityCounter.godTier >= 1000) {
+                    selectedRarity = "God Tier";
+                } else if (gameState.pityCounter.icon >= 150) {
+                    selectedRarity = "Prime Icon";
+                } else if (gameState.pityCounter.hero >= 50) {
+                    selectedRarity = "Hero";
+                } else {
+                    // Standard roll weight generation
+                    const seed = Math.random() / gameState.luckMultiplier;
+                    let runningSum = 0;
+                    for (let tier of RARITY_TIERS) {
+                        runningSum += tier.rate;
+                        if (seed <= runningSum) {
+                            selectedRarity = tier.name;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(!selectedRarity) selectedRarity = "Common";
 
-function toggleListForm(){
-  const form = document.getElementById('market-list-form');
-  form.classList.toggle('show');
-  if(form.classList.contains('show')){
-    const sel=document.getElementById('list-item-sel');
-    const unique=state.inventory.filter((v,i,a)=>a.findIndex(x=>x.id===v.id)===i);
-    sel.innerHTML='<option value="">Select item...</option>'+unique.map(i=>`<option value="${i.instanceId}">${i.icon} ${i.name}</option>`).join('');
-  }
-}
+            // Clear counters if criteria hit
+            if (selectedRarity === "God Tier") gameState.pityCounter.godTier = 0;
+            if (selectedRarity === "Prime Icon" || selectedRarity === "Icon") gameState.pityCounter.icon = 0;
+            if (selectedRarity === "Hero") gameState.pityCounter.hero = 0;
 
-function listItem(){
-  const id=document.getElementById('list-item-sel').value;
-  const price=parseInt(document.getElementById('list-price').value);
-  if(!id||!price||price<1){showNotif('Fill in all fields!','warn');return;}
-  const idx=state.inventory.findIndex(i=>i.instanceId===id);
-  if(idx===-1){showNotif('Item not found!','warn');return;}
-  const item=state.inventory[idx];
-  state.inventory.splice(idx,1);
-  state.robux+=price;
-  updateStats();renderInventory();
-  document.getElementById('market-list-form').classList.remove('show');
-  showNotif(`Listed ${item.name} for R$${fmtNum(price)}!`,'success');
+            // Roll structural player shell
+            let rolledTemplate = BASE_PLAYERS_POOL[Math.floor(Math.random() * BASE_PLAYERS_POOL.length)];
+            
+            // Check cross-reference examples database for specialized flair injections
+            if (Math.random() < 0.15) {
+                const matchExample = EXAMPLES_POOL.find(e => e.rarity === selectedRarity);
+                if (matchExample) {
+                    rolledTemplate = BASE_PLAYERS_POOL[matchExample.baseIndex] || rolledTemplate;
+                }
+            }
 
-  // Add to feed
-  const feed=document.getElementById('market-feed');
-  const row=document.createElement('div');
-  row.className='market-row sell';
-  row.innerHTML=`<div class="mr-user" style="color:var(--neon)">YOU</div><div class="mr-action sell">SELL</div><div class="mr-item">${item.icon} ${item.name}</div><div class="mr-price">R$${fmtNum(price)}</div><div class="mr-time">${formatTime()}</div>`;
-  feed.prepend(row);
-}
+            const associatedNation = NATIONS_DATABASE.find(n => n.id === rolledTemplate.nation) || NATIONS_DATABASE[0];
+            const associatedClub = CLUBS_DATABASE.find(c => c.id === rolledTemplate.club) || CLUBS_DATABASE[0];
+            const matchingTierMeta = RARITY_TIERS.find(t => t.name === selectedRarity) || RARITY_TIERS[0];
+            
+            const calcOvr = Math.floor(Math.random() * (matchingTierMeta.maxOvr - matchingTierMeta.minOvr + 1)) + matchingTierMeta.minOvr;
+            const cardYear = Math.floor(Math.random() * (2026 - 1970 + 1)) + 1970;
 
-// ===== NAVIGATION =====
-function switchTab(id,btn){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if(id==='trading-tab'){renderInbound();renderOutbound();}
-  if(id==='market-tab'){drawChart();}
-}
+            const proceduralCard = {
+                id: "card_" + Date.now() + "_" + Math.floor(Math.random()*100000),
+                name: rolledTemplate.name,
+                rating: calcOvr,
+                rarity: selectedRarity,
+                position: rolledTemplate.pos,
+                nation: associatedNation.name,
+                flag: associatedNation.emoji,
+                club: associatedClub.name,
+                league: associatedClub.league,
+                year: cardYear,
+                locked: false,
+                favorite: false,
+                stats: {
+                    PAC: Math.min(99, calcOvr + Math.floor(Math.random()*10 - 5)),
+                    SHO: Math.min(99, calcOvr + Math.floor(Math.random()*10 - 5)),
+                    PAS: Math.min(99, calcOvr + Math.floor(Math.random()*10 - 5)),
+                    DRI: Math.min(99, calcOvr + Math.floor(Math.random()*10 - 5)),
+                    DEF: Math.min(99, calcOvr + Math.floor(Math.random()*10 - 5)),
+                    PHY: Math.min(99, calcOvr + Math.floor(Math.random()*10 - 5))
+                }
+            };
 
-// ===== MODAL =====
-function openModal(title, body){
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-body').innerHTML = body;
-  document.getElementById('modal-overlay').classList.add('active');
-}
-function closeModal(e){
-  if(e&&e.target!==document.getElementById('modal-overlay')&&e.target!==document.getElementById('modal-close'))return;
-  document.getElementById('modal-overlay').classList.remove('active');
-}
+            gameState.inventory.push(proceduralCard);
+            gameState.unlockedBasePlayers[proceduralCard.name] = true;
+            
+            return proceduralCard;
+        }
 
-// ===== NOTIFICATIONS =====
-function showNotif(msg, type='info'){
-  const stack = document.getElementById('notif-stack');
-  const el = document.createElement('div');
-  el.className = `notif ${type}`;
-  el.textContent = msg;
-  stack.appendChild(el);
-  setTimeout(()=>el.remove(),3000);
-}
+        /* --- CARD DOM NODE COMPONENT GENERATION --- */
+        function createCardDOMNode(card, isInteractive = true) {
+            const wrapper = document.createElement("div");
+            wrapper.className = "card-container";
+            
+            const inner = document.createElement("div");
+            inner.className = `card-inner rarity-glow-${card.rarity.toLowerCase().replace(" ", "-")}`;
+            
+            const face = document.createElement("div");
+            face.className = "card-face";
+            
+            // Inject conditional inline borders/glow backgrounds if complex classes require modifiers
+            face.innerHTML = `
+                <div class="card-top">
+                    <div class="card-rating-box">
+                        <span class="card-ovr">${card.rating}</span>
+                        <span class="card-pos">${card.position}</span>
+                    </div>
+                    <span class="card-badge">${card.rarity}</span>
+                </div>
+                <div class="card-avatar-placeholder">⚽</div>
+                <div class="card-info">
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-meta">
+                        <span>${card.flag}</span>
+                        <span>${card.year}</span>
+                    </div>
+                </div>
+                <div class="card-stats-grid">
+                    <div class="card-stat-item"><span>PAC</span>${card.stats.PAC}</div>
+                    <div class="card-stat-item"><span>SHO</span>${card.stats.SHO}</div>
+                    <div class="card-stat-item"><span>PAS</span>${card.stats.PAS}</div>
+                    <div class="card-stat-item"><span>DRI</span>${card.stats.DRI}</div>
+                    <div class="card-stat-item"><span>DEF</span>${card.stats.DEF}</div>
+                    <div class="card-stat-item"><span>PHY</span>${card.stats.PHY}</div>
+                </div>
+            `;
+            
+            inner.appendChild(face);
+            wrapper.appendChild(inner);
 
-// ===== HELPERS =====
-function getRarityLabel(r){
-  if(r>=500000000n) return '👑 MYTHICAL';
-  if(r>=50000000n) return '⚜ DIVINE';
-  if(r>=1000000n) return '💎 LEGENDARY';
-  if(r>=100000n) return '🔮 EPIC';
-  if(r>=10000n) return '⭐ RARE';
-  if(r>=1000n) return '🔷 UNCOMMON';
-  if(r>=100n) return '🔹 SCARCE';
-  return '◽ COMMON';
-}
+            if (isInteractive) {
+                wrapper.addEventListener("click", () => {
+                    displayCardInspectionModal(card);
+                });
+            }
 
-function demandColor(d){
-  return {Amazing:'#00FF88',High:'#00C864',Normal:'#6496FF',Terrible:'#FF3B3B'}[d]||'#888';
-}
+            return wrapper;
+        }
 
-function formatBig(n){
-  const s=n.toString();
-  if(s.length>15) return s.slice(0,-18)+'Qi';
-  if(s.length>12) return s.slice(0,-12)+'T';
-  if(s.length>9) return s.slice(0,-9)+'B';
-  if(s.length>6) return s.slice(0,-6)+'M';
-  if(s.length>3) return s.slice(0,-3)+'K';
-  return s;
-}
+        /* --- EXECUTE SIMULATOR GENERATION RUNNERS --- */
+        function executeRollEngine(count) {
+            const displayZone = document.getElementById("roll-results-output");
+            const titleZone = document.getElementById("roll-results-title");
+            const graphicNode = document.getElementById("pack-graphic-node");
+            
+            const isFast = document.getElementById("settings-fast-animations").checked;
 
-function fmtNum(n){
-  if(n>=1000000) return (n/1000000).toFixed(1)+'M';
-  if(n>=1000) return (n/1000).toFixed(1)+'K';
-  return n.toLocaleString();
-}
+            if (!isFast) {
+                graphicNode.classList.add("shake-element");
+                setTimeout(() => { graphicNode.classList.remove("shake-element"); }, 400);
+            }
 
-function formatTime(){
-  const d=new Date();
-  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0');
-}
+            if (count === 1) {
+                displayZone.innerHTML = "";
+                const newCard = generateProceduralCard(null, document.getElementById("roll-mode-select").value);
+                const node = createCardDOMNode(newCard, true);
+                displayZone.appendChild(node);
+            } else {
+                displayZone.innerHTML = "";
+                for (let i = 0; i < count; i++) {
+                    const newCard = generateProceduralCard(null, document.getElementById("roll-mode-select").value);
+                    const node = createCardDOMNode(newCard, true);
+                    displayZone.appendChild(node);
+                }
+            }
 
-function timeSince(ts){
-  const s=Math.floor((Date.now()-ts)/1000);
-  if(s<60) return s+'s ago';
-  if(s<3600) return Math.floor(s/60)+'m ago';
-  return Math.floor(s/3600)+'h ago';
-}
+            titleZone.style.display = "block";
+            triggerExperienceGain(count * 15);
+            evaluateAchievementsSystemProgress();
+        }
 
-// ===== INIT =====
-function init(){
-  initAIInventory();
-  renderLuckShop();
-  populateRapChart();
-  startMarketSim();
-  updateStats();
+        function toggleAutoRollEngine() {
+            const btn = document.getElementById("btn-auto-roll");
+            if (autoRollInterval) {
+                clearInterval(autoRollInterval);
+                autoRollInterval = null;
+                btn.innerText = "Activate Infinite Auto-Roll";
+                btn.style.background = "rgba(233, 30, 99, 0.2)";
+            } else {
+                btn.innerText = "Halt Active Auto-Roll Engine";
+                btn.style.background = "rgba(72,187,120,0.4)";
+                autoRollInterval = setInterval(() => {
+                    executeRollEngine(1);
+                }, 800);
+            }
+        }
 
-  // Periodic AI offers
-  setInterval(()=>{
-    if(state.inventory.length>0 && Math.random()>.7){
-      const offer = generateInboundOffer();
-      if(offer){
-        state.inboundOffers.push(offer);
-        if(state.tradeSub==='inbound') renderInbound();
-        showNotif(`New trade offer from ${offer.trader}!`,'info');
-      }
-    }
-  }, 15000);
+        function updateRollModeDisplay() {
+            const mode = document.getElementById("roll-mode-select").value;
+            const title = document.getElementById("pack-title-node");
+            if (mode === "worldcup") title.innerText = "Jules Rimet Historical Trophy Pack";
+            else if (mode === "champions") title.innerText = "Champions European Elite Pack";
+            else if (mode === "legends") title.innerText = "Immortals Allocation Pool Pack";
+            else title.innerText = "Standard Worldwide Pool Pack";
+        }
 
-  // Give starter robux drip
-  setInterval(()=>{state.robux+=10;updateStats();},5000);
+        /* --- INVENTORY RENDER VIEW MANAGEMENT --- */
+        function renderInventoryView() {
+            const grid = document.getElementById("inventory-cards-grid");
+            grid.innerHTML = "";
 
-  showNotif('Welcome to ROBLOX RNG! Roll to find Limiteds!','success');
-}
+            let workingRoster = [...gameState.inventory];
 
-window.addEventListener('DOMContentLoaded', init);
-window.addEventListener('resize',()=>{
-  const c=document.getElementById('cin-canvas');
-  if(c){c.width=window.innerWidth;c.height=window.innerHeight;}
-  drawChart();
-});
-</script>
+            // Sort calculations
+            const sortMode = document.getElementById("inv-sort-select").value;
+            if (sortMode === "rating-desc") workingRoster.sort((a,b) => b.rating - a.rating);
+            else if (sortMode === "rating-asc") workingRoster.sort((a,b) => a.rating - b.rating);
+
+            // Filter configuration parameters
+            const filterRarity = document.getElementById("inv-filter-rarity").value;
+            if (filterRarity === "Legendary") {
+                workingRoster = workingRoster.filter(c => ["Legendary", "Hero", "Icon", "Prime Icon", "Mythic", "Ultimate Icon", "God Tier"].includes(c.rarity));
+            } else if (filterRarity === "Icon") {
+                workingRoster = workingRoster.filter(c => ["Icon", "Prime Icon", "Ultimate Icon", "God Tier"].includes(c.rarity));
+            }
+
+            if (workingRoster.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color: var(--text-muted); padding: 40px; font-size:12px;">No matching player assets found in inventory.</div>`;
+                return;
+            }
+
+            // Lazy virtual layout rendering slice optimization (Cap display to avoid hardware crash)
+            const maximumDisplaySlice = workingRoster.slice(0, 150);
+            maximumDisplaySlice.forEach(card => {
+                const node = createCardDOMNode(card, true);
+                grid.appendChild(node);
+            });
+        }
+
+        /* --- SQUAD BUILDER MANAGEMENT ENGINE --- */
+        function applyFormationChange() {
+            gameState.activeFormation = document.getElementById("formation-select").value;
+            const wrapper = document.getElementById("pitch-layout-rows-wrapper");
+            wrapper.innerHTML = "";
+
+            const positioningMatrix = FORMATIONS_ENGINE[gameState.activeFormation];
+            
+            // Build visual dynamic rows grouping
+            for (let i = 1; i <= 4; i++) {
+                const rowNode = document.createElement("div");
+                rowNode.className = "pitch-row";
+                
+                const slotsInRow = positioningMatrix.filter(p => p.row === i);
+                slotsInRow.forEach(slotData => {
+                    const slot = document.createElement("div");
+                    slot.className = "pitch-slot";
+                    slot.id = `pitch-slot-${slotData.pos}`;
+                    
+                    const assignedCard = gameState.squad[slotData.pos];
+                    if (assignedCard) {
+                        slot.classList.add("occupied");
+                        slot.innerHTML = `
+                            <div class="mini-card rarity-glow-${assignedCard.rarity.toLowerCase().replace(" ","-")}">
+                                <div class="mini-card-top">
+                                    <span>${assignedCard.rating}</span>
+                                    <span>${slotData.pos}</span>
+                                </div>
+                                <div class="mini-card-name">${assignedCard.name.split(' ').pop()}</div>
+                            </div>
+                        `;
+                    } else {
+                        slot.innerHTML = `<span>+</span><span>${slotData.pos}</span>`;
+                    }
+
+                    slot.addEventListener("click", () => {
+                        triggerSquadAssignmentModal(slotData.pos);
+                    });
+
+                    rowNode.appendChild(slot);
+                });
+
+                wrapper.appendChild(rowNode);
+            }
+            calculateTeamSynergyMetrics();
+        }
+
+        function triggerSquadAssignmentModal(positionToken) {
+            selectedSquadPositionToken = positionToken;
+            const modal = document.getElementById("squad-picker-modal");
+            const listContainer = document.getElementById("squad-picker-modal-list");
+            listContainer.innerHTML = "";
+
+            document.getElementById("squad-picker-modal-title").innerText = `Assign Position: ${positionToken}`;
+
+            // Gather roster, sort highest rating
+            let viableCandidates = [...gameState.inventory].sort((a,b) => b.rating - a.rating);
+
+            if (viableCandidates.length === 0) {
+                listContainer.innerHTML = `<p style="font-size:12px; color: var(--text-muted); text-align:center;">No players owned. Visit Roll tab first.</p>`;
+            } else {
+                viableCandidates.slice(0, 30).forEach(card => {
+                    const row = document.createElement("div");
+                    row.className = "list-row-item";
+                    row.style.cursor = "pointer";
+                    row.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-weight:900; color:var(--stadium-green); font-size:14px;">${card.rating}</span>
+                            <div style="font-size:12px;">
+                                <div>${card.name}</div>
+                                <div style="font-size:9px; color:var(--text-muted);">${card.rarity} | ${card.position}</div>
+                            </div>
+                        </div>
+                        <span>👉</span>
+                    `;
+                    row.addEventListener("click", () => {
+                        gameState.squad[selectedSquadPositionToken] = card;
+                        closeSquadPickerModal();
+                        applyFormationChange();
+                    });
+                    listContainer.appendChild(row);
+                });
+            }
+
+            modal.style.display = "flex";
+        }
+
+        function closeSquadPickerModal() {
+            document.getElementById("squad-picker-modal").style.display = "none";
+        }
+
+        function executeAutoSquadBuild() {
+            let sortedPool = [...gameState.inventory].sort((a,b) => b.rating - a.rating);
+            const activeSlots = FORMATIONS_ENGINE[gameState.activeFormation];
+            
+            gameState.squad = {};
+            let usedIds = {};
+
+            activeSlots.forEach(slot => {
+                const foundIndex = sortedPool.findIndex(c => !usedIds[c.id]);
+                if (foundIndex !== -1) {
+                    gameState.squad[slot.pos] = sortedPool[foundIndex];
+                    usedIds[sortedPool[foundIndex].id] = true;
+                }
+            });
+
+            applyFormationChange();
+        }
+
+        /* --- SQUAD CHEMISTRY ENGINE & CALCULATIONS --- */
+        function calculateTeamSynergyMetrics() {
+            const activeSlots = FORMATIONS_ENGINE[gameState.activeFormation];
+            let cumulativeRatingSum = 0;
+            let playerCounts = 0;
+
+            let clubMap = {};
+            let nationMap = {};
+
+            activeSlots.forEach(slot => {
+                const card = gameState.squad[slot.pos];
+                if (card) {
+                    cumulativeRatingSum += card.rating;
+                    playerCounts++;
+
+                    clubMap[card.club] = (clubMap[card.club] || 0) + 1;
+                    nationMap[card.nation] = (nationMap[card.nation] || 0) + 1;
+                }
+            });
+
+            const teamOVR = playerCounts > 0 ? Math.floor(cumulativeRatingSum / activeSlots.length) : 0;
+            
+            // Generate basic structural logic calculations for chemistry links
+            let chemistryAggregate = 0;
+            if (playerCounts > 0) {
+                let synergyPoints = 0;
+                Object.values(clubMap).forEach(v => { if (v > 1) synergyPoints += v * 8; });
+                Object.values(nationMap).forEach(v => { if (v > 1) synergyPoints += v * 6; });
+                chemistryAggregate = Math.min(100, synergyPoints);
+            }
+
+            document.getElementById("top-squad-ovr").innerText = teamOVR;
+            document.getElementById("top-squad-chem").innerText = chemistryAggregate;
+            
+            // Home display contexts updates
+            if (document.getElementById("squad-metric-avg")) {
+                document.getElementById("squad-metric-avg").innerText = teamOVR;
+                document.getElementById("squad-metric-clubs").innerText = Object.keys(clubMap).length;
+                document.getElementById("squad-metric-nations").innerText = Object.keys(nationMap).length;
+            }
+        }
+
+        /* --- CARD INSPECTION POPUP WINDOW MODAL --- */
+        function displayCardInspectionModal(card) {
+            const modal = document.getElementById("card-inspect-modal");
+            const visualZone = document.getElementById("card-inspect-rendering-zone");
+            const detailsZone = document.getElementById("card-inspect-details-zone");
+
+            visualZone.innerHTML = "";
+            const node = createCardDOMNode(card, false);
+            visualZone.appendChild(node);
+
+            detailsZone.innerHTML = `
+                <div><strong>Full Name Asset:</strong> ${card.name}</div>
+                <div><strong>Tactical League Context:</strong> ${card.league}</div>
+                <div><strong>Assigned Team Grouping:</strong> ${card.club}</div>
+                <div><strong>National Origin Index:</strong> ${card.nation}</div>
+                <div><strong>Generational Model Year:</strong> ${card.year}</div>
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                    <button class="btn" onclick="executeCardAssetLiquidation('${card.id}')" style="background:rgba(229,62,62,0.2); border-color:#e53e3e; font-size:11px; padding:6px; margin:0;">Liquidate Card</button>
+                </div>
+            `;
+
+            modal.style.display = "flex";
+        }
+
+        function closeCardInspectModal() {
+            document.getElementById("card-inspect-modal").style.display = "none";
+        }
+
+        function executeCardAssetLiquidation(cardId) {
+            const index = gameState.inventory.findIndex(c => c.id === cardId);
+            if (index !== -1) {
+                const targetCard = gameState.inventory[index];
+                let creditValue = 100;
+                if (["Legendary", "Hero"].includes(targetCard.rarity)) creditValue = 1500;
+                if (["Icon", "Prime Icon", "Mythic", "God Tier"].includes(targetCard.rarity)) creditValue = 5000;
+                
+                gameState.coins += creditValue;
+                gameState.inventory.splice(index, 1);
+                
+                // Clean from tactical active squad if applicable
+                Object.keys(gameState.squad).forEach(posKey => {
+                    if (gameState.squad[posKey] && gameState.squad[posKey].id === cardId) {
+                        delete gameState.squad[posKey];
+                    }
+                });
+
+                closeCardInspectModal();
+                updateTopDisplayPanels();
+                applyFormationChange();
+                renderInventoryView();
+            }
+        }
+
+        function executeBulkDuplicateLiquidation() {
+            let matches = {};
+            let uniqueKeptRoster = [];
+            let liquidCount = 0;
+            let liquidCreditValue = 0;
+
+            gameState.inventory.forEach(card => {
+                const identityKey = `${card.name}_${card.rating}_${card.rarity}`;
+                if (!matches[identityKey]) {
+                    matches[identityKey] = true;
+                    uniqueKeptRoster.push(card);
+                } else {
+                    liquidCount++;
+                    liquidCreditValue += 120;
+                }
+            });
+
+            gameState.inventory = uniqueKeptRoster;
+            gameState.coins += liquidCreditValue;
+            
+            alert(`Liquidation complete. Processed ${liquidCount} duplicate assets for +${liquidCreditValue} Coins.`);
+            updateTopDisplayPanels();
+            renderInventoryView();
+        }
+
+        /* --- MASTER INDEX PACK COLLECTION TRACKING --- */
+        function buildCollectionCatalogIndex() {
+            const container = document.getElementById("collection-master-list");
+            container.innerHTML = "";
+
+            BASE_PLAYERS_POOL.forEach(blueprint => {
+                const row = document.createElement("div");
+                row.className = "list-row-item";
+                row.id = `collection-row-${blueprint.name.replace(/\s+/g, '')}`;
+                row.innerHTML = `
+                    <span>${blueprint.name} (${blueprint.pos})</span>
+                    <strong style="color: var(--text-muted);" class="status-marker">LOCKED</strong>
+                `;
+                container.appendChild(row);
+            });
+            updateCollectionTabProgressDisplay();
+        }
+
+        function updateCollectionTabProgressDisplay() {
+            let unlockedCount = 0;
+            BASE_PLAYERS_POOL.forEach(blueprint => {
+                const targetNode = document.getElementById(`collection-row-${blueprint.name.replace(/\s+/g, '')}`);
+                if (gameState.unlockedBasePlayers[blueprint.name]) {
+                    unlockedCount++;
+                    if (targetNode) {
+                        const marker = targetNode.querySelector(".status-marker");
+                        marker.innerText = "UNLOCKED";
+                        marker.style.color = "var(--stadium-green)";
+                    }
+                }
+            });
+
+            const collectionPct = Math.floor((unlockedCount / BASE_PLAYERS_POOL.length) * 100);
+            document.getElementById("top-collection-pct").innerText = `${collectionPct}%`;
+            document.getElementById("collection-grand-total").innerText = `${collectionPct}%`;
+            document.getElementById("stat-unique-unlocked").innerText = `${unlockedCount} / ${BASE_PLAYERS_POOL.length}`;
+            document.getElementById("stat-total-pulled").innerText = gameState.rolls;
+        }
+
+        /* --- STORE PACK PURCHASING HOOKS --- */
+        function purchaseStorePack(tierId, cost, currencyType) {
+            if (currencyType === 'coins' && gameState.coins < cost) {
+                alert("Insufficient Coin liquidity balance.");
+                return;
+            }
+            if (currencyType === 'gems' && gameState.gems < cost) {
+                alert("Insufficient Gems balancing index.");
+                return;
+            }
+
+            if (currencyType === 'coins') gameState.coins -= cost;
+            else gameState.gems -= cost;
+
+            switchTab('roll');
+            
+            const displayZone = document.getElementById("roll-results-output");
+            displayZone.innerHTML = "";
+
+            const targetRarity = tierId === 'icon' ? "Icon" : "Legendary";
+            const card = generateProceduralCard(targetRarity);
+            displayZone.appendChild(createCardDOMNode(card, true));
+
+            updateTopDisplayPanels();
+        }
+
+        /* --- LIVE RANDOM EVENTS LOGIC ENGINE --- */
+        function triggerRandomServerEventManual() {
+            gameState.luckMultiplier = 3.5;
+            document.getElementById("events-display-status-title").innerText = "CHAOS LUCK INJECTION HOUR";
+            document.getElementById("events-display-status-desc").innerText = "Global database algorithms modified. Legendary and Icon base draw weights elevated x3.5!";
+            document.getElementById("stat-active-event").innerText = "Chaos Event Hour Active";
+            updateTopDisplayPanels();
+        }
+
+        /* --- ACHIEVEMENTS EVALUATION MATRIX --- */
+        function checkAndRenderAchievementsList() {
+            const container = document.getElementById("achievements-container-list");
+            container.innerHTML = "";
+
+            RUNTIME_SYSTEM_ACHIEVEMENTS.forEach(ach => {
+                const row = document.createElement("div");
+                row.className = "list-row-item";
+                row.innerHTML = `
+                    <div>
+                        <strong>${ach.title}</strong>
+                        <div style="font-size:11px; color:var(--text-muted);">${ach.criteria}</div>
+                    </div>
+                    <button class="btn btn-primary" id="ach-btn-${ach.id}" style="width:auto; margin:0; padding:6px 12px; font-size:11px;" onclick="claimAchievementReward('${ach.id}')">Locked</button>
+                `;
+                container.appendChild(row);
+            });
+            evaluateAchievementsSystemProgress();
+        }
+
+        function evaluateAchievementsSystemProgress() {
+            RUNTIME_SYSTEM_ACHIEVEMENTS.forEach(ach => {
+                const btn = document.getElementById(`ach-btn-${ach.id}`);
+                if (!btn) return;
+
+                if (gameState.achievementsClaimed[ach.id]) {
+                    btn.innerText = "Claimed";
+                    btn.disabled = true;
+                    btn.style.background = "var(--glass)";
+                    btn.style.color = "var(--text-muted)";
+                    return;
+                }
+
+                let acceptable = false;
+                if (ach.type === "rolls" && gameState.rolls >= ach.count) acceptable = true;
+                
+                if (acceptable) {
+                    btn.innerText = "Claim Reward";
+                    btn.style.background = "var(--stadium-green)";
+                    btn.style.color = "#000";
+                } else {
+                    btn.innerText = "In Progress";
+                    btn.disabled = true;
+                }
+            });
+        }
+
+        function claimAchievementReward(achId) {
+            const ach = RUNTIME_SYSTEM_ACHIEVEMENTS.find(a => a.id === achId);
+            if(ach && !gameState.achievementsClaimed[ach.id]) {
+                gameState.achievementsClaimed[ach.id] = true;
+                gameState.coins += typeof ach.reward === 'number' ? ach.reward : 1000;
+                if(typeof ach.reward === 'string') gameState.gems += 50;
+                
+                alert(`Achievement milestone unlocked: ${ach.title}!`);
+                checkAndRenderAchievementsList();
+                updateTopDisplayPanels();
+            }
+        }
+
+        /* --- PROFILE TIER RESET METRICS --- */
+        function executeAccountPrestigeReset() {
+            if (confirm("Are you certain you wish to reset current squad and roll index profiles for advanced profile progression status metrics?")) {
+                gameState.inventory = [];
+                gameState.squad = {};
+                gameState.rolls = 0;
+                gameState.coins = 10000;
+                gameState.gems = 150;
+                alert("Account Reset Executed successfully.");
+                applyFormationChange();
+                updateTopDisplayPanels();
+                switchTab('home');
+            }
+        }
+
+        /* --- CLEAN WIPE ADMINISTRATION TERMINAL --- */
+        function clearLocalStorageDataEngine() {
+            if (confirm("Wipe local application database caches immediately? All progress transitions vanish.")) {
+                localStorage.removeItem("WORLD_SOCCER_RNG_STATE_2026");
+                window.location.reload();
+            }
+        }
+    </script>
 </body>
 </html>
