@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MetaTrader 5 Ultimate Pro Web Simulator</title>
     <style>
         :root {
@@ -28,12 +28,14 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             font-size: 11px;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
             height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -46,15 +48,23 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
+            flex-shrink: 0;
         }
 
         .menu-bar {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             padding: 4px 10px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             background: #171b26;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .menu-bar::-webkit-scrollbar, .toolbar::-webkit-scrollbar {
+            display: none;
         }
 
         .menu-bar .brand {
@@ -73,29 +83,33 @@
             align-items: center;
             gap: 6px;
             padding: 4px 10px;
-            flex-wrap: wrap;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tool-group {
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
             border-right: 1px solid var(--border-color);
             padding-right: 6px;
             margin-right: 2px;
+            flex-shrink: 0;
         }
 
         button, select, input {
             background: #2a2e39;
             color: var(--text-main);
             border: 1px solid #363a45;
-            padding: 3px 8px;
-            border-radius: 2px;
+            padding: 4px 8px;
+            border-radius: 3px;
             cursor: pointer;
             outline: none;
         }
 
         button:hover { background: #363a45; }
+        button:active { transform: scale(0.98); }
         button.active {
             background: var(--accent-blue);
             border-color: var(--accent-blue);
@@ -109,17 +123,19 @@
             border: none;
             padding: 3px 10px;
             margin-left: auto;
+            flex-shrink: 0;
         }
         .btn-tutorial:hover { background: #d4a307 !important; }
 
-        /* App Grid Layout */
+        /* App Grid Layout for Desktop */
         #app-grid {
             display: grid;
             grid-template-columns: 240px 1fr 280px;
             grid-template-rows: 1fr 220px;
-            height: calc(100vh - 62px);
+            flex: 1;
             width: 100vw;
             position: relative;
+            overflow: hidden;
         }
 
         .panel-box {
@@ -132,7 +148,7 @@
 
         .panel-title {
             background-color: var(--panel-header);
-            padding: 5px 8px;
+            padding: 6px 10px;
             font-weight: bold;
             font-size: 11px;
             text-transform: uppercase;
@@ -142,6 +158,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         /* Market Watch Sidebar */
@@ -153,7 +170,7 @@
         .symbol-card {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            padding: 6px 8px;
+            padding: 8px 10px;
             border-bottom: 1px solid #1e222d;
             cursor: pointer;
             align-items: center;
@@ -171,14 +188,15 @@
         #news-ticker {
             height: 65px;
             border-top: 1px solid var(--border-color);
-            padding: 4px 8px;
+            padding: 6px 10px;
             background: #171b26;
             font-size: 10px;
             overflow-y: auto;
+            flex-shrink: 0;
         }
 
         .news-item {
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
@@ -193,7 +211,9 @@
             grid-row: 1 / 2;
             background-color: var(--bg-main);
             overflow: hidden;
-            min-height: 200px;
+            min-height: 150px;
+            width: 100%;
+            height: 100%;
         }
 
         canvas {
@@ -223,7 +243,7 @@
             color: white;
             border: none;
             font-weight: bold;
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 3px;
         }
 
@@ -232,7 +252,7 @@
             color: white;
             border: none;
             font-weight: bold;
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 3px;
         }
 
@@ -247,7 +267,7 @@
             background: rgba(19, 23, 34, 0.92);
             border: 1px solid var(--border-color);
             border-radius: 4px;
-            width: 140px;
+            width: 130px;
             padding: 4px;
             z-index: 9;
         }
@@ -256,7 +276,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 9px;
-            padding: 1px 4px;
+            padding: 2px 4px;
         }
 
         .dom-bar-ask { background: rgba(242, 54, 69, 0.25); }
@@ -276,7 +296,7 @@
         .form-row {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 4px;
         }
 
         .form-row label {
@@ -286,13 +306,13 @@
 
         .form-row input, .form-row select {
             width: 100%;
-            padding: 5px;
+            padding: 6px;
         }
 
         .risk-calc-box {
             background: #171b26;
             border: 1px dashed var(--border-color);
-            padding: 6px;
+            padding: 8px;
             border-radius: 3px;
             font-size: 10px;
         }
@@ -309,15 +329,18 @@
             display: flex;
             background: #171b26;
             border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            white-space: nowrap;
         }
 
         .tab-btn {
-            padding: 5px 14px;
+            padding: 6px 14px;
             border: none;
             background: transparent;
             color: var(--text-muted);
             border-right: 1px solid var(--border-color);
             border-radius: 0;
+            flex-shrink: 0;
         }
 
         .tab-btn.active {
@@ -329,18 +352,20 @@
         .terminal-content {
             flex: 1;
             overflow-y: auto;
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
+            min-width: 500px;
         }
 
         th {
             background: #171b26;
             color: var(--text-muted);
-            padding: 5px 8px;
+            padding: 6px 8px;
             font-weight: normal;
             position: sticky;
             top: 0;
@@ -348,12 +373,12 @@
         }
 
         td {
-            padding: 4px 8px;
+            padding: 5px 8px;
             border-bottom: 1px solid #1e222d;
         }
 
         .badge {
-            padding: 1px 4px;
+            padding: 2px 5px;
             border-radius: 2px;
             font-size: 9px;
             font-weight: bold;
@@ -366,10 +391,13 @@
         #account-bar {
             background-color: #171b26;
             border-top: 1px solid var(--border-color);
-            padding: 5px 10px;
+            padding: 6px 10px;
             display: flex;
-            gap: 18px;
+            gap: 15px;
             font-weight: bold;
+            overflow-x: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         /* Floating Tooltip HUD */
@@ -383,6 +411,35 @@
             font-family: monospace;
             pointer-events: none;
             z-index: 10;
+        }
+
+        /* Mobile Bottom Tab Navigation */
+        #mobile-nav-bar {
+            display: none;
+            background: #171b26;
+            border-top: 1px solid var(--border-color);
+            height: 50px;
+            grid-template-columns: repeat(4, 1fr);
+            z-index: 500;
+            flex-shrink: 0;
+        }
+
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            font-size: 10px;
+            gap: 3px;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--accent-blue);
+            background: rgba(41, 98, 255, 0.1);
         }
 
         /* Interactive Tutorial Overlay */
@@ -400,7 +457,8 @@
             border: 2px solid var(--gold);
             border-radius: 6px;
             padding: 16px;
-            width: 320px;
+            width: 300px;
+            max-width: 90vw;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             color: #fff;
             z-index: 1001;
@@ -409,7 +467,7 @@
 
         .tutorial-card h3 {
             color: var(--gold);
-            font-size: 14px;
+            font-size: 13px;
             margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
@@ -437,6 +495,76 @@
             transition: all 0.3s ease;
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
         }
+
+        /* ==================== RESPONSIVE MEDIA QUERIES ==================== */
+
+        /* Tablets & Small Laptops (768px to 1024px) */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            #app-grid {
+                grid-template-columns: 200px 1fr;
+                grid-template-rows: 1fr 200px;
+            }
+
+            #order-panel {
+                grid-column: 1 / 2;
+                grid-row: 2 / 3;
+                border-top: 1px solid var(--border-color);
+            }
+
+            #terminal-panel {
+                grid-column: 2 / 3;
+                grid-row: 2 / 3;
+            }
+        }
+
+        /* Mobile Devices (< 768px) */
+        @media (max-width: 768px) {
+            #mobile-nav-bar {
+                display: grid;
+            }
+
+            #app-grid {
+                display: block;
+                height: calc(100vh - 75px - 50px);
+                height: calc(100dvh - 75px - 50px);
+                position: relative;
+            }
+
+            .panel-box, #chart-container {
+                display: none !important;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            /* Display Active Tab on Mobile */
+            .panel-box.mobile-active, #chart-container.mobile-active {
+                display: flex !important;
+                flex-direction: column;
+            }
+
+            #quick-trade-bar {
+                top: 5px;
+                left: 5px;
+                padding: 4px;
+                gap: 4px;
+            }
+
+            #quick-trade-bar input {
+                width: 40px !important;
+            }
+
+            #dom-overlay {
+                display: none; /* Hide DOM overlay on phones to clear canvas area */
+            }
+
+            #chart-hud {
+                font-size: 9px;
+                padding: 2px 4px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -444,10 +572,10 @@
     <!-- Top Navigation Toolbar -->
     <div id="top-navbar">
         <div class="menu-bar">
-            <div class="brand">MT5 <span>ULTIMATE PRO</span></div>
-            <div>File</div><div>View</div><div>Insert</div><div>Charts</div><div>Tools</div><div>Window</div><div>Help</div>
-            <button class="btn-tutorial" onclick="startTutorial()">🎓 Interactive Tutorial Tour</button>
-            <div style="margin-left: 15px; color: var(--gold);" id="server-ping">● Connected (12ms)</div>
+            <div class="brand">MT5 <span>PRO</span></div>
+            <div>File</div><div>View</div><div>Insert</div><div>Charts</div><div>Tools</div>
+            <button class="btn-tutorial" onclick="startTutorial()">🎓 Tutorial</button>
+            <div style="margin-left: 10px; color: var(--gold);" id="server-ping">● 12ms</div>
         </div>
         <div class="toolbar">
             <div class="tool-group" id="tbar-tf">
@@ -469,19 +597,15 @@
                 <button id="btn-tool-cursor" class="active" onclick="setDrawingTool('cursor')">Pointer</button>
                 <button id="btn-tool-cross" onclick="setDrawingTool('crosshair')">Crosshair</button>
                 <button id="btn-tool-line" onclick="setDrawingTool('trendline')">Trendline</button>
-                <button id="btn-tool-hline" onclick="setDrawingTool('hline')">H-Line</button>
-                <button id="btn-tool-fibo" onclick="setDrawingTool('fibo')">Fibonacci</button>
-                <button onclick="clearDrawings()">Clear Drawings</button>
             </div>
 
             <div class="tool-group" id="tbar-inds">
-                <button id="btn-ind-sma" class="active" onclick="toggleIndicator('sma')">SMA (20/50)</button>
-                <button id="btn-ind-ema" onclick="toggleIndicator('ema')">EMA (20)</button>
-                <button id="btn-ind-rsi" onclick="toggleIndicator('rsi')">RSI Sub-Win</button>
+                <button id="btn-ind-sma" class="active" onclick="toggleIndicator('sma')">SMA (20)</button>
+                <button id="btn-ind-rsi" onclick="toggleIndicator('rsi')">RSI</button>
             </div>
 
             <div class="tool-group">
-                <button style="background: var(--purple); color:#fff;" onclick="triggerNewsEvent()">💥 News Spike</button>
+                <button style="background: var(--purple); color:#fff;" onclick="triggerNewsEvent()">💥 News</button>
             </div>
         </div>
     </div>
@@ -490,25 +614,25 @@
     <div id="app-grid">
 
         <!-- Left Panel: Market Watch & News -->
-        <div class="panel-box" id="mw-panel-box" style="grid-column: 1 / 2; grid-row: 1 / 2;">
+        <div class="panel-box mobile-active" id="mw-panel-box">
             <div class="panel-title">
                 <span>Market Watch</span>
                 <span id="market-time">00:00:00</span>
             </div>
             <div id="market-watch-list"></div>
 
-            <div class="panel-title">Economic Calendar & News</div>
+            <div class="panel-title">Economic News</div>
             <div id="news-ticker">
-                <div class="news-item"><span class="news-high">[HIGH]</span> US FED Interest Rate Decision Imminent</div>
-                <div class="news-item"><span>[MED]</span> EUR CPI Inflation Data Released</div>
+                <div class="news-item"><span class="news-high">[HIGH]</span> US FED Interest Rate Decision</div>
+                <div class="news-item"><span>[MED]</span> EUR CPI Inflation Released</div>
             </div>
         </div>
 
         <!-- Center Panel: Interactive Chart Canvas -->
-        <div id="chart-container">
+        <div id="chart-container" class="mobile-active">
             <div id="quick-trade-bar">
                 <button class="btn-quick-sell" onclick="quickTrade('SELL')">SELL <span id="qt-sell-val">0.00</span></button>
-                <input type="number" id="qt-lot-val" value="0.10" step="0.01" style="width: 50px; text-align: center;">
+                <input type="number" id="qt-lot-val" value="0.10" step="0.01">
                 <button class="btn-quick-buy" onclick="quickTrade('BUY')">BUY <span id="qt-buy-val">0.00</span></button>
             </div>
 
@@ -531,13 +655,11 @@
             </div>
 
             <div class="form-row">
-                <label>Order Execution Type</label>
+                <label>Execution Type</label>
                 <select id="ord-type" onchange="togglePendingInputs()">
                     <option value="MARKET">Market Execution</option>
                     <option value="BUY_LIMIT">Buy Limit</option>
                     <option value="SELL_LIMIT">Sell Limit</option>
-                    <option value="BUY_STOP">Buy Stop</option>
-                    <option value="SELL_STOP">Sell Stop</option>
                 </select>
             </div>
 
@@ -564,12 +686,12 @@
             <div class="risk-calc-box">
                 <div style="font-weight: bold; margin-bottom: 3px; color: var(--gold);">Risk & Margin Analytics</div>
                 <div>Req. Margin: <span id="calc-margin-val">$0.00</span></div>
-                <div>Est. Risk Amount: <span id="calc-risk-val">$0.00 (0.00%)</span></div>
+                <div>Est. Risk: <span id="calc-risk-val">$0.00 (0.00%)</span></div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: auto;">
-                <button style="background: var(--bear-red); color:#fff; font-weight:bold; padding: 8px;" onclick="placeOrder('SELL')">SELL</button>
-                <button style="background: var(--bull-green); color:#fff; font-weight:bold; padding: 8px;" onclick="placeOrder('BUY')">BUY</button>
+                <button style="background: var(--bear-red); color:#fff; font-weight:bold; padding: 10px;" onclick="placeOrder('SELL')">SELL</button>
+                <button style="background: var(--bull-green); color:#fff; font-weight:bold; padding: 10px;" onclick="placeOrder('BUY')">BUY</button>
             </div>
         </div>
 
@@ -577,30 +699,18 @@
         <div class="panel-box" id="terminal-panel">
             <div class="terminal-tabs">
                 <button class="tab-btn active" onclick="setTerminalTab(this, 'positions')">Open Positions</button>
-                <button class="tab-btn" onclick="setTerminalTab(this, 'pending')">Pending Orders</button>
-                <button class="tab-btn" onclick="setTerminalTab(this, 'history')">Trade History</button>
-                <button class="tab-btn" onclick="setTerminalTab(this, 'analytics')">Performance Analytics</button>
+                <button class="tab-btn" onclick="setTerminalTab(this, 'history')">History</button>
+                <button class="tab-btn" onclick="setTerminalTab(this, 'analytics')">Analytics</button>
             </div>
 
             <div class="terminal-content" id="tab-positions">
                 <table>
                     <thead>
                         <tr>
-                            <th>Ticket</th><th>Time</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Open Price</th><th>Current Price</th><th>Profit ($)</th><th>Action</th>
+                            <th>Ticket</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Open Price</th><th>Current Price</th><th>Profit ($)</th><th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="table-positions"></tbody>
-                </table>
-            </div>
-
-            <div class="terminal-content" id="tab-pending" style="display: none;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ticket</th><th>Time</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Target Price</th><th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-pending"></tbody>
                 </table>
             </div>
 
@@ -608,7 +718,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Ticket</th><th>Open Time</th><th>Close Time</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Profit ($)</th>
+                            <th>Ticket</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Profit ($)</th>
                         </tr>
                     </thead>
                     <tbody id="table-history"></tbody>
@@ -616,25 +726,32 @@
             </div>
 
             <div class="terminal-content" id="tab-analytics" style="display: none; padding: 10px;">
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
-                    <div class="risk-calc-box"><div>Total Closed Trades</div><strong id="st-total-trades">0</strong></div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; text-align: center;">
+                    <div class="risk-calc-box"><div>Trades</div><strong id="st-total-trades">0</strong></div>
                     <div class="risk-calc-box"><div>Win Rate</div><strong id="st-win-rate" style="color:var(--bull-green)">0.0%</strong></div>
-                    <div class="risk-calc-box"><div>Profit Factor</div><strong id="st-profit-factor">0.00</strong></div>
-                    <div class="risk-calc-box"><div>Net Realized Profit</div><strong id="st-net-profit">$0.00</strong></div>
+                    <div class="risk-calc-box"><div>Net Profit</div><strong id="st-net-profit">$0.00</strong></div>
                 </div>
             </div>
 
             <div id="account-bar">
-                <div>Balance: <strong id="val-balance">10000.00</strong> USD</div>
-                <div>Equity: <strong id="val-equity">10000.00</strong> USD</div>
-                <div>Margin: <strong id="val-margin">0.00</strong> USD</div>
-                <div>Free Margin: <strong id="val-free-margin">10000.00</strong> USD</div>
+                <div>Balance: <strong id="val-balance">10000.00</strong></div>
+                <div>Equity: <strong id="val-equity">10000.00</strong></div>
+                <div>Margin: <strong id="val-margin">0.00</strong></div>
+                <div>Free Margin: <strong id="val-free-margin">10000.00</strong></div>
             </div>
         </div>
 
     </div>
 
-    <!-- Interactive Tutorial Overlay Elements -->
+    <!-- Mobile Bottom Navigation Bar (<768px View Switcher) -->
+    <div id="mobile-nav-bar">
+        <button class="mobile-nav-item" onclick="switchMobileTab('mw-panel-box', this)">📊 Quotes</button>
+        <button class="mobile-nav-item active" onclick="switchMobileTab('chart-container', this)">📈 Chart</button>
+        <button class="mobile-nav-item" onclick="switchMobileTab('order-panel', this)">⚡ Trade</button>
+        <button class="mobile-nav-item" onclick="switchMobileTab('terminal-panel', this)">💼 Terminal</button>
+    </div>
+
+    <!-- Interactive Tutorial Overlay -->
     <div id="tutorial-overlay">
         <div class="tutorial-spotlight" id="tutorial-spotlight"></div>
         <div class="tutorial-card" id="tutorial-card">
@@ -642,14 +759,14 @@
             <p id="tut-text">Loading tutorial description...</p>
             <div class="tutorial-buttons">
                 <button onclick="prevTutorialStep()" id="btn-tut-prev">Back</button>
-                <button onclick="skipTutorial()" style="background:#363a45;">Skip Tour</button>
+                <button onclick="skipTutorial()" style="background:#363a45;">Skip</button>
                 <button onclick="nextTutorialStep()" id="btn-tut-next" style="background:var(--gold); color:#000; font-weight:bold;">Next</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- AUDIO ENGINE SAFEGUARD ---
+        // --- AUDIO ENGINE ---
         const AudioFX = {
             ctx: null,
             init() { 
@@ -688,7 +805,7 @@
         let currentTimeframe = 'M1';
         let chartStyle = 'candles';
         let activeTool = 'cursor';
-        const indicators = { sma: true, ema: false, rsi: false };
+        const indicators = { sma: true, rsi: false };
         const rawCandleStore = {};
 
         const account = {
@@ -700,14 +817,28 @@
         };
 
         let openPositions = [];
-        let pendingOrders = [];
         let tradeHistory = [];
-        let drawings = [];
         let ticketSeq = 1001;
         let tickCounter = 0;
-
-        let visibleCandlesCount = 60;
+        let visibleCandlesCount = 50;
         let canvas, ctx;
+
+        // --- MOBILE TAB SWITCHER ---
+        function switchMobileTab(panelId, btnEl) {
+            document.querySelectorAll('#mobile-nav-bar .mobile-nav-item').forEach(b => b.classList.remove('active'));
+            if(btnEl) btnEl.classList.add('active');
+
+            document.querySelectorAll('#app-grid > div').forEach(p => p.classList.remove('mobile-active'));
+            const target = document.getElementById(panelId);
+            if(target) target.classList.add('mobile-active');
+
+            if (panelId === 'chart-container') {
+                setTimeout(() => {
+                    resizeCanvas();
+                    drawChart();
+                }, 50);
+            }
+        }
 
         // --- INITIALIZATION ENGINE ---
         function initApp() {
@@ -724,12 +855,14 @@
             });
             resizeObs.observe(document.getElementById('chart-container'));
 
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                drawChart();
+            });
+
             setTimeout(() => {
                 resizeCanvas();
                 drawChart();
-                if(!localStorage.getItem('mt5_tut_seen')) {
-                    startTutorial();
-                }
             }, 200);
         }
 
@@ -739,7 +872,6 @@
             document.addEventListener('DOMContentLoaded', initApp);
         }
 
-        // Generate smooth backward history ending EXACTLY at current symbol price
         function generateCandles(count, volatility, targetEndPrice) {
             const list = [];
             let currentClose = targetEndPrice;
@@ -819,7 +951,6 @@
 
                     const history = rawCandleStore[key];
                     
-                    // Periodically spawn new candles every 12 ticks (~3.6 seconds)
                     if (tickCounter % 12 === 0) {
                         history.push({
                             open: sym.price,
@@ -866,7 +997,6 @@
             AudioFX.playTone(1000, 0.2);
         }
 
-        // --- ORDER MANAGEMENT ---
         function togglePendingInputs() {
             const type = document.getElementById('ord-type').value;
             document.getElementById('pending-price-row').style.display = type === 'MARKET' ? 'none' : 'flex';
@@ -983,7 +1113,6 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${pos.id}</td>
-                    <td>${pos.time}</td>
                     <td><span class="badge ${pos.type === 'BUY'?'badge-buy':'badge-sell'}">${pos.type}</span></td>
                     <td>${pos.volume.toFixed(2)}</td>
                     <td>${pos.symbol}</td>
@@ -1003,8 +1132,6 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${pos.id}</td>
-                    <td>${pos.time}</td>
-                    <td>${pos.closeTime}</td>
                     <td><span class="badge ${pos.type === 'BUY'?'badge-buy':'badge-sell'}">${pos.type}</span></td>
                     <td>${pos.volume.toFixed(2)}</td>
                     <td>${pos.symbol}</td>
@@ -1026,12 +1153,12 @@
         function setTerminalTab(btn, tab) {
             document.querySelectorAll('.terminal-tabs .tab-btn').forEach(b => b.classList.remove('active'));
             if (btn) btn.classList.add('active');
-            ['positions', 'pending', 'history', 'analytics'].forEach(t => {
+            ['positions', 'history', 'analytics'].forEach(t => {
                 document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
             });
         }
 
-        // --- CANVAS RENDER ENGINE (BUG FIXED) ---
+        // --- CANVAS RENDER ENGINE ---
         function setupCanvasEvents() {
             canvas = document.getElementById('chartCanvas');
             ctx = canvas.getContext('2d');
@@ -1041,8 +1168,8 @@
         function resizeCanvas() {
             const container = document.getElementById('chart-container');
             if (!container || !canvas) return;
-            canvas.width = Math.max(300, container.clientWidth);
-            canvas.height = Math.max(200, container.clientHeight);
+            canvas.width = Math.max(200, container.clientWidth);
+            canvas.height = Math.max(150, container.clientHeight);
         }
 
         function drawChart() {
@@ -1061,7 +1188,6 @@
             let minPrice = Math.min(...visibleCandles.map(c => c.low));
             let maxPrice = Math.max(...visibleCandles.map(c => c.high));
             
-            // Safeguard against NaN or zero range
             let range = maxPrice - minPrice;
             if (range <= 0) range = sym.volatility * 5;
 
@@ -1070,10 +1196,10 @@
             maxPrice += pad;
             range = maxPrice - minPrice;
 
-            const chartWidth = width - 65;
+            const chartWidth = width - 55;
             const candleWidth = chartWidth / visibleCandles.length;
 
-            // Horizontal Grid Lines & Price Labels
+            // Grid Lines & Price Scale
             ctx.strokeStyle = '#1e222d';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 4; i++) {
@@ -1081,10 +1207,9 @@
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(chartWidth, y); ctx.stroke();
                 let pLabel = maxPrice - ((i / 4) * range);
                 ctx.fillStyle = '#787b86';
-                ctx.fillText(pLabel.toFixed(sym.digits), chartWidth + 5, y + 4);
+                ctx.fillText(pLabel.toFixed(sym.digits), chartWidth + 3, y + 4);
             }
 
-            // Draw Chart Based on Style
             if (chartStyle === 'line') {
                 ctx.strokeStyle = '#2962ff';
                 ctx.lineWidth = 2;
@@ -1096,7 +1221,6 @@
                 });
                 ctx.stroke();
             } else {
-                // Candlestick & Heikin-Ashi safe rendering loop
                 visibleCandles.forEach((c, i) => {
                     const x = i * candleWidth + candleWidth / 2;
                     let openVal = c.open, closeVal = c.close, highVal = c.high, lowVal = c.low;
@@ -1116,14 +1240,12 @@
                     let isBull = closeVal >= openVal;
                     let color = isBull ? '#089981' : '#f23645';
 
-                    // Draw Candle Wick
                     ctx.strokeStyle = color;
                     ctx.beginPath();
                     ctx.moveTo(x, highY);
                     ctx.lineTo(x, lowY);
                     ctx.stroke();
 
-                    // Draw Candle Body with minimum 1px height preventions
                     ctx.fillStyle = color;
                     let bodyTop = Math.min(openY, closeY);
                     let bodyHeight = Math.max(1, Math.abs(closeY - openY));
@@ -1131,7 +1253,6 @@
                 });
             }
 
-            // Technical Indicator Overlays (SMA 20)
             if (indicators.sma && visibleCandles.length > 20) {
                 ctx.strokeStyle = '#f0b90b';
                 ctx.lineWidth = 1.5;
@@ -1146,7 +1267,6 @@
                 ctx.stroke();
             }
 
-            // Active Position Lines
             openPositions.filter(p => p.symbol === currentSymbol).forEach(pos => {
                 let posY = mainHeight - ((pos.openPrice - minPrice) / range) * mainHeight;
                 ctx.strokeStyle = pos.type === 'BUY' ? '#089981' : '#f23645';
@@ -1158,7 +1278,6 @@
             document.getElementById('chart-hud').textContent = `${currentSymbol} | C: ${lastC.close.toFixed(sym.digits)}`;
         }
 
-        // --- BUTTON TOOLBAR HANDLERS ---
         function setTimeframe(btn, tf) {
             currentTimeframe = tf;
             document.querySelectorAll('#tbar-tf button').forEach(b => b.classList.remove('active'));
@@ -1188,15 +1307,12 @@
             drawChart();
         }
 
-        function clearDrawings() { drawings = []; drawChart(); }
-
         // --- TUTORIAL ENGINE ---
         const tutorialSteps = [
-            { title: "Welcome to MT5 Simulator", text: "This is a fully self-contained MetaTrader 5 institutional simulation.", target: null },
-            { title: "Market Watch", text: "Select your active currency pair or symbol quote here.", target: "#mw-panel-box" },
-            { title: "Interactive Charting", text: "Live candlestick renderer with indicators and depth of market.", target: "#chart-container" },
-            { title: "Order Execution", text: "Set volume (lots), SL/TP targets, and analyze risk before trading.", target: "#order-panel" },
-            { title: "Trading Terminal", text: "Monitor active orders, history, and real-time account performance.", target: "#terminal-panel" }
+            { title: "Welcome to MT5 Mobile/Desktop", text: "Fully responsive institutional trading platform.", target: null },
+            { title: "Market Watch", text: "Tap or click asset quotes to switch active charts.", target: "#mw-panel-box" },
+            { title: "Real-time Charting", text: "Full canvas chart dynamic layout.", target: "#chart-container" },
+            { title: "Order Panel", text: "Execute market orders or set TP/SL targets.", target: "#order-panel" }
         ];
 
         let currentTutStep = 0;
@@ -1211,16 +1327,14 @@
             const step = tutorialSteps[currentTutStep];
             document.getElementById('tut-title').textContent = `${step.title} (${currentTutStep + 1}/${tutorialSteps.length})`;
             document.getElementById('tut-text').textContent = step.text;
-
             document.getElementById('btn-tut-prev').style.display = currentTutStep === 0 ? 'none' : 'inline-block';
             document.getElementById('btn-tut-next').textContent = currentTutStep === tutorialSteps.length - 1 ? 'Done' : 'Next';
 
             const card = document.getElementById('tutorial-card');
             const spotlight = document.getElementById('tutorial-spotlight');
 
-            if (step.target && document.querySelector(step.target)) {
-                const targetEl = document.querySelector(step.target);
-                const rect = targetEl.getBoundingClientRect();
+            if (step.target && document.querySelector(step.target) && window.innerWidth > 768) {
+                const rect = document.querySelector(step.target).getBoundingClientRect();
                 spotlight.style.display = 'block';
                 spotlight.style.top = rect.top + 'px';
                 spotlight.style.left = rect.left + 'px';
@@ -1228,7 +1342,7 @@
                 spotlight.style.height = rect.height + 'px';
 
                 card.style.top = Math.min(window.innerHeight - 180, Math.max(20, rect.top + 20)) + 'px';
-                card.style.left = (rect.left > window.innerWidth / 2 ? rect.left - 340 : rect.left + rect.width + 10) + 'px';
+                card.style.left = (rect.left > window.innerWidth / 2 ? rect.left - 320 : rect.left + rect.width + 10) + 'px';
                 card.style.transform = 'none';
             } else {
                 spotlight.style.display = 'none';
@@ -1256,7 +1370,6 @@
 
         function skipTutorial() {
             document.getElementById('tutorial-overlay').style.display = 'none';
-            localStorage.setItem('mt5_tut_seen', 'true');
         }
     </script>
 </body>
