@@ -3,1339 +3,1261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tactical Pitch: Interactive Football Guide</title>
+    <title>MetaTrader 5 Ultimate Pro Web Simulator</title>
     <style>
         :root {
-            --bg-dark: #0a0f1d;
-            --card-bg: #141d36;
-            --pitch-green: #00ff66;
-            --pitch-lines: rgba(255, 255, 255, 0.6);
-            --persona-blue: #00d2ff;
-            --persona-dark-blue: #003666;
-            --persona-pink: #ff0055;
-            --text-light: #f1f5f9;
-            --text-muted: #94a3b8;
+            --bg-main: #0b0e14;
+            --panel-bg: #131722;
+            --panel-header: #1e222d;
+            --border-color: #2a2e39;
+            --text-main: #d1d4dc;
+            --text-muted: #787b86;
+            --bull-green: #089981;
+            --bull-hover: #067a67;
+            --bear-red: #f23645;
+            --bear-hover: #cc2d3b;
+            --accent-blue: #2962ff;
+            --gold: #f0b90b;
+            --purple: #9c27b0;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 11px;
+            user-select: none;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* --- PERSONA INSPIRED LOADING / MAIN MENU SCREEN --- */
-        #menu-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             height: 100vh;
-            background: radial-gradient(circle at 70% 30%, var(--persona-blue) 0%, var(--bg-dark) 70%);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 10% 5% 5% 8%;
-            z-index: 100;
             overflow: hidden;
         }
 
-        /* Stylized Background Watermark text */
-        .bg-watermark {
-            position: absolute;
-            font-size: 15vw;
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.03);
-            text-transform: uppercase;
-            font-style: italic;
-            transform: rotate(-12deg) translate(-10%, -20%);
-            user-select: none;
-            pointer-events: none;
-            line-height: 0.8;
-        }
-
-        /* Abstract Stylized Shape inspired by the image */
-        .menu-graphic {
-            position: absolute;
-            left: -10%;
-            bottom: -10%;
-            width: 60vw;
-            height: 110vh;
-            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(200,220,255,0.8) 50%, transparent 50%);
-            clip-path: polygon(0 0, 100% 0, 60% 100%, 0% 100%);
-            transform: rotate(-5deg);
-            z-index: 1;
-            opacity: 0.85;
-            display: flex;
-            align-items: flex-end;
-            padding: 100px;
-        }
-
-        /* Inner graphic accent lines */
-        .menu-graphic::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 210, 255, 0.1) 10px, rgba(0, 210, 255, 0.1) 20px);
-        }
-
-        .menu-wallet {
-            position: absolute;
-            top: 40px;
-            left: 40px;
-            background: white;
-            color: black;
-            padding: 8px 24px;
-            font-weight: bold;
-            font-family: 'Impact', sans-serif;
-            transform: skewX(-10deg);
-            border: 2px solid black;
-            box-shadow: 5px 5px 0px var(--persona-pink);
-            z-index: 5;
-        }
-
-        .menu-wallet span {
-            display: block;
-            font-size: 10px;
-            color: #666;
-            text-transform: uppercase;
-            font-family: sans-serif;
-        }
-
-        /* Stylized Navigation Menu Items */
-        .persona-menu {
-            position: relative;
-            z-index: 10;
-            list-style: none;
+        /* Top Menu & Toolbars */
+        #top-navbar {
+            background-color: var(--panel-header);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-left: auto;
-            margin-right: 5%;
-            transform: rotate(-5deg) skewX(-12deg);
-            align-items: flex-end;
-            width: 100%;
-            max-width: 450px;
+            z-index: 100;
         }
 
-        .persona-menu li {
-            width: 100%;
-            text-align: right;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .persona-menu li a {
-            display: inline-block;
-            font-size: 2.5rem;
-            font-weight: 900;
-            font-family: 'Impact', 'Arial Black', sans-serif;
-            color: var(--persona-blue);
-            text-decoration: none;
-            text-transform: uppercase;
-            padding: 4px 20px;
-            letter-spacing: 2px;
-            transition: all 0.2s ease;
-            text-shadow: 2px 2px 0px var(--bg-dark);
-        }
-
-        /* Active / Hover State imitating the Persona "ITEM" ribbon banner */
-        .persona-menu li:hover a, .persona-menu li.active a {
-            color: #ffffff;
-            background: linear-gradient(90deg, transparent, var(--persona-pink) 20%, var(--persona-pink) 100%);
-            padding-right: 40px;
-            padding-left: 60px;
-            transform: scale(1.1) translateX(-10px);
-            text-shadow: 2px 2px 0px #000;
-            box-shadow: -10px 5px 0px white;
-        }
-
-        .menu-footer-tips {
-            position: absolute;
-            bottom: 30px;
-            right: 40px;
-            z-index: 10;
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: white;
-            background: black;
-            padding: 5px 15px;
-            transform: skewX(-10deg);
-        }
-
-        /* --- MAIN APP DASHBOARD LAYOUT --- */
-        #app-container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            min-height: 100vh;
-        }
-
-        /* Main app sidebar navigation */
-        aside {
-            background-color: var(--card-bg);
-            border-right: 1px solid rgba(255,255,255,0.1);
-            padding: 30px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .logo-area h2 {
-            font-family: 'Impact', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            color: var(--pitch-green);
-            transform: skewX(-5deg);
-        }
-
-        .nav-links {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .nav-links button {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            text-align: left;
-            padding: 12px 15px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .nav-links button:hover, .nav-links button.active {
-            color: white;
-            background-color: rgba(255,255,255,0.05);
-            border-left: 4px solid var(--pitch-green);
-            padding-left: 19px;
-        }
-
-        .back-to-menu-btn {
-            margin-top: auto;
-            background: linear-gradient(135deg, var(--persona-pink), #bc003e) !important;
-            color: white !important;
-            text-align: center !important;
-            font-weight: bold;
-            border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(255,0,85,0.3);
-        }
-
-        /* Main viewport wrapper */
-        main {
-            padding: 40px;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            overflow-y: auto;
-        }
-
-        .section-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 30px;
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
+        .menu-bar {
             display: flex;
             align-items: center;
             gap: 15px;
+            padding: 4px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: #171b26;
         }
 
-        .section-title span {
-            color: var(--pitch-green);
-        }
-
-        /* --- CARDS & GRID UI --- */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-        }
-
-        .card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 12px;
+        .menu-bar .brand {
+            font-weight: bold;
+            font-size: 13px;
             color: #fff;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
-        .card p {
-            color: var(--text-muted);
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
+        .menu-bar .brand span { color: var(--accent-blue); }
 
-        /* --- 1. INTERACTIVE OFFSIDE DIAGRAM --- */
-        .interactive-container {
-            background: #111827;
-            border-radius: 12px;
-            padding: 20px;
-            border: 2px solid #1f2937;
-        }
-
-        .pitch-offside-simulator {
-            position: relative;
-            width: 100%;
-            height: 280px;
-            background-color: #1e3a1e;
-            background-image: 
-                linear-gradient(to right, transparent 50%, var(--pitch-lines) 50%, var(--pitch-lines) 52%, transparent 52%),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 50%, transparent 50%);
-            background-size: 100% 100%, 40px 100%;
-            border: 4px solid var(--pitch-lines);
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            touch-action: none;
-        }
-
-        /* Goal post sketch right side */
-        .pitch-offside-simulator::after {
-            content: '';
-            position: absolute;
-            right: 0; top: 25%; width: 5%; height: 50%;
-            border: 3px solid var(--pitch-lines);
-            border-right: none;
-        }
-
-        .pitch-element {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            transform: translate(-12px, -12px);
-            cursor: grab;
+        .toolbar {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-            user-select: none;
-            z-index: 5;
-        }
-
-        .pitch-element:active {
-            cursor: grabbing;
-        }
-
-        .elem-attacker { background-color: #ef4444; border: 2px solid white; }
-        .elem-defender { background-color: #3b82f6; border: 2px solid white; }
-        .elem-ball { background-color: #ffffff; border: 2px solid #000; color: #000; font-size: 9px; }
-
-        .offside-line-marker {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: var(--persona-pink);
-            border-left: 2px dashed #fff;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .live-status-banner {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .status-onside { background-color: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
-        .status-offside { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
-
-        /* --- VAR SIMULATION --- */
-        .var-control-panel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .var-btn {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background 0.2s;
-        }
-
-        .var-btn:hover { background: #0369a1; }
-
-        .var-monitor {
-            width: 100%;
-            height: 200px;
-            background-color: #020617;
-            border: 3px solid #334155;
-            border-radius: 8px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .var-screen-text {
-            font-family: monospace;
-            font-size: 1.1rem;
-            color: #38bdf8;
-            text-shadow: 0 0 5px rgba(56,189,248,0.5);
-            text-align: center;
-            z-index: 2;
-        }
-
-        .var-overlay-lines {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 6px 100%;
-            pointer-events: none;
-        }
-
-        .var-scanning-line {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background-color: rgba(56,189,248,0.5);
-            top: 0;
-            animation: scan 2s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { top: 0%; }
-            50% { top: 100%; }
-            100% { top: 0%; }
-        }
-
-        /* --- 2. LIVE PITCH & ROLES DIAGRAM --- */
-        .pitch-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 6px;
+            padding: 4px 10px;
             flex-wrap: wrap;
         }
 
-        .pitch-btn {
-            background-color: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            border-right: 1px solid var(--border-color);
+            padding-right: 6px;
+            margin-right: 2px;
+        }
+
+        button, select, input {
+            background: #2a2e39;
+            color: var(--text-main);
+            border: 1px solid #363a45;
+            padding: 3px 8px;
+            border-radius: 2px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
+            outline: none;
         }
 
-        .pitch-btn.active, .pitch-btn:hover {
-            background-color: var(--pitch-green);
-            color: #000;
+        button:hover { background: #363a45; }
+        button.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+        }
+
+        .btn-tutorial {
+            background: var(--gold) !important;
+            color: #000 !important;
             font-weight: bold;
+            border: none;
+            padding: 3px 10px;
+            margin-left: auto;
         }
+        .btn-tutorial:hover { background: #d4a307 !important; }
 
-        .tactics-layout-wrapper {
+        /* App Grid Layout */
+        #app-grid {
             display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 30px;
+            grid-template-columns: 240px 1fr 280px;
+            grid-template-rows: 1fr 220px;
+            height: calc(100vh - 62px);
+            width: 100vw;
+            position: relative;
         }
 
-        .main-tactical-pitch {
-            position: relative;
-            width: 100%;
-            height: 520px;
-            background-color: #1b4324;
-            border: 5px solid #fff;
-            border-radius: 12px;
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.4);
+        .panel-box {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
-        /* Pitch line markings SVG background or absolute elements */
-        .pitch-marking { position: absolute; border: 2px solid rgba(255,255,255,0.5); pointer-events: none; }
-        .m-center-line { top: 50%; left: 0; width: 100%; height: 0; }
-        .m-center-circle { top: 50%; left: 50%; width: 100px; height: 100px; border-radius: 50%; transform: translate(-50%, -50%); }
-        .m-penalty-top { top: 0; left: 20%; width: 60%; height: 80px; border-top: none; }
-        .m-penalty-bottom { bottom: 0; left: 20%; width: 60%; height: 80px; border-bottom: none; }
-
-        .player-node {
-            position: absolute;
-            width: 34px;
-            height: 34px;
-            background: radial-gradient(circle, #fff 20%, #22c55e 100%);
-            border: 3px solid #15803d;
-            border-radius: 50%;
-            color: #000;
-            font-weight: 800;
-            font-size: 10px;
+        .panel-title {
+            background-color: var(--panel-header);
+            padding: 5px 8px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            transform: translate(-50%, -50%);
+        }
+
+        /* Market Watch Sidebar */
+        #market-watch-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .symbol-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 6px 8px;
+            border-bottom: 1px solid #1e222d;
             cursor: pointer;
-            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            z-index: 10;
+            align-items: center;
         }
 
-        .player-node:hover, .player-node.active-role {
-            background: radial-gradient(circle, #fff 10%, var(--pitch-green) 100%);
-            border-color: #fff;
-            transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 0 15px var(--pitch-green);
+        .symbol-card:hover, .symbol-card.selected {
+            background-color: #2a2e39;
         }
 
-        /* Tactical overlay layers */
-        .tactical-overlay-zone {
+        .symbol-name { font-weight: bold; color: #fff; }
+        .price-up { color: var(--bull-green); }
+        .price-down { color: var(--bear-red); }
+
+        /* News Ticker */
+        #news-ticker {
+            height: 65px;
+            border-top: 1px solid var(--border-color);
+            padding: 4px 8px;
+            background: #171b26;
+            font-size: 10px;
+            overflow-y: auto;
+        }
+
+        .news-item {
+            margin-bottom: 3px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .news-high { color: var(--bear-red); font-weight: bold; }
+
+        /* Chart Area */
+        #chart-container {
+            position: relative;
+            grid-column: 2 / 3;
+            grid-row: 1 / 2;
+            background-color: var(--bg-main);
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Quick Trade Overlay Widget */
+        #quick-trade-bar {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            top: 10px;
+            left: 10px;
+            background: rgba(19, 23, 34, 0.92);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .btn-quick-sell {
+            background: var(--bear-red);
+            color: white;
+            border: none;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 3px;
+        }
+
+        .btn-quick-buy {
+            background: var(--bull-green);
+            color: white;
+            border: none;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 3px;
+        }
+
+        .btn-quick-sell:hover { background: var(--bear-hover); }
+        .btn-quick-buy:hover { background: var(--bull-hover); }
+
+        /* Depth of Market (DOM) Widget */
+        #dom-overlay {
+            position: absolute;
+            top: 55px;
+            left: 10px;
+            background: rgba(19, 23, 34, 0.92);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 140px;
+            padding: 4px;
+            z-index: 9;
+        }
+
+        .dom-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            padding: 1px 4px;
+        }
+
+        .dom-bar-ask { background: rgba(242, 54, 69, 0.25); }
+        .dom-bar-bid { background: rgba(8, 153, 129, 0.25); }
+
+        /* Order Panel */
+        #order-panel {
+            grid-column: 3 / 4;
+            grid-row: 1 / 2;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .form-row label {
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        .form-row input, .form-row select {
+            width: 100%;
+            padding: 5px;
+        }
+
+        .risk-calc-box {
+            background: #171b26;
+            border: 1px dashed var(--border-color);
+            padding: 6px;
+            border-radius: 3px;
+            font-size: 10px;
+        }
+
+        /* Terminal Panel */
+        #terminal-panel {
+            grid-column: 1 / 4;
+            grid-row: 2 / 3;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-tabs {
+            display: flex;
+            background: #171b26;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 5px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-right: 1px solid var(--border-color);
+            border-radius: 0;
+        }
+
+        .tab-btn.active {
+            background: var(--panel-bg);
+            color: #fff;
+            border-top: 2px solid var(--accent-blue);
+        }
+
+        .terminal-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: #171b26;
+            color: var(--text-muted);
+            padding: 5px 8px;
+            font-weight: normal;
+            position: sticky;
+            top: 0;
             z-index: 2;
         }
 
-        .zone-pressing {
-            background: radial-gradient(rgba(239, 68, 68, 0.25) 40%, transparent 70%);
-            top: -10%; left: 10%; width: 80%; height: 60%;
+        td {
+            padding: 4px 8px;
+            border-bottom: 1px solid #1e222d;
         }
 
-        .tactical-arrow {
+        .badge {
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .badge-buy { background: rgba(8,153,129,0.2); color: var(--bull-green); }
+        .badge-sell { background: rgba(242,54,69,0.2); color: var(--bear-red); }
+
+        /* Account Status Bar */
+        #account-bar {
+            background-color: #171b26;
+            border-top: 1px solid var(--border-color);
+            padding: 5px 10px;
+            display: flex;
+            gap: 18px;
+            font-weight: bold;
+        }
+
+        /* Floating Tooltip HUD */
+        #chart-hud {
             position: absolute;
-            font-size: 24px;
-            color: rgba(255,255,255,0.7);
-            font-weight: bold;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.75);
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        .role-details-panel {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid rgba(255,255,255,0.05);
+        /* Interactive Tutorial Overlay */
+        #tutorial-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.65);
+            z-index: 1000;
+        }
+
+        .tutorial-card {
+            position: absolute;
+            background: var(--panel-header);
+            border: 2px solid var(--gold);
+            border-radius: 6px;
+            padding: 16px;
+            width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            color: #fff;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-card h3 {
+            color: var(--gold);
+            font-size: 14px;
+            margin-bottom: 8px;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            justify-content: space-between;
         }
 
-        .role-badge {
-            background-color: var(--pitch-green);
-            color: black;
-            padding: 4px 10px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            border-radius: 4px;
-            display: inline-block;
-            align-self: flex-start;
-        }
-
-        /* --- 5. QUIZ MODE --- */
-        .quiz-container {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .quiz-progress {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .quiz-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 30px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .question-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 25px;
-            line-height: 1.4;
-        }
-
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .option-btn {
-            background-color: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-light);
-            padding: 15px 20px;
-            border-radius: 10px;
-            text-align: left;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            width: 100%;
-        }
-
-        .option-btn:hover {
-            background-color: rgba(255,255,255,0.08);
-            border-color: rgba(255,255,255,0.2);
-        }
-
-        .option-btn.correct {
-            background-color: rgba(16, 185, 129, 0.2) !important;
-            border-color: #10b981 !important;
-            color: #10b981;
-            font-weight: bold;
-        }
-
-        .option-btn.wrong {
-            background-color: rgba(239, 68, 68, 0.2) !important;
-            border-color: #ef4444 !important;
-            color: #ef4444;
-        }
-
-        .quiz-feedback {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: rgba(255,255,255,0.02);
-            border-left: 4px solid var(--persona-blue);
+        .tutorial-card p {
+            font-size: 11px;
             line-height: 1.5;
-            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
         }
 
-        .next-q-btn {
-            background-color: var(--pitch-green);
-            color: black;
-            border: none;
-            padding: 12px 25px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            float: right;
-            margin-top: 15px;
+        .tutorial-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* --- RESPONSIVE ADAPTATIONS --- */
-        @media (max-width: 900px) {
-            #app-container {
-                grid-template-columns: 1fr;
-            }
-            aside {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px 20px;
-                position: sticky;
-                top: 0;
-                z-index: 50;
-            }
-            .nav-links {
-                flex-direction: row;
-                gap: 5px;
-            }
-            .nav-links button {
-                padding: 8px 12px;
-                font-size: 0.85rem;
-            }
-            .nav-links button:hover, .nav-links button.active {
-                border-left: none;
-                border-bottom: 3px solid var(--pitch-green);
-                padding-left: 12px;
-                padding-bottom: 5px;
-            }
-            .back-to-menu-btn {
-                margin-top: 0;
-            }
-            .tactics-layout-wrapper {
-                grid-template-columns: 1fr;
-            }
-            main {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .nav-links {
-                display: none; /* Hide internal nav bar list on very small screens to fit layout, let them use back button */
-            }
-            .persona-menu li a {
-                font-size: 1.8rem;
-            }
-            .menu-graphic {
-                display: none;
-            }
+        .tutorial-spotlight {
+            position: absolute;
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            pointer-events: none;
+            z-index: 999;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
         }
     </style>
 </head>
 <body>
 
-    <div id="menu-screen">
-        <div class="bg-watermark">FOOTBALL<br>TACTICS<br>LAB</div>
-        <div class="menu-graphic"></div>
-        
-        <div class="menu-wallet">
-            <span>CURRENT STADIUM</span>
-            ¥47,407 COMP
+    <!-- Top Navigation Toolbar -->
+    <div id="top-navbar">
+        <div class="menu-bar">
+            <div class="brand">MT5 <span>ULTIMATE PRO</span></div>
+            <div>File</div><div>View</div><div>Insert</div><div>Charts</div><div>Tools</div><div>Window</div><div>Help</div>
+            <button class="btn-tutorial" onclick="startTutorial()">🎓 Interactive Tutorial Tour</button>
+            <div style="margin-left: 15px; color: var(--gold);" id="server-ping">● Connected (12ms)</div>
         </div>
+        <div class="toolbar">
+            <div class="tool-group" id="tbar-tf">
+                <button class="active" onclick="setTimeframe(this, 'M1')">M1</button>
+                <button onclick="setTimeframe(this, 'M5')">M5</button>
+                <button onclick="setTimeframe(this, 'M15')">M15</button>
+                <button onclick="setTimeframe(this, 'H1')">H1</button>
+                <button onclick="setTimeframe(this, 'H4')">H4</button>
+                <button onclick="setTimeframe(this, 'D1')">D1</button>
+            </div>
 
-        <ul class="persona-menu">
-            <li class="active" onclick="launchApp('rules')"><a href="#">RULES EXPLAINER</a></li>
-            <li onclick="launchApp('pitch-roles')"><a href="#">PITCH & ROLES</a></li>
-            <li onclick="launchApp('tactics')"><a href="#">TACTICS SYSTEM</a></li>
-            <li onclick="launchApp('leagues')"><a href="#">COMPETITIONS</a></li>
-            <li onclick="launchApp('quiz')"><a href="#">TACTICAL QUIZ</a></li>
-        </ul>
+            <div class="tool-group" id="tbar-type">
+                <button class="active" id="btn-candles" onclick="setChartStyle('candles')">Candles</button>
+                <button id="btn-line" onclick="setChartStyle('line')">Line</button>
+                <button id="btn-heikin" onclick="setChartStyle('heikin')">Heikin-Ashi</button>
+            </div>
 
-        <div class="menu-footer-tips">Command: Ⓣ Select / Learn Game Mode</div>
+            <div class="tool-group" id="tbar-tools">
+                <button id="btn-tool-cursor" class="active" onclick="setDrawingTool('cursor')">Pointer</button>
+                <button id="btn-tool-cross" onclick="setDrawingTool('crosshair')">Crosshair</button>
+                <button id="btn-tool-line" onclick="setDrawingTool('trendline')">Trendline</button>
+                <button id="btn-tool-hline" onclick="setDrawingTool('hline')">H-Line</button>
+                <button id="btn-tool-fibo" onclick="setDrawingTool('fibo')">Fibonacci</button>
+                <button onclick="clearDrawings()">Clear Drawings</button>
+            </div>
+
+            <div class="tool-group" id="tbar-inds">
+                <button id="btn-ind-sma" class="active" onclick="toggleIndicator('sma')">SMA (20/50)</button>
+                <button id="btn-ind-ema" onclick="toggleIndicator('ema')">EMA (20)</button>
+                <button id="btn-ind-rsi" onclick="toggleIndicator('rsi')">RSI Sub-Win</button>
+            </div>
+
+            <div class="tool-group">
+                <button style="background: var(--purple); color:#fff;" onclick="triggerNewsEvent()">💥 News Spike</button>
+            </div>
+        </div>
     </div>
 
+    <!-- Main Workspace Grid -->
+    <div id="app-grid">
 
-    <div id="app-container" class="hidden">
-        
-        <aside>
-            <div class="logo-area">
-                <h2>PITCH MASTER</h2>
+        <!-- Left Panel: Market Watch & News -->
+        <div class="panel-box" id="mw-panel-box" style="grid-column: 1 / 2; grid-row: 1 / 2;">
+            <div class="panel-title">
+                <span>Market Watch</span>
+                <span id="market-time">00:00:00</span>
             </div>
-            <ul class="nav-links">
-                <li><button id="nav-rules" onclick="switchSection('rules')">Rules Explainer</button></li>
-                <li><button id="nav-pitch-roles" onclick="switchSection('pitch-roles')">Live Pitch & Roles</button></li>
-                <li><button id="nav-tactics" onclick="switchSection('tactics')">Tactics Breakdown</button></li>
-                <li><button id="nav-leagues" onclick="switchSection('leagues')">Leagues & Match Basics</button></li>
-                <li><button id="nav-quiz" onclick="switchSection('quiz')">Quiz Challenge</button></li>
-                <li><button class="back-to-menu-btn" onclick="returnToMenu()">✕ Exit To Menu</button></li>
-            </ul>
-        </aside>
+            <div id="market-watch-list"></div>
 
-        <main>
-            
-            <section id="sec-rules" class="app-section">
-                <h2 class="section-title"><span>01 /</span> Rules Explainer</h2>
-                
-                <div class="grid-2">
-                    <div class="card">
-                        <h3>⚖️ The Offside Rule</h3>
-                        <p>An attacker is caught <strong>offside</strong> if they are nearer to the opponent's goal line than both the ball and the second-last defender (usually the last outfield defender) at the exact moment the ball is kicked forward to them. Use the interactive laboratory playground below to test real situations!</p>
-                    </div>
-                    
-                    <div class="interactive-container">
-                        <h3>Interactive Offside Sandbox</h3>
-                        <p style="font-size: 0.85rem; margin-bottom: 10px; color: var(--text-muted);">Drag the Red Attacker or the Ball to check if it triggers an Offside alert.</p>
-                        
-                        <div class="pitch-offside-simulator" id="offside-pitch">
-                            <div class="offside-line-marker" id="offside-line"></div>
-                            <div class="pitch-element elem-defender" id="sim-defender" style="left: 65%; top: 40%;">DF</div>
-                            <div class="pitch-element elem-attacker" id="sim-attacker" style="left: 75%; top: 60%;">AT</div>
-                            <div class="pitch-element elem-ball" id="sim-ball" style="left: 45%; top: 50%;">⚽</div>
-                        </div>
+            <div class="panel-title">Economic Calendar & News</div>
+            <div id="news-ticker">
+                <div class="news-item"><span class="news-high">[HIGH]</span> US FED Interest Rate Decision Imminent</div>
+                <div class="news-item"><span>[MED]</span> EUR CPI Inflation Data Released</div>
+            </div>
+        </div>
 
-                        <div id="offside-status-banner" class="live-status-banner status-offside">
-                            <span>Status: Offside Position</span>
-                        </div>
-                    </div>
+        <!-- Center Panel: Interactive Chart Canvas -->
+        <div id="chart-container">
+            <div id="quick-trade-bar">
+                <button class="btn-quick-sell" onclick="quickTrade('SELL')">SELL <span id="qt-sell-val">0.00</span></button>
+                <input type="number" id="qt-lot-val" value="0.10" step="0.01" style="width: 50px; text-align: center;">
+                <button class="btn-quick-buy" onclick="quickTrade('BUY')">BUY <span id="qt-buy-val">0.00</span></button>
+            </div>
+
+            <div id="dom-overlay">
+                <div style="font-weight: bold; border-bottom: 1px solid var(--border-color); margin-bottom: 2px;">Depth of Market</div>
+                <div id="dom-list"></div>
+            </div>
+
+            <div id="chart-hud">OHLC Info</div>
+            <canvas id="chartCanvas"></canvas>
+        </div>
+
+        <!-- Right Panel: Order Execution & Risk Calculator -->
+        <div class="panel-box" id="order-panel">
+            <div class="panel-title" style="margin: -10px -10px 0 -10px;">Order Execution</div>
+
+            <div class="form-row">
+                <label>Asset Symbol</label>
+                <select id="ord-symbol" onchange="switchSymbol(this.value)"></select>
+            </div>
+
+            <div class="form-row">
+                <label>Order Execution Type</label>
+                <select id="ord-type" onchange="togglePendingInputs()">
+                    <option value="MARKET">Market Execution</option>
+                    <option value="BUY_LIMIT">Buy Limit</option>
+                    <option value="SELL_LIMIT">Sell Limit</option>
+                    <option value="BUY_STOP">Buy Stop</option>
+                    <option value="SELL_STOP">Sell Stop</option>
+                </select>
+            </div>
+
+            <div class="form-row" id="pending-price-row" style="display: none;">
+                <label>Target Entry Price</label>
+                <input type="number" id="ord-target-price" step="0.0001">
+            </div>
+
+            <div class="form-row">
+                <label>Volume (Lots)</label>
+                <input type="number" id="ord-lots" value="0.10" step="0.01" min="0.01" oninput="updateRiskCalc()">
+            </div>
+
+            <div class="form-row">
+                <label>Stop Loss (Price)</label>
+                <input type="number" id="ord-sl" placeholder="0.0000" step="0.0001" oninput="updateRiskCalc()">
+            </div>
+
+            <div class="form-row">
+                <label>Take Profit (Price)</label>
+                <input type="number" id="ord-tp" placeholder="0.0000" step="0.0001" oninput="updateRiskCalc()">
+            </div>
+
+            <div class="risk-calc-box">
+                <div style="font-weight: bold; margin-bottom: 3px; color: var(--gold);">Risk & Margin Analytics</div>
+                <div>Req. Margin: <span id="calc-margin-val">$0.00</span></div>
+                <div>Est. Risk Amount: <span id="calc-risk-val">$0.00 (0.00%)</span></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: auto;">
+                <button style="background: var(--bear-red); color:#fff; font-weight:bold; padding: 8px;" onclick="placeOrder('SELL')">SELL</button>
+                <button style="background: var(--bull-green); color:#fff; font-weight:bold; padding: 8px;" onclick="placeOrder('BUY')">BUY</button>
+            </div>
+        </div>
+
+        <!-- Bottom Panel: Trading Terminal -->
+        <div class="panel-box" id="terminal-panel">
+            <div class="terminal-tabs">
+                <button class="tab-btn active" onclick="setTerminalTab(this, 'positions')">Open Positions</button>
+                <button class="tab-btn" onclick="setTerminalTab(this, 'pending')">Pending Orders</button>
+                <button class="tab-btn" onclick="setTerminalTab(this, 'history')">Trade History</button>
+                <button class="tab-btn" onclick="setTerminalTab(this, 'analytics')">Performance Analytics</button>
+            </div>
+
+            <div class="terminal-content" id="tab-positions">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket</th><th>Time</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Open Price</th><th>Current Price</th><th>Profit ($)</th><th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-positions"></tbody>
+                </table>
+            </div>
+
+            <div class="terminal-content" id="tab-pending" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket</th><th>Time</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Target Price</th><th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-pending"></tbody>
+                </table>
+            </div>
+
+            <div class="terminal-content" id="tab-history" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket</th><th>Open Time</th><th>Close Time</th><th>Type</th><th>Volume</th><th>Symbol</th><th>Profit ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-history"></tbody>
+                </table>
+            </div>
+
+            <div class="terminal-content" id="tab-analytics" style="display: none; padding: 10px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
+                    <div class="risk-calc-box"><div>Total Closed Trades</div><strong id="st-total-trades">0</strong></div>
+                    <div class="risk-calc-box"><div>Win Rate</div><strong id="st-win-rate" style="color:var(--bull-green)">0.0%</strong></div>
+                    <div class="risk-calc-box"><div>Profit Factor</div><strong id="st-profit-factor">0.00</strong></div>
+                    <div class="risk-calc-box"><div>Net Realized Profit</div><strong id="st-net-profit">$0.00</strong></div>
                 </div>
+            </div>
 
-                <div class="card" style="margin-bottom: 40px;">
-                    <h3>📺 Real-Time VAR Check Simulator</h3>
-                    <p style="margin-bottom: 15px;">When a tight goal is scored, the Video Assistant Referee (VAR) reviews line charts to confirm the match state.</p>
-                    <div class="grid-2" style="align-items: center;">
-                        <div class="var-monitor">
-                            <div class="var-overlay-lines"></div>
-                            <div class="var-scanning-line" id="var-scanner" style="display:none;"></div>
-                            <div class="var-screen-text" id="var-text">VAR MONITOR: IDLE</div>
-                        </div>
-                        <div class="var-control-panel">
-                            <button class="var-btn" onclick="triggerVarCheck()">Simulate VAR Decision</button>
-                            <p style="font-size: 0.85rem; text-align: center; color: var(--text-muted);">Triggers real-time mathematical validation calculations checking line tracking depth.</p>
-                        </div>
-                    </div>
-                </div>
+            <div id="account-bar">
+                <div>Balance: <strong id="val-balance">10000.00</strong> USD</div>
+                <div>Equity: <strong id="val-equity">10000.00</strong> USD</div>
+                <div>Margin: <strong id="val-margin">0.00</strong> USD</div>
+                <div>Free Margin: <strong id="val-free-margin">10000.00</strong> USD</div>
+            </div>
+        </div>
 
-                <div class="grid-3">
-                    <div class="card">
-                        <h3>🟨 Fouls & Warnings</h3>
-                        <p>Direct free kicks are awarded for rough challenges (tripping, pushing). Severe challenges result in a <strong>Yellow Card</strong>. Collect two, or commit a highly dangerous tackle, and you receive a <strong>Red Card</strong> (ejection from the match).</p>
-                    </div>
-                    <div class="card">
-                        <h3>🥅 Penalties</h3>
-                        <p>If a defender commits a foul inside their own penalty area box, the attacking team is awarded a penalty kick taken directly from the 11-meter spot line with only the goalkeeper guarding the net.</p>
-                    </div>
-                    <div class="card">
-                        <h3>📐 Set Pieces</h3>
-                        <p><strong>Corners:</strong> Awarded when the ball goes out over the goal line last touched by a defender.<br><strong>Throw-ins:</strong> Restarts play from the sidelines when the ball goes out of bounds horizontally.</p>
-                    </div>
-                </div>
-            </section>
+    </div>
 
-            <section id="sec-pitch-roles" class="app-section hidden">
-                <h2 class="section-title"><span>02 /</span> Live Pitch & Roles Diagram</h2>
-                
-                <div class="pitch-controls">
-                    <button class="pitch-btn active" onclick="changeFormation('442', this)">Formation: 4-4-2</button>
-                    <button class="pitch-btn" onclick="changeFormation('433', this)">Formation: 4-3-3</button>
-                    <button class="pitch-btn" onclick="changeFormation('352', this)">Formation: 3-5-2</button>
-                    <button class="pitch-btn" onclick="changeFormation('4231', this)">Formation: 4-2-3-1</button>
-                </div>
-
-                <div class="tactics-layout-wrapper">
-                    <div class="main-tactical-pitch">
-                        <div class="pitch-marking m-center-line"></div>
-                        <div class="pitch-marking m-center-circle"></div>
-                        <div class="pitch-marking m-penalty-top"></div>
-                        <div class="pitch-marking m-penalty-bottom"></div>
-
-                        <div class="tactical-overlay-zone zone-pressing" id="overlay-press"></div>
-
-                        <div class="player-node" id="p1" onclick="selectPlayer('GK')">GK</div>
-                        <div class="player-node" id="p2" onclick="selectPlayer('CB1')">CB</div>
-                        <div class="player-node" id="p3" onclick="selectPlayer('CB2')">CB</div>
-                        <div class="player-node" id="p4" onclick="selectPlayer('LB')">LB</div>
-                        <div class="player-node" id="p5" onclick="selectPlayer('RB')">RB</div>
-                        <div class="player-node" id="p6" onclick="selectPlayer('CM1')">CM</div>
-                        <div class="player-node" id="p7" onclick="selectPlayer('CM2')">CM</div>
-                        <div class="player-node" id="p8" onclick="selectPlayer('LM')">LM</div>
-                        <div class="player-node" id="p9" onclick="selectPlayer('RM')">RM</div>
-                        <div class="player-node" id="p10" onclick="selectPlayer('ST1')">ST</div>
-                        <div class="player-node" id="p11" onclick="selectPlayer('ST2')">ST</div>
-                    </div>
-
-                    <div class="role-details-panel">
-                        <div class="role-badge" id="role-title-badge">ST (Striker)</div>
-                        <h3 id="role-fullname">Central Attacking Forward</h3>
-                        <p id="role-description">The main target man responsible for converting crosses and through-balls into active goals. Positions high up near the opponent's box line.</p>
-                        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">
-                        <h4 style="font-size:0.9rem; color:var(--pitch-green)">Interactive Field Control</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted)">Click different positional elements on the left side map matrix to inspect individual tactical field responsibilities.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="sec-tactics" class="app-section hidden">
-                <h2 class="section-title"><span>03 /</span> Tactics & Strategic Overlays</h2>
-                
-                <div class="card" style="margin-bottom: 25px;">
-                    <h3>🧠 Strategic Philosophy Basics</h3>
-                    <p>Football isn't just about running; it's a giant chess match played at high speeds. Managers arrange units to optimize ball space and create passing passing geometric patterns.</p>
-                </div>
-
-                <div class="grid-2">
-                    <div class="card" style="border-top: 4px solid var(--persona-blue);">
-                        <span style="color: var(--persona-blue); font-weight: bold; font-size: 0.8rem;">ATTACKING PREFERENCE</span>
-                        <h3 style="margin-top: 5px;">The 4-3-3 Wing Overload</h3>
-                        <p style="margin-bottom: 15px;"><strong>Strengths:</strong> Maximizes field width. Wide wingers isolate defensive lines, creating gaps for charging central attacking midfielders.</p>
-                        <p><strong>Weaknesses:</strong> Vulnerable to sudden counterattacks if fullbacks push high up into space alongside wingers.</p>
-                    </div>
-
-                    <div class="card" style="border-top: 4px solid var(--pitch-green);">
-                        <span style="color: var(--pitch-green); font-weight: bold; font-size: 0.8rem;">DEFENSIVE RIGOR</span>
-                        <h3 style="margin-top: 5px;">The Classical 4-4-2 Block</h3>
-                        <p style="margin-bottom: 15px;"><strong>Strengths:</strong> Exceptionally rigid spatial structure. Two clean horizontal defensive walls tracking side to side makes breaking lines very difficult.</p>
-                        <p><strong>Weaknesses:</strong> Can easily become outnumbered in mid-pitch zones against multi-layered 3-man midfield architectures.</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>⚡ Interactive Overlay Demonstration: Gegenpressing</h3>
-                    <p style="margin-bottom: 15px;"> popularized by modern tactical systems, Gegenpressing dictates that a team instantly swarms the opponent the exact second possession is turned over.</p>
-                    <button class="pitch-btn" style="background-color: var(--persona-pink); color: white;" onclick="togglePressingOverlay()">Toggle High Press Visual Overlay Map</button>
-                </div>
-            </section>
-
-            <section id="sec-leagues" class="app-section hidden">
-                <h2 class="section-title"><span>04 /</span> Leagues & Match Basics</h2>
-                
-                <div class="card" style="margin-bottom: 30px;">
-                    <h3>⏰ Match Clock Structure</h3>
-                    <p>A standard football fixture runs for <strong>90 minutes total</strong>, broken down into two distinct 45-minute halves separated by a 15-minute rest period. Because the clock never freezes, referees add calculated <strong>Stoppage Time / Injury Time</strong> at the end of each half to account for substitutions and injury pauses.</p>
-                </div>
-
-                <h3 style="margin-bottom: 15px; color: var(--pitch-green);">Major Global Trophies To Know</h3>
-                <div class="grid-2">
-                    <div class="card">
-                        <h4>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (EPL)</h4>
-                        <p style="margin-top: 8px;">The top tier of English club football. Known for fast, highly physical styles and immense financial competition across all 20 competing teams.</p>
-                    </div>
-                    <div class="card">
-                        <h4>🇪🇺 UEFA Champions League</h4>
-                        <p style="margin-top: 8px;">An elite annual club knockout tournament pitting the top-performing teams from all domestic European leagues directly against one another.</p>
-                    </div>
-                    <div class="card">
-                        <h4>🇪🇸 La Liga</h4>
-                        <p style="margin-top: 8px;">The elite club tier of Spain, historically famous for intricate, technical, possession-focused tactical masterclasses.</p>
-                    </div>
-                    <div class="card">
-                        <h4>🏆 FIFA World Cup</h4>
-                        <p style="margin-top: 8px;">The ultimate international soccer event held every 4 years. National squads compete across a full month for global supremacy status.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="sec-quiz" class="app-section hidden">
-                <h2 class="section-title"><span>05 /</span> Tactical Evaluation Quiz</h2>
-                
-                <div class="quiz-container">
-                    <div id="quiz-playable-zone">
-                        <div class="quiz-progress" id="quiz-progress-text">Question 1 of 5</div>
-                        <div class="quiz-card">
-                            <div class="question-text" id="quiz-question">Loading field question data...</div>
-                            <div class="options-list" id="quiz-options">
-                                </div>
-                            <div class="quiz-feedback hidden" id="quiz-feedback-box"></div>
-                            <button class="next-q-btn hidden" id="next-q-btn" onclick="advanceQuiz()">Next Question →</button>
-                            <div style="clear: both;"></div>
-                        </div>
-                    </div>
-
-                    <div id="quiz-results-zone" class="card hidden" style="text-align: center; padding: 40px 20px;">
-                        <h3 style="justify-content: center; font-size: 2rem; color: var(--pitch-green);">Quiz Complete!</h3>
-                        <p style="font-size: 1.2rem; margin: 15px 0 30px 0;" id="results-score-display">You scored 0 out of 0 points.</p>
-                        
-                        <div style="text-align: left; max-width: 500px; margin: 0 auto 30px auto;" id="missed-questions-container">
-                            </div>
-
-                        <button class="var-btn" onclick="resetQuiz()">Restart Evaluation Engine</button>
-                    </div>
-                </div>
-            </section>
-
-        </main>
+    <!-- Interactive Tutorial Overlay Elements -->
+    <div id="tutorial-overlay">
+        <div class="tutorial-spotlight" id="tutorial-spotlight"></div>
+        <div class="tutorial-card" id="tutorial-card">
+            <h3 id="tut-title">Tutorial Step</h3>
+            <p id="tut-text">Loading tutorial description...</p>
+            <div class="tutorial-buttons">
+                <button onclick="prevTutorialStep()" id="btn-tut-prev">Back</button>
+                <button onclick="skipTutorial()" style="background:#363a45;">Skip Tour</button>
+                <button onclick="nextTutorialStep()" id="btn-tut-next" style="background:var(--gold); color:#000; font-weight:bold;">Next</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- CORE NAVIGATION MACHINE ---
-        function launchApp(initialSection) {
-            document.getElementById('menu-screen').style.display = 'none';
-            document.getElementById('app-container').classList.remove('hidden');
-            switchSection(initialSection);
-        }
+        // --- AUDIO ENGINE SAFEGUARD ---
+        const AudioFX = {
+            ctx: null,
+            init() { 
+                try {
+                    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); 
+                } catch(e){}
+            },
+            playTone(freq, duration) {
+                try {
+                    this.init();
+                    if (!this.ctx) return;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            },
+            tradeOpen() { this.playTone(880, 0.1); },
+            tradeClose() { this.playTone(440, 0.12); }
+        };
 
-        function returnToMenu() {
-            document.getElementById('app-container').className = 'hidden';
-            document.getElementById('menu-screen').style.display = 'flex';
-        }
+        // --- GLOBAL STATE ---
+        const SYMBOLS = {
+            'EURUSD': { digits: 5, spread: 0.00012, price: 1.08550, contractSize: 100000, volatility: 0.00015 },
+            'GBPUSD': { digits: 5, spread: 0.00018, price: 1.27420, contractSize: 100000, volatility: 0.00022 },
+            'BTCUSD': { digits: 2, spread: 12.0,    price: 67250.00,contractSize: 1,      volatility: 35.0 },
+            'XAUUSD': { digits: 2, spread: 0.25,    price: 2385.40, contractSize: 100,    volatility: 0.85 }
+        };
 
-        function switchSection(targetId) {
-            // Hide all structural window content
-            const sections = document.querySelectorAll('.app-section');
-            sections.forEach(s => s.classList.add('hidden'));
-            
-            // Show target
-            document.getElementById(`sec-${targetId}`).classList.remove('hidden');
+        let currentSymbol = 'EURUSD';
+        let currentTimeframe = 'M1';
+        let chartStyle = 'candles';
+        let activeTool = 'cursor';
+        const indicators = { sma: true, ema: false, rsi: false };
+        const rawCandleStore = {};
 
-            // Toggle active sidebar states
-            const buttons = document.querySelectorAll('.nav-links button');
-            buttons.forEach(b => b.classList.remove('active'));
-            
-            const activeNav = document.getElementById(`nav-${targetId}`);
-            if (activeNav) activeNav.classList.add('active');
+        const account = {
+            balance: 10000.00,
+            equity: 10000.00,
+            margin: 0.00,
+            freeMargin: 10000.00,
+            leverage: 100
+        };
 
-            // Force dynamic math re-calculations if offside section loaded
-            if (targetId === 'rules') {
-                calculateOffsideState();
-            }
-        }
+        let openPositions = [];
+        let pendingOrders = [];
+        let tradeHistory = [];
+        let drawings = [];
+        let ticketSeq = 1001;
+        let tickCounter = 0;
 
+        let visibleCandlesCount = 60;
+        let canvas, ctx;
 
-        // --- SECTION 1: INTERACTIVE DRAG-AND-DROP OFFSIDE CALCULATOR ---
-        const pitch = document.getElementById('offside-pitch');
-        const attacker = document.getElementById('sim-attacker');
-        const defender = document.getElementById('sim-defender');
-        const ball = document.getElementById('sim-ball');
-        const offsideLine = document.getElementById('offside-line');
+        // --- INITIALIZATION ENGINE ---
+        function initApp() {
+            initHistoricalData();
+            renderMarketWatch();
+            populateSymbolDropdown();
+            setupCanvasEvents();
+            startMarketSimulation();
+            updateAccountAndPositions();
 
-        let activeDragElement = null;
+            const resizeObs = new ResizeObserver(() => {
+                resizeCanvas();
+                drawChart();
+            });
+            resizeObs.observe(document.getElementById('chart-container'));
 
-        [attacker, ball].forEach(el => {
-            el.addEventListener('mousedown', startDrag);
-            el.addEventListener('touchstart', startDrag, { passive: false });
-        });
-
-        window.addEventListener('mousemove', dragMove);
-        window.addEventListener('touchmove', dragMove, { passive: false });
-        window.addEventListener('mouseup', stopDrag);
-        window.addEventListener('touchend', stopDrag);
-
-        function startDrag(e) {
-            e.preventDefault();
-            activeDragElement = e.target;
-        }
-
-        function dragMove(e) {
-            if (!activeDragElement) return;
-            e.preventDefault();
-
-            const rect = pitch.getBoundingClientRect();
-            let clientX, clientY;
-
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-
-            let xPct = ((clientX - rect.left) / rect.width) * 100;
-            let yPct = ((clientY - rect.top) / rect.height) * 100;
-
-            // Restrict bounds within pitch layout
-            if (xPct < 5) xPct = 5;
-            if (xPct > 95) xPct = 95;
-            if (yPct < 5) yPct = 5;
-            if (yPct > 95) yPct = 95;
-
-            activeDragElement.style.left = `${xPct}%`;
-            activeDragElement.style.top = `${yPct}%`;
-
-            calculateOffsideState();
-        }
-
-        function stopDrag() {
-            activeDragElement = null;
-        }
-
-        function calculateOffsideState() {
-            const attX = parseFloat(attacker.style.left);
-            const defX = parseFloat(defender.style.left);
-            const ballX = parseFloat(ball.style.left);
-
-            // The offside line tracks the second-last defender (fixed at 65% for simplicity in this sandbox sandbox grid)
-            offsideLine.style.left = `${defX}%`;
-
-            const statusBanner = document.getElementById('offside-status-banner');
-            
-            // Logic conditions: Attacker closer to opponent goal (right side, > defX) AND ahead of the ball (> ballX)
-            if (attX > defX && attX > ballX) {
-                statusBanner.className = "live-status-banner status-offside";
-                statusBanner.innerHTML = "<span>⚠️ Position: Offside Caught!</span>";
-            } else {
-                statusBanner.className = "live-status-banner status-onside";
-                statusBanner.innerHTML = "<span>⚽ Position: Legal Play (Onside)</span>";
-            }
-        }
-
-
-        // --- VAR VIDEO ANCHOR SIMULATION ---
-        const varOutcomes = [
-            "DECISION: NO GOAL ❌\nAttacker's shoulder was verified 4cm past line vector.",
-            "DECISION: GOAL CONFIRMED 🎯\nDefender's trailing heel kept the attacker completely level.",
-            "DECISION: PENALTY GRANTED 🛡️\nVideo replay confirms clear hand-to-ball impact spatial vector.",
-            "DECISION: OVERTURNED - NO FOUL ⚖️\nDefender won clean ball contact prior to making structural body impact."
-        ];
-
-        function triggerVarCheck() {
-            const monitorText = document.getElementById('var-text');
-            const scanner = document.getElementById('var-scanner');
-            
-            scanner.style.display = "block";
-            monitorText.innerText = "CONNECTING TO VAR ROOM...\nCALCULATING TRIANGULATION PATTERNS...";
-            
             setTimeout(() => {
-                const choice = varOutcomes[Math.floor(Math.random() * varOutcomes.length)];
-                monitorText.innerText = choice;
-                scanner.style.display = "none";
-            }, 2200);
+                resizeCanvas();
+                drawChart();
+                if(!localStorage.getItem('mt5_tut_seen')) {
+                    startTutorial();
+                }
+            }, 200);
         }
 
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initApp();
+        } else {
+            document.addEventListener('DOMContentLoaded', initApp);
+        }
 
-        // --- SECTION 2: POSITION FORMATION COORDINATE MATRIX MAPS ---
-        const formationsData = {
-            '442': {
-                p1:  {label: 'GK',  x: 50, y: 90},
-                p2:  {label: 'CB',  x: 38, y: 76},
-                p3:  {label: 'CB',  x: 62, y: 76},
-                p4:  {label: 'LB',  x: 15, y: 70},
-                p5:  {label: 'RB',  x: 85, y: 70},
-                p6:  {label: 'CM',  x: 38, y: 50},
-                p7:  {label: 'CM',  x: 62, y: 50},
-                p8:  {label: 'LM',  x: 15, y: 45},
-                p9:  {label: 'RM',  x: 85, y: 45},
-                p10: {label: 'ST',  x: 40, y: 22},
-                p11: {label: 'ST',  x: 60, y: 22}
-            },
-            '433': {
-                p1:  {label: 'GK',  x: 50, y: 90},
-                p2:  {label: 'CB',  x: 38, y: 76},
-                p3:  {label: 'CB',  x: 62, y: 76},
-                p4:  {label: 'LB',  x: 15, y: 70},
-                p5:  {label: 'RB',  x: 85, y: 70},
-                p6:  {label: 'DM',  x: 50, y: 58},
-                p7:  {label: 'CM',  x: 32, y: 46},
-                p8:  {label: 'CM',  x: 68, y: 46},
-                p9:  {label: 'LW',  x: 18, y: 22},
-                p10: {label: 'ST',  x: 50, y: 18},
-                p11: {label: 'RW',  x: 82, y: 22}
-            },
-            '352': {
-                p1:  {label: 'GK',  x: 50, y: 90},
-                p2:  {label: 'CB',  x: 50, y: 78},
-                p3:  {label: 'CB',  x: 26, y: 75},
-                p4:  {label: 'CB',  x: 74, y: 75},
-                p5:  {label: 'LWB', x: 12, y: 52},
-                p6:  {label: 'RWB', x: 88, y: 52},
-                p7:  {label: 'DM',  x: 36, y: 58},
-                p8:  {label: 'DM',  x: 64, y: 58},
-                p9:  {label: 'AM',  x: 50, y: 42},
-                p10: {label: 'ST',  x: 38, y: 22},
-                p11: {label: 'ST',  x: 62, y: 22}
-            },
-            '4231': {
-                p1:  {label: 'GK',  x: 50, y: 90},
-                p2:  {label: 'CB',  x: 38, y: 76},
-                p3:  {label: 'CB',  x: 62, y: 76},
-                p4:  {label: 'LB',  x: 15, y: 70},
-                p5:  {label: 'RB',  x: 85, y: 70},
-                p6:  {label: 'LDM', x: 35, y: 58},
-                p7:  {label: 'RDM', x: 65, y: 58},
-                p8:  {label: 'LAM', x: 20, y: 38},
-                p9:  {label: 'CAM', x: 50, y: 35},
-                p10: {label: 'RAM', x: 80, y: 38},
-                p11: {label: 'ST',  x: 50, y: 18}
+        // Generate smooth backward history ending EXACTLY at current symbol price
+        function generateCandles(count, volatility, targetEndPrice) {
+            const list = [];
+            let currentClose = targetEndPrice;
+            for (let i = 0; i < count; i++) {
+                let change = (Math.random() - 0.495) * volatility * 2.2;
+                let open = currentClose - change;
+                let close = currentClose;
+                let high = Math.max(open, close) + Math.abs(Math.random() * volatility * 0.8);
+                let low = Math.min(open, close) - Math.abs(Math.random() * volatility * 0.8);
+                list.unshift({ open, high, low, close });
+                currentClose = open;
             }
-        };
+            return list;
+        }
 
-        const roleDescriptions = {
-            'GK': { title: "GK (Goalkeeper)", full: "Defensive Goal Guardian", text: "The primary line of defense. Uses hands inside the designated box penalty area to completely block incoming shots." },
-            'CB': { title: "CB (Center Back)", full: "Central Defensive Anchor", text: "Stays centralized to break up opposition target attacks, win aerial headers, and clear dangers away from danger points." },
-            'LB': { title: "LB / RB (Fullbacks)", full: "Side Flank Guardians", text: "Guards side channels from flying wing attackers and runs long pathways forward to support offensive cross strategies." },
-            'LWB': { title: "LWB / RWB (Wingbacks)", full: "High-Octane Flank Overloaders", text: "Deployed in 3-at-the-back matrixes. Expected to control entire lateral field corridors alone across offense and defense units." },
-            'DM': { title: "DM (Defensive Midfielder)", full: "Midfield Screen Shield", text: "Sits right ahead of the center backs. Shields passing lines, tracks runners, and recycles possession values quickly." },
-            'CM': { title: "CM (Central Midfielder)", full: "Box-to-Box Engine Room", text: "Links defense directly to forward targets. Needs intense stamina to control tempo matrices and pass through open lines." },
-            'AM': { title: "AM / CAM (Attacking Midfielder)", full: "Creative Playmaking Wizard", text: "The primary creative catalyst. Operates in pockets of space right behind main strikers to find critical final key passes." },
-            'LW': { title: "LW / RW (Wingers)", full: "Lateral Speed Attackers", text: "Blazing fast speed specialists who hug outer chalk lines, bypass isolated fullbacks, and deliver dynamic scoring service." },
-            'ST': { title: "ST (Striker)", full: "Central Attacking Target", text: "The primary goal scoring machine. Preys on defensive slip ups, fights for line breaks, and strikes balls home into the mesh." }
-        };
-
-        function changeFormation(code, btnElement) {
-            const currentData = formationsData[code];
-            
-            // Toggle active styling buttons
-            const btns = btnElement.parentNode.querySelectorAll('.pitch-btn');
-            btns.forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
-
-            // Apply absolute CSS coordinate offsets dynamically
-            for (let nodeId in currentData) {
-                const nodeEl = document.getElementById(nodeId);
-                const pos = currentData[nodeId];
-                
-                nodeEl.style.left = `${pos.x}%`;
-                nodeEl.style.top = `${pos.y}%`;
-                nodeEl.innerText = pos.label;
-                
-                // Set data attributes to remember individual inner role codes
-                nodeEl.setAttribute('data-rolecode', pos.label);
+        function initHistoricalData() {
+            for (let s in SYMBOLS) {
+                rawCandleStore[s] = generateCandles(250, SYMBOLS[s].volatility, SYMBOLS[s].price);
             }
         }
 
-        function selectPlayer(overrideCode) {
-            // Find specific contextual code configuration matching selection data
-            let code = overrideCode;
-            const desc = roleDescriptions[code] || roleDescriptions['ST'];
-            
-            document.getElementById('role-title-badge').innerText = desc.title;
-            document.getElementById('role-fullname').innerText = desc.full;
-            document.getElementById('role-description').innerText = desc.text;
-        }
-
-        // Initialize default layout mapping state on script evaluation run
-        changeFormation('442', document.querySelector('.pitch-controls .pitch-btn'));
-
-
-        // --- SECTION 3: TACTICAL INTERACTION MAP OVERLAYS ---
-        let pressingActive = false;
-        function togglePressingOverlay() {
-            pressingActive = !pressingActive;
-            const overlay = document.getElementById('overlay-press');
-            overlay.style.opacity = pressingActive ? "1" : "0";
-        }
-
-
-        // --- SECTION 5: SYSTEM EVALUATION EXAM MACHINE ---
-        const quizBank = [
-            {
-                q: "An attacking forward stands completely behind the last outfield defender line when a long pass is kicked. What penalty does the official call?",
-                options: ["Handball infraction", "Offside penalty infraction", "Indirect dangerous play restart", "Corner kick sequence"],
-                correct: 1,
-                explain: "Because the forward was closer to the goal line than the second-last opponent at the moment of calculation, they are flagged for an offside position infraction."
-            },
-            {
-                q: "What consequence occurs if an outfield player receives a direct red card booking?",
-                options: ["Substituted out for a backup squad member", "Ejected completely, team must continue short-handed", "Sent to a penalty bin box for 10 structural minutes", "Opponent automatically gains 1 goal value point"],
-                correct: 1,
-                explain: "Red cards equal immediate match ejection with zero team substitution privileges permitted."
-            },
-            {
-                q: "In a classical designated 4-3-3 formation grid system, what unit group does the middle digit string represent?",
-                options: ["Defensive backs", "Forwards / Wing units", "Midfield engine unit members", "Goalkeeping unit parameters"],
-                correct: 2,
-                explain: "Formation notation structural codes always count values sequentially from back line to front line: Defenders - Midfielders - Forwards."
-            },
-            {
-                q: "How is standard regulation playtime structured inside professional football leagues?",
-                options: ["Four discrete 15-minute quarters", "Two separate 45-minute halves totaling 90 minutes", "Continuous 60-minute countdown system with sudden death rules", "Three 30-minute block chapters"],
-                correct: 1,
-                explain: "Matches track continuous time clocks through two standard 45-minute chapters, supplemented with calculated stoppage allowances."
-            },
-            {
-                q: "Which specific tournament crowns the ultimate champion soccer club across the entire European structural grid annually?",
-                options: ["The FIFA Club World Cup Matrix", "The English Premier Championship Cup", "The UEFA Champions League", "The Copa América Federation Cup"],
-                correct: 2,
-                explain: "The UEFA Champions League collects elite performance seeds from all over Europe to battle through massive bracket group brackets annually."
+        function renderMarketWatch() {
+            const container = document.getElementById('market-watch-list');
+            container.innerHTML = '';
+            for (let key in SYMBOLS) {
+                const sym = SYMBOLS[key];
+                const card = document.createElement('div');
+                card.className = `symbol-card ${key === currentSymbol ? 'selected' : ''}`;
+                card.onclick = () => switchSymbol(key);
+                card.innerHTML = `
+                    <div class="symbol-name">${key}</div>
+                    <div id="mw-bid-${key}">${sym.price.toFixed(sym.digits)}</div>
+                    <div id="mw-ask-${key}" class="price-up">${(sym.price + sym.spread).toFixed(sym.digits)}</div>
+                `;
+                container.appendChild(card);
             }
-        ];
+        }
 
-        let currentQuestionIndex = 0;
-        let runningQuizScore = 0;
-        let trackedMisses = [];
+        function populateSymbolDropdown() {
+            const sel = document.getElementById('ord-symbol');
+            sel.innerHTML = '';
+            for (let key in SYMBOLS) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = key;
+                sel.appendChild(opt);
+            }
+            sel.value = currentSymbol;
+        }
 
-        function renderQuestion() {
-            if (currentQuestionIndex >= quizBank.length) {
-                showQuizResults();
+        function switchSymbol(symbolKey) {
+            currentSymbol = symbolKey;
+            document.getElementById('ord-symbol').value = symbolKey;
+            renderMarketWatch();
+            updateRiskCalc();
+            drawChart();
+        }
+
+        function startMarketSimulation() {
+            setInterval(() => {
+                tickCounter++;
+                document.getElementById('market-time').textContent = new Date().toTimeString().split(' ')[0];
+
+                for (let key in SYMBOLS) {
+                    const sym = SYMBOLS[key];
+                    const tick = (Math.random() - 0.496) * sym.volatility;
+                    sym.price = Math.max(0.0001, sym.price + tick);
+
+                    const bidEl = document.getElementById(`mw-bid-${key}`);
+                    const askEl = document.getElementById(`mw-ask-${key}`);
+                    if (bidEl && askEl) {
+                        bidEl.textContent = sym.price.toFixed(sym.digits);
+                        askEl.textContent = (sym.price + sym.spread).toFixed(sym.digits);
+                        bidEl.className = tick >= 0 ? 'price-up' : 'price-down';
+                        askEl.className = tick >= 0 ? 'price-up' : 'price-down';
+                    }
+
+                    const history = rawCandleStore[key];
+                    
+                    // Periodically spawn new candles every 12 ticks (~3.6 seconds)
+                    if (tickCounter % 12 === 0) {
+                        history.push({
+                            open: sym.price,
+                            high: sym.price,
+                            low: sym.price,
+                            close: sym.price
+                        });
+                        if (history.length > 350) history.shift();
+                    } else {
+                        const last = history[history.length - 1];
+                        last.close = sym.price;
+                        if (sym.price > last.high) last.high = sym.price;
+                        if (sym.price < last.low) last.low = sym.price;
+                    }
+                }
+
+                const activeSym = SYMBOLS[currentSymbol];
+                document.getElementById('qt-sell-val').textContent = activeSym.price.toFixed(activeSym.digits);
+                document.getElementById('qt-buy-val').textContent = (activeSym.price + activeSym.spread).toFixed(activeSym.digits);
+
+                renderDOMOverlay();
+                updateAccountAndPositions();
+                drawChart();
+            }, 300);
+        }
+
+        function renderDOMOverlay() {
+            const domList = document.getElementById('dom-list');
+            const sym = SYMBOLS[currentSymbol];
+            domList.innerHTML = '';
+            for (let i = 2; i >= 1; i--) {
+                const askPrice = sym.price + sym.spread + (i * sym.volatility * 0.3);
+                domList.innerHTML += `<div class="dom-row dom-bar-ask"><span>${askPrice.toFixed(sym.digits)}</span><span>${(Math.random()*2+0.1).toFixed(1)}</span></div>`;
+            }
+            for (let i = 1; i <= 2; i++) {
+                const bidPrice = sym.price - (i * sym.volatility * 0.3);
+                domList.innerHTML += `<div class="dom-row dom-bar-bid"><span>${bidPrice.toFixed(sym.digits)}</span><span>${(Math.random()*2+0.1).toFixed(1)}</span></div>`;
+            }
+        }
+
+        function triggerNewsEvent() {
+            const sym = SYMBOLS[currentSymbol];
+            sym.price += (Math.random() > 0.5 ? 1 : -1) * sym.volatility * 8;
+            AudioFX.playTone(1000, 0.2);
+        }
+
+        // --- ORDER MANAGEMENT ---
+        function togglePendingInputs() {
+            const type = document.getElementById('ord-type').value;
+            document.getElementById('pending-price-row').style.display = type === 'MARKET' ? 'none' : 'flex';
+        }
+
+        function updateRiskCalc() {
+            const symKey = document.getElementById('ord-symbol').value;
+            const sym = SYMBOLS[symKey];
+            const lots = parseFloat(document.getElementById('ord-lots').value) || 0.01;
+            const sl = parseFloat(document.getElementById('ord-sl').value) || 0;
+
+            const reqMargin = (sym.price * lots * sym.contractSize) / account.leverage;
+            document.getElementById('calc-margin-val').textContent = '$' + reqMargin.toFixed(2);
+
+            if (sl > 0) {
+                const riskAmount = Math.abs(sym.price - sl) * lots * sym.contractSize;
+                const riskPercent = (riskAmount / account.balance) * 100;
+                document.getElementById('calc-risk-val').textContent = `$${riskAmount.toFixed(2)} (${riskPercent.toFixed(1)}%)`;
+            } else {
+                document.getElementById('calc-risk-val').textContent = '$0.00 (0.0%)';
+            }
+        }
+
+        function quickTrade(type) {
+            document.getElementById('ord-type').value = 'MARKET';
+            document.getElementById('ord-lots').value = document.getElementById('qt-lot-val').value;
+            placeOrder(type);
+        }
+
+        function placeOrder(direction) {
+            AudioFX.init();
+            const symKey = document.getElementById('ord-symbol').value;
+            const sym = SYMBOLS[symKey];
+            const lots = parseFloat(document.getElementById('ord-lots').value) || 0.01;
+            const sl = parseFloat(document.getElementById('ord-sl').value) || 0;
+            const tp = parseFloat(document.getElementById('ord-tp').value) || 0;
+
+            const reqMargin = (sym.price * lots * sym.contractSize) / account.leverage;
+            if (reqMargin > account.freeMargin) {
+                alert('Insufficient Margin!');
                 return;
             }
 
-            const currentData = quizBank[currentQuestionIndex];
-            
-            document.getElementById('quiz-progress-text').innerText = `Question ${currentQuestionIndex + 1} of ${quizBank.length}`;
-            document.getElementById('quiz-question').innerText = currentData.q;
-            
-            const optionsBox = document.getElementById('quiz-options');
-            optionsBox.innerHTML = ''; // Wipe stale inputs
-            
-            document.getElementById('quiz-feedback-box').classList.add('hidden');
-            document.getElementById('next-q-btn').classList.add('hidden');
+            const openPrice = direction === 'BUY' ? (sym.price + sym.spread) : sym.price;
+            openPositions.push({
+                id: ticketSeq++,
+                time: new Date().toLocaleTimeString(),
+                symbol: symKey,
+                type: direction,
+                volume: lots,
+                openPrice: openPrice,
+                currentPrice: openPrice,
+                sl: sl,
+                tp: tp,
+                margin: reqMargin,
+                pnl: 0
+            });
 
-            currentData.options.forEach((opt, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => evaluateAnswerSelection(idx, btn);
-                optionsBox.appendChild(btn);
+            AudioFX.tradeOpen();
+            updateAccountAndPositions();
+        }
+
+        function closePosition(id) {
+            const idx = openPositions.findIndex(p => p.id === id);
+            if (idx !== -1) {
+                const pos = openPositions[idx];
+                account.balance += pos.pnl;
+                tradeHistory.unshift({
+                    ...pos,
+                    closeTime: new Date().toLocaleTimeString()
+                });
+                openPositions.splice(idx, 1);
+                AudioFX.tradeClose();
+                updateAccountAndPositions();
+                renderHistoryTable();
+                updateAnalytics();
+            }
+        }
+
+        function updateAccountAndPositions() {
+            let totalPnL = 0;
+            let totalMargin = 0;
+
+            openPositions.forEach(pos => {
+                const sym = SYMBOLS[pos.symbol];
+                pos.currentPrice = pos.type === 'BUY' ? sym.price : (sym.price + sym.spread);
+                pos.pnl = (pos.type === 'BUY' ? 1 : -1) * (pos.currentPrice - pos.openPrice) * pos.volume * sym.contractSize;
+
+                totalPnL += pos.pnl;
+                totalMargin += pos.margin;
+
+                if (pos.sl > 0 && ((pos.type === 'BUY' && pos.currentPrice <= pos.sl) || (pos.type === 'SELL' && pos.currentPrice >= pos.sl))) {
+                    closePosition(pos.id);
+                }
+            });
+
+            account.equity = account.balance + totalPnL;
+            account.margin = totalMargin;
+            account.freeMargin = account.equity - account.margin;
+
+            document.getElementById('val-balance').textContent = account.balance.toFixed(2);
+            document.getElementById('val-equity').textContent = account.equity.toFixed(2);
+            document.getElementById('val-margin').textContent = account.margin.toFixed(2);
+            document.getElementById('val-free-margin').textContent = account.freeMargin.toFixed(2);
+
+            renderPositionsTable();
+        }
+
+        function renderPositionsTable() {
+            const body = document.getElementById('table-positions');
+            body.innerHTML = '';
+            openPositions.forEach(pos => {
+                const sym = SYMBOLS[pos.symbol];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pos.id}</td>
+                    <td>${pos.time}</td>
+                    <td><span class="badge ${pos.type === 'BUY'?'badge-buy':'badge-sell'}">${pos.type}</span></td>
+                    <td>${pos.volume.toFixed(2)}</td>
+                    <td>${pos.symbol}</td>
+                    <td>${pos.openPrice.toFixed(sym.digits)}</td>
+                    <td>${pos.currentPrice.toFixed(sym.digits)}</td>
+                    <td class="${pos.pnl>=0?'price-up':'price-down'}"><strong>${pos.pnl.toFixed(2)}</strong></td>
+                    <td><button style="background:var(--bear-red); border:none; color:#fff; padding:2px 6px;" onclick="closePosition(${pos.id})">Close</button></td>
+                `;
+                body.appendChild(row);
             });
         }
 
-        function evaluateAnswerSelection(chosenIdx, clickedBtn) {
-            const currentData = quizBank[currentQuestionIndex];
-            const feedbackBox = document.getElementById('quiz-feedback-box');
-            const nextBtn = document.getElementById('next-q-btn');
-            
-            // Lock all peripheral choice options to halt multiple inputs
-            const allOptionBtns = document.querySelectorAll('#quiz-options .option-btn');
-            allOptionBtns.forEach(b => b.disabled = true);
+        function renderHistoryTable() {
+            const body = document.getElementById('table-history');
+            body.innerHTML = '';
+            tradeHistory.forEach(pos => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pos.id}</td>
+                    <td>${pos.time}</td>
+                    <td>${pos.closeTime}</td>
+                    <td><span class="badge ${pos.type === 'BUY'?'badge-buy':'badge-sell'}">${pos.type}</span></td>
+                    <td>${pos.volume.toFixed(2)}</td>
+                    <td>${pos.symbol}</td>
+                    <td class="${pos.pnl>=0?'price-up':'price-down'}"><strong>${pos.pnl.toFixed(2)}</strong></td>
+                `;
+                body.appendChild(row);
+            });
+        }
 
-            if (chosenIdx === currentData.correct) {
-                clickedBtn.classList.add('correct');
-                runningQuizScore++;
-                feedbackBox.style.borderLeftColor = "#10b981";
-                feedbackBox.innerHTML = `<strong>✨ Correct Check!</strong><br>${currentData.explain}`;
-            } else {
-                clickedBtn.classList.add('wrong');
-                allOptionBtns[currentData.correct].classList.add('correct'); // Highlight answer
-                trackedMisses.push({ q: currentData.q, correctAns: currentData.options[currentData.correct] });
-                
-                feedbackBox.style.borderLeftColor = "#ef4444";
-                feedbackBox.innerHTML = `<strong>❌ Incorrect Vector</strong><br>${currentData.explain}`;
+        function updateAnalytics() {
+            const total = tradeHistory.length;
+            if (!total) return;
+            const wins = tradeHistory.filter(t => t.pnl > 0);
+            document.getElementById('st-total-trades').textContent = total;
+            document.getElementById('st-win-rate').textContent = ((wins.length / total) * 100).toFixed(1) + '%';
+            document.getElementById('st-net-profit').textContent = `$${(account.balance - 10000).toFixed(2)}`;
+        }
+
+        function setTerminalTab(btn, tab) {
+            document.querySelectorAll('.terminal-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            ['positions', 'pending', 'history', 'analytics'].forEach(t => {
+                document.getElementById(`tab-${t}`).style.display = t === tab ? 'block' : 'none';
+            });
+        }
+
+        // --- CANVAS RENDER ENGINE (BUG FIXED) ---
+        function setupCanvasEvents() {
+            canvas = document.getElementById('chartCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+        }
+
+        function resizeCanvas() {
+            const container = document.getElementById('chart-container');
+            if (!container || !canvas) return;
+            canvas.width = Math.max(300, container.clientWidth);
+            canvas.height = Math.max(200, container.clientHeight);
+        }
+
+        function drawChart() {
+            if (!ctx || !canvas) return;
+            const width = canvas.width;
+            const height = canvas.height;
+            const sym = SYMBOLS[currentSymbol];
+            const rawCandles = rawCandleStore[currentSymbol] || [];
+
+            ctx.clearRect(0, 0, width, height);
+
+            const visibleCandles = rawCandles.slice(-visibleCandlesCount);
+            if (visibleCandles.length === 0) return;
+
+            const mainHeight = height - 25;
+            let minPrice = Math.min(...visibleCandles.map(c => c.low));
+            let maxPrice = Math.max(...visibleCandles.map(c => c.high));
+            
+            // Safeguard against NaN or zero range
+            let range = maxPrice - minPrice;
+            if (range <= 0) range = sym.volatility * 5;
+
+            const pad = range * 0.12;
+            minPrice -= pad;
+            maxPrice += pad;
+            range = maxPrice - minPrice;
+
+            const chartWidth = width - 65;
+            const candleWidth = chartWidth / visibleCandles.length;
+
+            // Horizontal Grid Lines & Price Labels
+            ctx.strokeStyle = '#1e222d';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                let y = (mainHeight / 4) * i;
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(chartWidth, y); ctx.stroke();
+                let pLabel = maxPrice - ((i / 4) * range);
+                ctx.fillStyle = '#787b86';
+                ctx.fillText(pLabel.toFixed(sym.digits), chartWidth + 5, y + 4);
             }
 
-            feedbackBox.classList.remove('hidden');
-            nextBtn.classList.remove('hidden');
-        }
-
-        function advanceQuiz() {
-            currentQuestionIndex++;
-            renderQuestion();
-        }
-
-        function showQuizResults() {
-            document.getElementById('quiz-playable-zone').classList.add('hidden');
-            const resultsZone = document.getElementById('quiz-results-zone');
-            resultsZone.classList.remove('hidden');
-
-            document.getElementById('results-score-display').innerText = `Evaluation Completed! Final Score output: ${runningQuizScore} / ${quizBank.length} points.`;
-            
-            const missesBox = document.getElementById('missed-questions-container');
-            missesBox.innerHTML = '';
-
-            if (trackedMisses.length === 0) {
-                missesBox.innerHTML = "<p style='color: var(--pitch-green); font-weight: bold; text-align: center;'>🏆 Absolute Perfect Tactical Score! Matrix completely mastered.</p>";
+            // Draw Chart Based on Style
+            if (chartStyle === 'line') {
+                ctx.strokeStyle = '#2962ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                visibleCandles.forEach((c, i) => {
+                    const x = i * candleWidth + candleWidth / 2;
+                    const y = mainHeight - ((c.close - minPrice) / range) * mainHeight;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
             } else {
-                missesBox.innerHTML = "<h4 style='margin-bottom:10px;'>Review Correction Vectors:</h4>";
-                trackedMisses.forEach(m => {
-                    const block = document.createElement('div');
-                    block.style.marginBottom = "15px";
-                    block.style.fontSize = "0.9rem";
-                    block.innerHTML = `• <strong>Question:</strong> ${m.q}<br><span style='color: var(--pitch-green)'>✔ Verified Correction: ${m.correctAns}</span>`;
-                    missesBox.appendChild(block);
+                // Candlestick & Heikin-Ashi safe rendering loop
+                visibleCandles.forEach((c, i) => {
+                    const x = i * candleWidth + candleWidth / 2;
+                    let openVal = c.open, closeVal = c.close, highVal = c.high, lowVal = c.low;
+
+                    if (chartStyle === 'heikin') {
+                        closeVal = (c.open + c.high + c.low + c.close) / 4;
+                        openVal = i > 0 ? (visibleCandles[i-1].open + visibleCandles[i-1].close) / 2 : c.open;
+                        highVal = Math.max(c.high, openVal, closeVal);
+                        lowVal = Math.min(c.low, openVal, closeVal);
+                    }
+
+                    let openY = mainHeight - ((openVal - minPrice) / range) * mainHeight;
+                    let closeY = mainHeight - ((closeVal - minPrice) / range) * mainHeight;
+                    let highY = mainHeight - ((highVal - minPrice) / range) * mainHeight;
+                    let lowY = mainHeight - ((lowVal - minPrice) / range) * mainHeight;
+
+                    let isBull = closeVal >= openVal;
+                    let color = isBull ? '#089981' : '#f23645';
+
+                    // Draw Candle Wick
+                    ctx.strokeStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(x, highY);
+                    ctx.lineTo(x, lowY);
+                    ctx.stroke();
+
+                    // Draw Candle Body with minimum 1px height preventions
+                    ctx.fillStyle = color;
+                    let bodyTop = Math.min(openY, closeY);
+                    let bodyHeight = Math.max(1, Math.abs(closeY - openY));
+                    ctx.fillRect(x - (candleWidth * 0.35), bodyTop, candleWidth * 0.7, bodyHeight);
                 });
             }
+
+            // Technical Indicator Overlays (SMA 20)
+            if (indicators.sma && visibleCandles.length > 20) {
+                ctx.strokeStyle = '#f0b90b';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                for (let i = 19; i < visibleCandles.length; i++) {
+                    const slice = visibleCandles.slice(i - 19, i + 1);
+                    const avg = slice.reduce((acc, curr) => acc + curr.close, 0) / 20;
+                    const x = i * candleWidth + candleWidth / 2;
+                    const y = mainHeight - ((avg - minPrice) / range) * mainHeight;
+                    if (i === 19) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // Active Position Lines
+            openPositions.filter(p => p.symbol === currentSymbol).forEach(pos => {
+                let posY = mainHeight - ((pos.openPrice - minPrice) / range) * mainHeight;
+                ctx.strokeStyle = pos.type === 'BUY' ? '#089981' : '#f23645';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath(); ctx.moveTo(0, posY); ctx.lineTo(chartWidth, posY); ctx.stroke(); ctx.setLineDash([]);
+            });
+
+            const lastC = visibleCandles[visibleCandles.length - 1];
+            document.getElementById('chart-hud').textContent = `${currentSymbol} | C: ${lastC.close.toFixed(sym.digits)}`;
         }
 
-        function resetQuiz() {
-            currentQuestionIndex = 0;
-            runningQuizScore = 0;
-            trackedMisses = [];
-            
-            document.getElementById('quiz-results-zone').classList.add('hidden');
-            document.getElementById('quiz-playable-zone').classList.remove('hidden');
-            renderQuestion();
+        // --- BUTTON TOOLBAR HANDLERS ---
+        function setTimeframe(btn, tf) {
+            currentTimeframe = tf;
+            document.querySelectorAll('#tbar-tf button').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            drawChart();
         }
 
-        // Initialize quiz arrays immediately on background parse
-        renderQuestion();
+        function setChartStyle(style) {
+            chartStyle = style;
+            document.querySelectorAll('#tbar-type button').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`btn-${style}`);
+            if (btn) btn.classList.add('active');
+            drawChart();
+        }
 
+        function setDrawingTool(tool) {
+            activeTool = tool;
+            document.querySelectorAll('#tbar-tools button').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`btn-tool-${tool === 'crosshair' ? 'cross' : tool === 'trendline' ? 'line' : tool}`);
+            if (btn) btn.classList.add('active');
+        }
+
+        function toggleIndicator(ind) {
+            indicators[ind] = !indicators[ind];
+            const btn = document.getElementById(`btn-ind-${ind}`);
+            if (btn) btn.classList.toggle('active', indicators[ind]);
+            drawChart();
+        }
+
+        function clearDrawings() { drawings = []; drawChart(); }
+
+        // --- TUTORIAL ENGINE ---
+        const tutorialSteps = [
+            { title: "Welcome to MT5 Simulator", text: "This is a fully self-contained MetaTrader 5 institutional simulation.", target: null },
+            { title: "Market Watch", text: "Select your active currency pair or symbol quote here.", target: "#mw-panel-box" },
+            { title: "Interactive Charting", text: "Live candlestick renderer with indicators and depth of market.", target: "#chart-container" },
+            { title: "Order Execution", text: "Set volume (lots), SL/TP targets, and analyze risk before trading.", target: "#order-panel" },
+            { title: "Trading Terminal", text: "Monitor active orders, history, and real-time account performance.", target: "#terminal-panel" }
+        ];
+
+        let currentTutStep = 0;
+
+        function startTutorial() {
+            currentTutStep = 0;
+            document.getElementById('tutorial-overlay').style.display = 'block';
+            renderTutorialStep();
+        }
+
+        function renderTutorialStep() {
+            const step = tutorialSteps[currentTutStep];
+            document.getElementById('tut-title').textContent = `${step.title} (${currentTutStep + 1}/${tutorialSteps.length})`;
+            document.getElementById('tut-text').textContent = step.text;
+
+            document.getElementById('btn-tut-prev').style.display = currentTutStep === 0 ? 'none' : 'inline-block';
+            document.getElementById('btn-tut-next').textContent = currentTutStep === tutorialSteps.length - 1 ? 'Done' : 'Next';
+
+            const card = document.getElementById('tutorial-card');
+            const spotlight = document.getElementById('tutorial-spotlight');
+
+            if (step.target && document.querySelector(step.target)) {
+                const targetEl = document.querySelector(step.target);
+                const rect = targetEl.getBoundingClientRect();
+                spotlight.style.display = 'block';
+                spotlight.style.top = rect.top + 'px';
+                spotlight.style.left = rect.left + 'px';
+                spotlight.style.width = rect.width + 'px';
+                spotlight.style.height = rect.height + 'px';
+
+                card.style.top = Math.min(window.innerHeight - 180, Math.max(20, rect.top + 20)) + 'px';
+                card.style.left = (rect.left > window.innerWidth / 2 ? rect.left - 340 : rect.left + rect.width + 10) + 'px';
+                card.style.transform = 'none';
+            } else {
+                spotlight.style.display = 'none';
+                card.style.top = '50%';
+                card.style.left = '50%';
+                card.style.transform = 'translate(-50%, -50%)';
+            }
+        }
+
+        function nextTutorialStep() {
+            if (currentTutStep < tutorialSteps.length - 1) {
+                currentTutStep++;
+                renderTutorialStep();
+            } else {
+                skipTutorial();
+            }
+        }
+
+        function prevTutorialStep() {
+            if (currentTutStep > 0) {
+                currentTutStep--;
+                renderTutorialStep();
+            }
+        }
+
+        function skipTutorial() {
+            document.getElementById('tutorial-overlay').style.display = 'none';
+            localStorage.setItem('mt5_tut_seen', 'true');
+        }
     </script>
 </body>
 </html>
